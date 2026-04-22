@@ -19,8 +19,8 @@ export const initSocket = (server: HttpServer) => {
   io.use((socket: Socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
 
-    // Mock token support for dev
-    if (['mock-admin-token', 'mock-owner-token', 'mock-branch-token', 'mock-branch-admin-token'].includes(token)) {
+    // Mock token support — development only. Never accepted in production.
+    if (config.isDevelopment && ['mock-admin-token', 'mock-owner-token', 'mock-branch-token', 'mock-branch-admin-token'].includes(token)) {
       socket.data.user = { userId: 'mocked-socket-user' };
       return next();
     }

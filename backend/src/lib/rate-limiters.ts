@@ -1,9 +1,29 @@
 import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import { getRedisClient } from './redis';
 
 const RL_MSG = (msg: string) => ({
   success: false,
   error: { code: 'RATE_LIMITED', message: msg },
 });
+
+/**
+ * Build a RedisStore backed by the shared ioredis client.
+ * Falls back to in-memory store if Redis is unavailable (dev without Redis).
+ */
+function makeStore(prefix: string): RedisStore | undefined {
+  try {
+    const client = getRedisClient();
+    return new RedisStore({
+      // rate-limit-redis v4 expects a sendCommand callback
+      sendCommand: (...args: string[]) => (client as any).sendCommand(args),
+      prefix: `rl:${prefix}:`,
+    });
+  } catch {
+    // Redis not ready — fall back to default in-memory store (dev only)
+    return undefined;
+  }
+}
 
 // Global: 300 req / IP / 15 min
 export const globalLimiter = rateLimit({
@@ -11,6 +31,7 @@ export const globalLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeStore('global'),
   message: RL_MSG('Too many requests, please try again later.'),
 });
 
@@ -20,6 +41,7 @@ export const loginLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeStore('login'),
   message: RL_MSG('Too many login attempts, please try again in 15 minutes.'),
 });
 
@@ -29,6 +51,7 @@ export const registerLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeStore('register'),
   message: RL_MSG('Too many registration attempts, please try again later.'),
 });
 
@@ -38,5 +61,6 @@ export const passwordLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  store: makeStore('password'),
   message: RL_MSG('Too many password change attempts, please try again later.'),
 });

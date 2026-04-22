@@ -38,6 +38,7 @@ import { FreezeService } from './modules/memberships/freeze.service';
 import auditRoutes from './modules/audit/audit.controller';
 import { SchedulerService } from './modules/notifications/scheduler.service';
 import webhookRoutes from './modules/webhooks/webhook.controller';
+import stripeWebhookRoutes from './modules/payments/stripe-webhook.controller';
 import roomRoutes from './modules/rooms/room.controller';
 import userRoutes from './modules/users/user.controller';
 import { syncRoutes } from './modules/mobile-sync/sync.routes';
@@ -82,8 +83,9 @@ app.use(cors({
   },
   credentials: true,
 }));
-// Stripe webhook needs raw body for signature verification — mount before express.json()
-app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
+// Stripe webhook — raw body MUST be preserved for HMAC signature verification.
+// The handler itself (stripe-webhook.controller) performs full sig + idempotency checks.
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
 app.use(express.json());
 app.use(requestLogger);
 app.use('/api/', globalLimiter);
