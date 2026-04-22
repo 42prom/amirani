@@ -1,0 +1,17 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mError validating field `trainer` in model `WorkoutPlan`: The relation field `trainer` on model `WorkoutPlan` is missing an opposite relation field on the model `TrainerProfile`. Either run `prisma format` or add it manually.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:749[0m
+[1;94m   | [0m
+[1;94m748 | [0m  trainerId       String?          // If assigned by a trainer
+[1;94m749 | [0m  [1;91mtrainer         TrainerProfile?  @relation(fields: [trainerId], references: [id])[0m
+[1;94m750 | [0m  
+[1;94m   | [0m
+
+Validation Error Count: 1
+[Context: validate]
+
+Prisma CLI Version : 5.15.0

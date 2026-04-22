@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Amirani HCE AID filter
+  AID: F04D4952414E49  (proprietary F0 prefix + "MIRANI")
+  Category "other" = non-payment HCE (no NFC payment permission needed)
+-->
+<host-apdu-service
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/hce_description"
+    android:requireDeviceUnlock="false">
+
+    <aid-group
+        android:description="@string/hce_description"
+        android:category="other">
+        <aid-filter android:name="F04D4952414E49"/>
+    </aid-group>
+
+</host-apdu-service>

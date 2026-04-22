@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: amirani-db
+    environment:
+      POSTGRES_USER: amirani
+      POSTGRES_PASSWORD: amirani_password
+      POSTGRES_DB: amirani
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - amirani-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: amirani-redis
+    ports:
+      - "6375:6379"
+    networks:
+      - amirani-network
+
+networks:
+  amirani-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

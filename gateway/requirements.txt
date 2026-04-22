@@ -1,0 +1,17 @@
+# Core
+requests>=2.31.0
+python-socketio[client]>=5.10.0
+websocket-client>=1.6.0
+
+# NFC — choose one:
+mfrc522>=0.0.7           # for MFRC522 via SPI (most common, ~$3)
+# nfcpy>=1.0.4           # for ACR122U via USB (uncomment if using ACR122U)
+
+# GPIO (Raspberry Pi only)
+RPi.GPIO>=0.7.1
+
+# Optional — keypad (no extra package needed, uses RPi.GPIO)
+
+# Optional — OLED display
+# luma.oled>=3.12.0
+# Pillow>=10.0.0

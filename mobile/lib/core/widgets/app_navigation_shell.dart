@@ -1,0 +1,167 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../features/gym/presentation/providers/membership_provider.dart';
+import '../../../features/gym/presentation/providers/sessions_provider.dart';
+import '../../../theme/app_theme.dart';
+import '../providers/day_selector_providers.dart';
+import 'offline_banner.dart';
+
+class AppNavigationShell extends ConsumerWidget {
+  final StatefulNavigationShell navigationShell;
+
+  const AppNavigationShell({super.key, required this.navigationShell});
+
+  void _onTap(WidgetRef ref, int index) {
+    // Reset day selectors when switching tabs to ensure "Today" is always shown first
+    if (index == 0) {
+      ref.read(workoutDaySelectorProvider.notifier).state = DateTime.now().weekday - 1;
+    } else if (index == 1) {
+      ref.read(dietDaySelectorProvider.notifier).state = DateTime.now().weekday - 1;
+    }
+
+    // Auto-refresh membership + sessions when switching to the Gym tab
+    if (index == 3) {
+      ref.read(membershipProvider.notifier).fetch();
+      ref.read(sessionsProvider.notifier).refresh();
+    }
+
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundDark,
+      body: Stack(
+        children: [
+          // Push page content above the floating nav bar
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: 64 + MediaQuery.of(context).padding.bottom,
+            ),
+            child: navigationShell,
+          ),
+          // Offline connectivity banner — slides in from top when no network
+          const Positioned(top: 0, left: 0, right: 0, child: OfflineBanner()),
+          // Floating Glass Bottom Nav
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: 100, // Explicit height to cover floating button
+              child: Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.bottomCenter,
+                children: [
+                  // Hit-testable area for the background bar
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: 4,
+                          bottom: MediaQuery.of(context).padding.bottom + 8,
+                          left: 24,
+                          right: 24),
+                      decoration: BoxDecoration(
+                        color: AppTheme.backgroundDark.withValues(alpha: 0.95),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          _buildNavItem(
+                              icon: Icons.calendar_today,
+                              isActive: navigationShell.currentIndex == 0,
+                              onTap: () => _onTap(ref, 0)),
+                          _buildNavItem(
+                              icon: Icons.restaurant_menu,
+                              isActive: navigationShell.currentIndex == 1,
+                              onTap: () => _onTap(ref, 1)),
+
+                          const SizedBox(width: 64), // Space for center button
+
+                          _buildNavItem(
+                              icon: Icons.fitness_center,
+                              isActive: navigationShell.currentIndex == 3,
+                              onTap: () => _onTap(ref, 3)),
+                          _buildNavItem(
+                              icon: Icons.bar_chart,
+                              isActive: navigationShell.currentIndex == 4,
+                              onTap: () => _onTap(ref, 4)),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Floating Button
+                  Positioned(
+                    bottom: MediaQuery.of(context).padding.bottom + 20,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _onTap(ref, 2),
+                      child: Container(
+                        height: 64,
+                        width: 64,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppTheme.surfaceDark,
+                          border: Border.all(
+                              color: AppTheme.backgroundDark, width: 4),
+                          boxShadow: navigationShell.currentIndex == 2
+                              ? [
+                                  BoxShadow(
+                                      color: AppTheme.primaryBrand
+                                          .withValues(alpha: 0.2),
+                                      blurRadius: 20,
+                                      spreadRadius: 2),
+                                ]
+                              : null,
+                        ),
+                        child: Icon(Icons.emoji_events,
+                            color: navigationShell.currentIndex == 2
+                                ? AppTheme.primaryBrand
+                                : const Color(0xFF888888),
+                            size: 32),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(
+      {required IconData icon,
+      required bool isActive,
+      required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: 48,
+          minHeight: 48,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Icon(
+            icon,
+            size: 28,
+            color: isActive ? AppTheme.primaryBrand : const Color(0xFF888888),
+          ),
+        ),
+      ),
+    );
+  }
+}

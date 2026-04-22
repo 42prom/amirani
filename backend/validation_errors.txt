@@ -1,0 +1,40 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+[1;91merror[0m: [1mType "WorkoutPlan" is neither a built-in type, nor refers to another model, composite type, or enum.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:167[0m
+[1;94m   | [0m
+[1;94m166 | [0m  // Ecosystem (Mobile App)
+[1;94m167 | [0m  workoutPlans          [1;91mWorkoutPlan[0m[]
+[1;94m   | [0m
+[1;91merror[0m: [1mType "WorkoutHistory" is neither a built-in type, nor refers to another model, composite type, or enum.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:168[0m
+[1;94m   | [0m
+[1;94m167 | [0m  workoutPlans          WorkoutPlan[]
+[1;94m168 | [0m  workoutHistory        [1;91mWorkoutHistory[0m[]   @relation("UserWorkoutHistory")
+[1;94m   | [0m
+[1;91merror[0m: [1mType "DietPlan" is neither a built-in type, nor refers to another model, composite type, or enum.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:169[0m
+[1;94m   | [0m
+[1;94m168 | [0m  workoutHistory        WorkoutHistory[]   @relation("UserWorkoutHistory")
+[1;94m169 | [0m  dietPlans             [1;91mDietPlan[0m[]
+[1;94m   | [0m
+[1;91merror[0m: [1mType "DailyProgress" is neither a built-in type, nor refers to another model, composite type, or enum.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:170[0m
+[1;94m   | [0m
+[1;94m169 | [0m  dietPlans             DietPlan[]
+[1;94m170 | [0m  dailyProgress         [1;91mDailyProgress[0m[]    @relation("UserDailyProgress")
+[1;94m   | [0m
+[1;91merror[0m: [1mType "UserChallenge" is neither a built-in type, nor refers to another model, composite type, or enum.[0m
+  [1;94m-->[0m  [4mprisma\schema.prisma:171[0m
+[1;94m   | [0m
+[1;94m170 | [0m  dailyProgress         DailyProgress[]    @relation("UserDailyProgress")
+[1;94m171 | [0m  challenges            [1;91mUserChallenge[0m[]    @relation("UserChallenges")
+[1;94m   | [0m
+
+Validation Error Count: 5
+[Context: validate]
+
+Prisma CLI Version : 5.15.0

@@ -1,0 +1,383 @@
+{
+  "breakfast": [
+    {
+      "name": "Oatmeal with Berries",
+      "calories": 320,
+      "protein": 12,
+      "carbs": 55,
+      "fats": 6,
+      "prepTimeMinutes": 10,
+      "ingredients": [
+        { "name": "Rolled Oats", "amount": "80", "unit": "g" },
+        { "name": "Mixed Berries", "amount": "100", "unit": "g" },
+        { "name": "Milk", "amount": "200", "unit": "ml" },
+        { "name": "Honey", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Cook oats with milk for 5 minutes. Top with berries and honey."
+    },
+    {
+      "name": "Greek Yogurt Parfait",
+      "calories": 280,
+      "protein": 20,
+      "carbs": 35,
+      "fats": 5,
+      "prepTimeMinutes": 5,
+      "ingredients": [
+        { "name": "Greek Yogurt", "amount": "200", "unit": "g" },
+        { "name": "Granola", "amount": "40", "unit": "g" },
+        { "name": "Banana", "amount": "1", "unit": "medium" }
+      ],
+      "instructions": "Layer yogurt, granola, and sliced banana."
+    },
+    {
+      "name": "Scrambled Eggs on Toast",
+      "calories": 380,
+      "protein": 24,
+      "carbs": 30,
+      "fats": 16,
+      "prepTimeMinutes": 10,
+      "ingredients": [
+        { "name": "Eggs", "amount": "3", "unit": "large" },
+        { "name": "Whole Grain Bread", "amount": "2", "unit": "slices" },
+        { "name": "Butter", "amount": "1", "unit": "tsp" },
+        { "name": "Salt", "amount": "1", "unit": "pinch" }
+      ],
+      "instructions": "Scramble eggs in butter over medium heat. Serve on toasted bread."
+    },
+    {
+      "name": "Protein Smoothie Bowl",
+      "calories": 350,
+      "protein": 30,
+      "carbs": 42,
+      "fats": 7,
+      "prepTimeMinutes": 8,
+      "ingredients": [
+        { "name": "Whey Protein", "amount": "30", "unit": "g" },
+        { "name": "Frozen Banana", "amount": "1", "unit": "medium" },
+        { "name": "Almond Milk", "amount": "150", "unit": "ml" },
+        { "name": "Chia Seeds", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Blend protein, banana and milk. Pour in bowl and top with chia seeds."
+    },
+    {
+      "name": "Avocado Toast with Egg",
+      "calories": 420,
+      "protein": 18,
+      "carbs": 38,
+      "fats": 22,
+      "prepTimeMinutes": 12,
+      "ingredients": [
+        { "name": "Sourdough Bread", "amount": "2", "unit": "slices" },
+        { "name": "Avocado", "amount": "1", "unit": "medium" },
+        { "name": "Egg", "amount": "1", "unit": "large" },
+        { "name": "Red Pepper Flakes", "amount": "1", "unit": "pinch" }
+      ],
+      "instructions": "Toast bread. Mash avocado on top. Add poached or fried egg."
+    }
+  ],
+  "morningSnack": [
+    {
+      "name": "Apple with Almond Butter",
+      "calories": 200,
+      "protein": 5,
+      "carbs": 28,
+      "fats": 9,
+      "prepTimeMinutes": 2,
+      "ingredients": [
+        { "name": "Apple", "amount": "1", "unit": "medium" },
+        { "name": "Almond Butter", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Slice apple and serve with almond butter for dipping."
+    },
+    {
+      "name": "Cottage Cheese with Pineapple",
+      "calories": 180,
+      "protein": 18,
+      "carbs": 20,
+      "fats": 3,
+      "prepTimeMinutes": 2,
+      "ingredients": [
+        { "name": "Cottage Cheese", "amount": "150", "unit": "g" },
+        { "name": "Pineapple Chunks", "amount": "80", "unit": "g" }
+      ],
+      "instructions": "Mix cottage cheese and pineapple in a bowl."
+    },
+    {
+      "name": "Rice Cakes with Hummus",
+      "calories": 160,
+      "protein": 6,
+      "carbs": 26,
+      "fats": 4,
+      "prepTimeMinutes": 2,
+      "ingredients": [
+        { "name": "Rice Cakes", "amount": "3", "unit": "pieces" },
+        { "name": "Hummus", "amount": "40", "unit": "g" }
+      ],
+      "instructions": "Spread hummus evenly on rice cakes."
+    },
+    {
+      "name": "Mixed Nuts",
+      "calories": 170,
+      "protein": 5,
+      "carbs": 6,
+      "fats": 15,
+      "prepTimeMinutes": 1,
+      "ingredients": [
+        { "name": "Mixed Nuts", "amount": "30", "unit": "g" }
+      ],
+      "instructions": "Portion and eat."
+    }
+  ],
+  "lunch": [
+    {
+      "name": "Grilled Chicken Salad",
+      "calories": 420,
+      "protein": 45,
+      "carbs": 18,
+      "fats": 16,
+      "prepTimeMinutes": 20,
+      "ingredients": [
+        { "name": "Chicken Breast", "amount": "180", "unit": "g" },
+        { "name": "Mixed Greens", "amount": "100", "unit": "g" },
+        { "name": "Cherry Tomatoes", "amount": "80", "unit": "g" },
+        { "name": "Olive Oil", "amount": "1", "unit": "tbsp" },
+        { "name": "Lemon Juice", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Grill chicken, slice, and serve over greens with tomatoes and dressing."
+    },
+    {
+      "name": "Quinoa Buddha Bowl",
+      "calories": 480,
+      "protein": 22,
+      "carbs": 62,
+      "fats": 14,
+      "prepTimeMinutes": 25,
+      "ingredients": [
+        { "name": "Quinoa", "amount": "100", "unit": "g" },
+        { "name": "Chickpeas", "amount": "80", "unit": "g" },
+        { "name": "Roasted Vegetables", "amount": "150", "unit": "g" },
+        { "name": "Tahini", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Cook quinoa. Roast vegetables and chickpeas. Assemble bowl, drizzle with tahini."
+    },
+    {
+      "name": "Tuna Wrap",
+      "calories": 400,
+      "protein": 35,
+      "carbs": 40,
+      "fats": 10,
+      "prepTimeMinutes": 10,
+      "ingredients": [
+        { "name": "Canned Tuna", "amount": "150", "unit": "g" },
+        { "name": "Whole Wheat Tortilla", "amount": "1", "unit": "large" },
+        { "name": "Cucumber", "amount": "50", "unit": "g" },
+        { "name": "Greek Yogurt", "amount": "30", "unit": "g" }
+      ],
+      "instructions": "Mix tuna with yogurt. Add cucumber, wrap in tortilla."
+    },
+    {
+      "name": "Lentil Soup",
+      "calories": 360,
+      "protein": 20,
+      "carbs": 55,
+      "fats": 6,
+      "prepTimeMinutes": 30,
+      "ingredients": [
+        { "name": "Red Lentils", "amount": "100", "unit": "g" },
+        { "name": "Carrot", "amount": "80", "unit": "g" },
+        { "name": "Onion", "amount": "60", "unit": "g" },
+        { "name": "Olive Oil", "amount": "1", "unit": "tbsp" },
+        { "name": "Cumin", "amount": "1", "unit": "tsp" }
+      ],
+      "instructions": "Sauté onion and carrot. Add lentils and water, simmer 20 minutes with cumin."
+    },
+    {
+      "name": "Turkey Rice Bowl",
+      "calories": 500,
+      "protein": 40,
+      "carbs": 55,
+      "fats": 12,
+      "prepTimeMinutes": 20,
+      "ingredients": [
+        { "name": "Ground Turkey", "amount": "150", "unit": "g" },
+        { "name": "Brown Rice", "amount": "100", "unit": "g" },
+        { "name": "Broccoli", "amount": "100", "unit": "g" },
+        { "name": "Soy Sauce", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Cook rice. Brown turkey. Steam broccoli. Combine and season."
+    }
+  ],
+  "afternoonSnack": [
+    {
+      "name": "Protein Bar",
+      "calories": 220,
+      "protein": 20,
+      "carbs": 22,
+      "fats": 8,
+      "prepTimeMinutes": 1,
+      "ingredients": [
+        { "name": "Protein Bar", "amount": "1", "unit": "bar" }
+      ],
+      "instructions": "Ready to eat."
+    },
+    {
+      "name": "Banana with Peanut Butter",
+      "calories": 250,
+      "protein": 7,
+      "carbs": 35,
+      "fats": 9,
+      "prepTimeMinutes": 2,
+      "ingredients": [
+        { "name": "Banana", "amount": "1", "unit": "large" },
+        { "name": "Peanut Butter", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Peel banana and dip in peanut butter."
+    },
+    {
+      "name": "Edamame",
+      "calories": 150,
+      "protein": 12,
+      "carbs": 12,
+      "fats": 5,
+      "prepTimeMinutes": 5,
+      "ingredients": [
+        { "name": "Edamame", "amount": "120", "unit": "g" },
+        { "name": "Sea Salt", "amount": "1", "unit": "pinch" }
+      ],
+      "instructions": "Steam edamame for 4 minutes, season with salt."
+    },
+    {
+      "name": "Hard Boiled Eggs",
+      "calories": 140,
+      "protein": 12,
+      "carbs": 1,
+      "fats": 10,
+      "prepTimeMinutes": 12,
+      "ingredients": [
+        { "name": "Eggs", "amount": "2", "unit": "large" }
+      ],
+      "instructions": "Boil eggs for 10 minutes. Cool and peel."
+    }
+  ],
+  "dinner": [
+    {
+      "name": "Baked Salmon with Vegetables",
+      "calories": 520,
+      "protein": 46,
+      "carbs": 22,
+      "fats": 26,
+      "prepTimeMinutes": 30,
+      "ingredients": [
+        { "name": "Salmon Fillet", "amount": "200", "unit": "g" },
+        { "name": "Asparagus", "amount": "100", "unit": "g" },
+        { "name": "Sweet Potato", "amount": "120", "unit": "g" },
+        { "name": "Olive Oil", "amount": "1", "unit": "tbsp" },
+        { "name": "Lemon", "amount": "0.5", "unit": "piece" }
+      ],
+      "instructions": "Bake salmon at 200°C for 18 minutes. Roast vegetables alongside."
+    },
+    {
+      "name": "Chicken Stir Fry with Rice",
+      "calories": 540,
+      "protein": 42,
+      "carbs": 60,
+      "fats": 12,
+      "prepTimeMinutes": 25,
+      "ingredients": [
+        { "name": "Chicken Breast", "amount": "180", "unit": "g" },
+        { "name": "Brown Rice", "amount": "100", "unit": "g" },
+        { "name": "Mixed Vegetables", "amount": "150", "unit": "g" },
+        { "name": "Soy Sauce", "amount": "2", "unit": "tbsp" },
+        { "name": "Sesame Oil", "amount": "1", "unit": "tsp" }
+      ],
+      "instructions": "Stir fry chicken with vegetables. Serve over rice with sauce."
+    },
+    {
+      "name": "Beef and Sweet Potato",
+      "calories": 580,
+      "protein": 44,
+      "carbs": 48,
+      "fats": 20,
+      "prepTimeMinutes": 35,
+      "ingredients": [
+        { "name": "Lean Beef", "amount": "180", "unit": "g" },
+        { "name": "Sweet Potato", "amount": "200", "unit": "g" },
+        { "name": "Spinach", "amount": "80", "unit": "g" },
+        { "name": "Garlic", "amount": "2", "unit": "cloves" },
+        { "name": "Olive Oil", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Bake sweet potato. Pan-sear beef with garlic. Serve with sautéed spinach."
+    },
+    {
+      "name": "Pasta with Turkey Bolognese",
+      "calories": 600,
+      "protein": 40,
+      "carbs": 72,
+      "fats": 14,
+      "prepTimeMinutes": 30,
+      "ingredients": [
+        { "name": "Whole Wheat Pasta", "amount": "100", "unit": "g" },
+        { "name": "Ground Turkey", "amount": "150", "unit": "g" },
+        { "name": "Tomato Sauce", "amount": "150", "unit": "g" },
+        { "name": "Onion", "amount": "60", "unit": "g" },
+        { "name": "Parmesan", "amount": "20", "unit": "g" }
+      ],
+      "instructions": "Cook pasta. Brown turkey with onion, add sauce, simmer 15 minutes. Combine."
+    },
+    {
+      "name": "Shrimp Tacos",
+      "calories": 460,
+      "protein": 35,
+      "carbs": 48,
+      "fats": 14,
+      "prepTimeMinutes": 20,
+      "ingredients": [
+        { "name": "Shrimp", "amount": "180", "unit": "g" },
+        { "name": "Corn Tortillas", "amount": "3", "unit": "small" },
+        { "name": "Cabbage Slaw", "amount": "80", "unit": "g" },
+        { "name": "Lime", "amount": "1", "unit": "piece" },
+        { "name": "Salsa", "amount": "40", "unit": "g" }
+      ],
+      "instructions": "Season and cook shrimp. Fill tortillas with shrimp, slaw, salsa, and lime juice."
+    }
+  ],
+  "snack": [
+    {
+      "name": "Trail Mix",
+      "calories": 180,
+      "protein": 5,
+      "carbs": 16,
+      "fats": 12,
+      "prepTimeMinutes": 1,
+      "ingredients": [
+        { "name": "Trail Mix", "amount": "35", "unit": "g" }
+      ],
+      "instructions": "Portion and eat."
+    },
+    {
+      "name": "Celery with Peanut Butter",
+      "calories": 130,
+      "protein": 5,
+      "carbs": 8,
+      "fats": 9,
+      "prepTimeMinutes": 3,
+      "ingredients": [
+        { "name": "Celery Stalks", "amount": "3", "unit": "stalks" },
+        { "name": "Peanut Butter", "amount": "1", "unit": "tbsp" }
+      ],
+      "instructions": "Fill celery with peanut butter."
+    },
+    {
+      "name": "String Cheese",
+      "calories": 80,
+      "protein": 7,
+      "carbs": 1,
+      "fats": 5,
+      "prepTimeMinutes": 1,
+      "ingredients": [
+        { "name": "String Cheese", "amount": "1", "unit": "piece" }
+      ],
+      "instructions": "Ready to eat."
+    }
+  ]
+}

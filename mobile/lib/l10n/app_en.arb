@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+  "appTitle": "Amirani",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+  "generateDietPlan": "Generate Diet Plan",
+  "@generateDietPlan": {
+    "description": "Button to generate AI diet plan"
+  }
+}

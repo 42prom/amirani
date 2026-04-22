@@ -1,0 +1,20 @@
+﻿Searching for "dxdfds" in EquipmentCatalog...
+Found items: [
+  {
+    "id": "d051535e-095a-4da6-94e6-8fb9b298fa4b",
+    "name": "dxdfds",
+    "category": "STRETCHING",
+    "brand": "dsfsd",
+    "model": null,
+    "description": "dvzxcds",
+    "imageUrl": "",
+    "images": [],
+    "specifications": null,
+    "msrpPrice": null,
+    "manufacturer": null,
+    "tags": [],
+    "isActive": true,
+    "createdAt": "2026-02-21T13:20:18.392Z",
+    "updatedAt": "2026-02-21T13:20:18.392Z"
+  }
+]

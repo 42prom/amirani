@@ -1,0 +1,1 @@
+src/modules/gyms/branch-manager.controller.ts(93,9): error TS2353: Object literal may only specify known properties, and 'durationDays' does not exist in type 'ManualActivationRequest'.

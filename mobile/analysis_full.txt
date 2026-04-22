@@ -1,0 +1,5 @@
+﻿Analyzing mobile...                                             
+
+   info - The import of 'package:json_annotation/json_annotation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:freezed_annotation/freezed_annotation.dart' - lib\features\diet\data\models\meal_model.dart:2:8 - unnecessary_import
+  error - The argument type 'int?' can't be assigned to the parameter type 'int'.  - lib\features\workout\domain\entities\workout_plan_entity.dart:73:29 - argument_type_not_assignable
+
