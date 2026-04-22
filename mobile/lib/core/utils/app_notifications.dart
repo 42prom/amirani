@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 class AppNotifications {
   static void showSuccess(BuildContext context, String message) {

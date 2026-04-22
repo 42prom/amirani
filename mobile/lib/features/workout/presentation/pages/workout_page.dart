@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../../../core/utils/app_notifications.dart';
@@ -20,11 +20,11 @@ import 'workout_plan_builder_page.dart';
 
 // Import newly extracted widgets
 import '../widgets/workout_header.dart';
-import '../../../../core/widgets/app_day_selector.dart';
+import 'package:amirani_app/core/widgets/app_day_selector.dart';
 import '../widgets/workout_plan_info_card.dart';
 import '../widgets/workout_plan_management_card.dart';
 import '../widgets/workout_progress_card.dart';
-import '../../../../core/widgets/premium_state_card.dart';
+import 'package:amirani_app/core/widgets/premium_state_card.dart';
 import '../widgets/workout_exercise_list.dart';
 
 class WorkoutPage extends ConsumerStatefulWidget {

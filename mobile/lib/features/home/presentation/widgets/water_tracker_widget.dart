@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../design_system/design_system.dart';
+import 'package:amirani_app/design_system/design_system.dart';
 import '../providers/water_tracker_provider.dart';
 
 /// Compact water tracker bar shown on the home dashboard.

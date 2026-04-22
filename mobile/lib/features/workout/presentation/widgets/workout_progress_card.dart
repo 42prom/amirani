@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 
 class WorkoutProgressCard extends StatelessWidget {

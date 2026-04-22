@@ -1,10 +1,10 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role, SubscriptionStatus, NotificationType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { NotificationService } from '../notifications/notification.service';
 import { calcMembershipEndDate, hasGymAccess, isBranchAdminOf } from './membership-utils';
 import { AuditLogService, AuditAction } from '../audit/audit.service';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 
@@ -270,7 +270,7 @@ export class MembershipService {
         },
       });
     } catch (err) {
-      logger.warn('[MembershipService] Failed to send status update notification', { err });
+      logger.warn({ err }, '[MembershipService] Failed to send status update notification');
     }
 
     return updated;
@@ -763,7 +763,7 @@ export class MembershipService {
         },
       });
     } catch (err) {
-      logger.warn('[MembershipService] Failed to send activation notification', { err });
+      logger.warn({ err }, '[MembershipService] Failed to send activation notification');
     }
 
     return {
@@ -981,3 +981,4 @@ export class MembershipService {
     return { success: true, message: 'Member removed from gym successfully' };
   }
 }
+

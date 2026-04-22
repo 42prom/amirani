@@ -15,8 +15,8 @@ import {
   validateBranchOwnership,
   AuthenticatedRequest,
 } from '../../middleware/auth.middleware';
-import { success, badRequest, forbidden, notFound, internalError } from '../../lib/response';
-import logger from '../../lib/logger';
+import { success, badRequest, forbidden, notFound, internalError } from '../../utils/response';
+import logger from '../../utils/logger';
 import * as GW from './hardware-gateway.service';
 
 const router = Router();

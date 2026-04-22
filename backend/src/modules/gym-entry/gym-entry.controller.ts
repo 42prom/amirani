@@ -1,6 +1,6 @@
 import { Router, Response, Request } from 'express';
-import { getFullUrl } from '../../lib/url';
-import prisma from '../../lib/prisma';
+import { getFullUrl } from '../../utils/url';
+import prisma from '../../utils/prisma';
 import { AccessControlService } from '../door-access/access-control.service';
 import {
   authenticate,
@@ -8,10 +8,10 @@ import {
   validateBranchOwnership,
   AuthenticatedRequest,
 } from '../../middleware/auth.middleware';
-import { success, forbidden, badRequest, notFound, internalError } from '../../lib/response';
+import { success, forbidden, badRequest, notFound, internalError } from '../../utils/response';
 import { GymQrService } from './gym-qr.service';
-import { awardPoints, POINTS } from '../../lib/leaderboard.service';
-import logger from '../../lib/logger';
+import { awardPoints, POINTS } from '../../utils/leaderboard.service';
+import logger from '../../utils/logger';
 
 const router = Router();
 
@@ -36,7 +36,7 @@ router.post('/qr/generate', authenticate, branchAdminOrAbove, async (req: Authen
     return success(res, { qrData, expiresAt });
   } catch (err: any) {
     if (err.status) return res.status(err.status).json({ success: false, error: { message: err.message } });
-    logger.error('[GymEntry] qr/generate error', { err });
+    logger.error({ err }, '[GymEntry] qr/generate error');
     internalError(res);
   }
 });
@@ -99,7 +99,7 @@ router.post('/qr/verify', authenticate, async (req: AuthenticatedRequest, res: R
       existingMembership,
     });
   } catch (err) {
-    logger.error('[GymEntry] qr/verify error', { err });
+    logger.error({ err }, '[GymEntry] qr/verify error');
     internalError(res);
   }
 });
@@ -238,7 +238,7 @@ router.post('/check-in/qr', authenticate, async (req: AuthenticatedRequest, res:
       sourceType: 'CHECKIN',
       delta: POINTS.CHECKIN,
       reason: `Gym check-in at ${doorSystem.gym.name}`,
-    }).catch((err) => logger.error('[GymEntry] awardPoints error', { err }));
+    }).catch((err) => logger.error({ err }, '[GymEntry] awardPoints error'));
 
     const daysRemaining = Math.max(0, Math.ceil(
       (new Date(membership.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
@@ -257,7 +257,7 @@ router.post('/check-in/qr', authenticate, async (req: AuthenticatedRequest, res:
       alreadyCheckedIn: false,
     });
   } catch (err) {
-    logger.error('[GymEntry] check-in/qr error', { err });
+    logger.error({ err }, '[GymEntry] check-in/qr error');
     internalError(res);
   }
 });
@@ -325,7 +325,7 @@ router.post('/check-in/nfc', authenticate, async (req: AuthenticatedRequest, res
       sourceType: 'CHECKIN',
       delta: POINTS.CHECKIN,
       reason: `NFC check-in at gym ${gymId}`,
-    }).catch((err) => logger.error('[GymEntry] awardPoints error', { err }));
+    }).catch((err) => logger.error({ err }, '[GymEntry] awardPoints error'));
 
     return success(res, {
       id: attendance.id,
@@ -335,7 +335,7 @@ router.post('/check-in/nfc', authenticate, async (req: AuthenticatedRequest, res
       message: 'Access Granted: Welcome!',
     });
   } catch (err) {
-    logger.error('[GymEntry] check-in/nfc error', { err });
+    logger.error({ err }, '[GymEntry] check-in/nfc error');
     internalError(res);
   }
 });
@@ -410,7 +410,7 @@ router.get('/details/:gymId', authenticate, async (req: AuthenticatedRequest, re
       equipment: gym.equipment.map(e => e.name),
     });
   } catch (err) {
-    logger.error('[GymEntry] details error', { err });
+    logger.error({ err }, '[GymEntry] details error');
     internalError(res);
   }
 });
@@ -451,7 +451,7 @@ router.post('/check-out', authenticate, async (req: AuthenticatedRequest, res: R
 
     return success(res, { checkedOut: true, duration, checkOut: checkOutTime.toISOString() });
   } catch (err) {
-    logger.error('[GymEntry] check-out error', { err });
+    logger.error({ err }, '[GymEntry] check-out error');
     internalError(res);
   }
 });
@@ -527,10 +527,12 @@ router.get(
         })),
       });
     } catch (err) {
-      logger.error('[GymEntry] live error', { err });
+      logger.error({ err }, '[GymEntry] live error');
       internalError(res);
     }
   }
 );
 
 export default router;
+
+

@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import { loginLimiter, registerLimiter } from '../../lib/rate-limiters';
+import { loginLimiter, registerLimiter } from '../../middleware/rate-limit.middleware';
 
-vi.mock('../../lib/prisma', () => ({
+vi.mock('../../utils/prisma', () => ({
   default: {
     user: { findUnique: vi.fn().mockResolvedValue(null) },
     refreshToken: { create: vi.fn(), deleteMany: vi.fn() },
@@ -66,3 +66,4 @@ describe('Rate limiter middleware', () => {
     expect(res.headers).toHaveProperty('ratelimit-remaining');
   });
 });
+

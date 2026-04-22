@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 class OnboardingWelcomePage extends StatelessWidget {
   final VoidCallback onReady;

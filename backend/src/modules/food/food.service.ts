@@ -1,8 +1,8 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { FoodSource, MealType } from '@prisma/client';
 import axios from 'axios';
 import config from '../../config/env';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ export class FoodService {
     try {
       const nutritionixResults = await this.searchNutritionix(query, limit);
       // Cache results in background
-      this.cacheResults(nutritionixResults).catch((e) => logger.warn('[Food] Cache write failed', { e }));
+      this.cacheResults(nutritionixResults).catch((e) => logger.warn({ e }, '[Food] Cache write failed'));
       // Merge with local, deduplicate by name+brand
       const localNames = new Set(localResults.map(r => `${r.name}|${r.brand ?? ''}`));
       const merged = [
@@ -79,16 +79,16 @@ export class FoodService {
       ];
       return merged.slice(0, limit);
     } catch (nutritionixErr) {
-      logger.warn('[FoodService] Nutritionix failed, falling back to Open Food Facts', { nutritionixErr });
+      logger.warn({ nutritionixErr }, '[FoodService] Nutritionix failed, falling back to Open Food Facts');
     }
 
     // 3. Fallback to Open Food Facts (free)
     try {
       const offResults = await this.searchOpenFoodFacts(query, limit);
-      this.cacheResults(offResults).catch((e) => logger.warn('[Food] Cache write failed', { e }));
+      this.cacheResults(offResults).catch((e) => logger.warn({ e }, '[Food] Cache write failed'));
       return [...localResults.map(r => this.toSearchResult(r, lang)), ...offResults].slice(0, limit);
     } catch (offErr) {
-      logger.warn('[FoodService] Open Food Facts also failed', { offErr });
+      logger.warn({ offErr }, '[FoodService] Open Food Facts also failed');
     }
 
     // Return local results only
@@ -456,3 +456,4 @@ export class FoodService {
     };
   }
 }
+

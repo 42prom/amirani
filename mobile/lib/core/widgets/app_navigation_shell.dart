@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/gym/presentation/providers/membership_provider.dart';
 import '../../../features/gym/presentation/providers/sessions_provider.dart';
-import '../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../providers/day_selector_providers.dart';
 import 'offline_banner.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../config/app_config.dart';
 
 /// Displays a user avatar from either a local file path or a remote URL,

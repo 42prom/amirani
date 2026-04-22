@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 /// Consistent loading spinner. Always uses [AppTheme.primaryBrand] amber color.
 ///

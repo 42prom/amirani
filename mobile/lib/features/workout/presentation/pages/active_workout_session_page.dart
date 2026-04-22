@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/points_provider.dart';
 import '../providers/active_workout_session_provider.dart';
 

@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role, DifficultyLevel, NotificationType } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { WorkoutProcessorService } from '../workouts/workout-processor.service';

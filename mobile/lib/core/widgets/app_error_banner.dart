@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 /// Amber left-border error container with icon, message, and optional retry.
 ///

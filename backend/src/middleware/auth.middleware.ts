@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { Role } from '@prisma/client';
 import config from '../config/env';
-import { unauthorized, forbidden, notFound } from '../lib/response';
-import prisma from '../lib/prisma';
-import logger from '../lib/logger';
+import { unauthorized, forbidden, notFound } from '../utils/response';
+import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 
 export interface AuthenticatedRequest extends Request {
@@ -37,7 +37,7 @@ interface AuditLogEntry {
  */
 const logAuditEvent = (entry: AuditLogEntry): void => {
   // Always write to structured logger (searchable in log aggregators / CloudWatch / Datadog)
-  logger.warn('[SECURITY]', { ...entry, timestamp: entry.timestamp || new Date().toISOString() });
+  logger.warn({ ...entry, timestamp: entry.timestamp || new Date().toISOString() }, '[SECURITY]');
 
   // Persist to DB only when we have a real gym context (branchId present).
   // Pre-auth events (failed logins without gymId) remain in structured logs only —
@@ -63,7 +63,7 @@ const logAuditEvent = (entry: AuditLogEntry): void => {
         });
       } catch (dbErr) {
         // DB write failure must NEVER break auth. Log and continue.
-        logger.error('[AUDIT] Failed to persist security event to DB', { dbErr });
+        logger.error({ dbErr }, '[AUDIT] Failed to persist security event to DB');
       }
     });
   }
@@ -242,7 +242,7 @@ export const validateBranchOwnership = (branchIdParam: string = 'gymId') => {
         }
         return next();
       } catch (error) {
-        logger.error('Error validating branch ownership', { error });
+        logger.error({ error }, 'Error validating branch ownership');
         return forbidden(res, 'Unable to verify branch ownership');
       }
     }
@@ -390,7 +390,7 @@ export const validateTrainerClientRelation = (userIdParam: string = 'id') => {
 
         return next();
       } catch (error) {
-        logger.error('Error validating trainer client relation', { error });
+        logger.error({ error }, 'Error validating trainer client relation');
         return forbidden(res, 'Unable to verify trainer-client relationship');
       }
     }
@@ -403,4 +403,5 @@ export const validateTrainerClientRelation = (userIdParam: string = 'id') => {
     return next();
   };
 };
+
 

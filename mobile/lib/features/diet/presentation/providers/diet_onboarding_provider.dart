@@ -13,7 +13,7 @@ import '../../../../core/services/meal_variety_service.dart';
 import '../../../../core/models/user_body_metrics.dart';
 import '../../../../core/providers/unit_system_provider.dart';
 import '../../domain/utils/diet_shopping_utils.dart';
-import '../../../../core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
 
 /// Onboarding step enum
 enum DietOnboardingStep {

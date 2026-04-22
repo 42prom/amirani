@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest, branchAdminOrAbove } from '../../middleware/auth.middleware';
 import { RoomService } from './room.service';
-import { getRoomLeaderboard, getUserRank } from '../../lib/leaderboard.service';
+import { getRoomLeaderboard, getUserRank } from '../../utils/leaderboard.service';
 
 const router = Router();
 router.use(authenticate);
@@ -173,3 +173,4 @@ router.delete('/gyms/:gymId/:id', branchAdminOrAbove, async (req: AuthenticatedR
 });
 
 export default router;
+

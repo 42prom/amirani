@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 

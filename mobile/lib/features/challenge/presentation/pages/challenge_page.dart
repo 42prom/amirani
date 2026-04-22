@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/providers/points_provider.dart';
-import '../../../../core/widgets/user_avatar.dart';
+import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import 'package:amirani_app/features/workout/presentation/providers/workout_provider.dart';
-import '../../../rooms/presentation/widgets/rooms_tab.dart';
+import '../../../challenge_rooms/presentation/widgets/rooms_tab.dart';
 
 class ChallengePage extends ConsumerStatefulWidget {
   const ChallengePage({super.key});

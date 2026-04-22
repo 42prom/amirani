@@ -1,8 +1,8 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { success, badRequest, notFound, internalError } from '../../lib/response';
+import { success, badRequest, notFound, internalError } from '../../utils/response';
 import { FoodService } from './food.service';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 import { z } from 'zod';
 
 const router = Router();
@@ -47,7 +47,7 @@ router.get('/search', authenticate, async (req: AuthenticatedRequest, res: Respo
     const results = await FoodService.search(query.trim(), limit);
     return success(res, results);
   } catch (err) {
-    logger.error('[Food] search error', { err });
+    logger.error({ err }, '[Food] search error');
     internalError(res);
   }
 });
@@ -70,7 +70,7 @@ router.get('/barcode/:code', authenticate, async (req: AuthenticatedRequest, res
 
     return success(res, result);
   } catch (err) {
-    logger.error('[Food] barcode lookup error', { err });
+    logger.error({ err }, '[Food] barcode lookup error');
     internalError(res);
   }
 });
@@ -97,7 +97,7 @@ router.post('/log', authenticate, async (req: AuthenticatedRequest, res: Respons
     if (err.status) {
       return res.status(err.status).json({ success: false, error: { message: err.message } });
     }
-    logger.error('[Food] log error', { err });
+    logger.error({ err }, '[Food] log error');
     internalError(res);
   }
 });
@@ -118,7 +118,7 @@ router.get('/diary', authenticate, async (req: AuthenticatedRequest, res: Respon
     const diary = await FoodService.getDiary(userId, date);
     return success(res, diary);
   } catch (err) {
-    logger.error('[Food] diary error', { err });
+    logger.error({ err }, '[Food] diary error');
     internalError(res);
   }
 });
@@ -138,9 +138,10 @@ router.delete('/log/:id', authenticate, async (req: AuthenticatedRequest, res: R
     if (err.status) {
       return res.status(err.status).json({ success: false, error: { message: err.message } });
     }
-    logger.error('[Food] delete log error', { err });
+    logger.error({ err }, '[Food] delete log error');
     internalError(res);
   }
 });
 
 export default router;
+

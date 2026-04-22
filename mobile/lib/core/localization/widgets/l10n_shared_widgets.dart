@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../l10n_keys.dart';
 import '../l10n_provider.dart';
 import '../l10n_state.dart';

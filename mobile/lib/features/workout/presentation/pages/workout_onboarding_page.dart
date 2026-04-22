@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../providers/workout_onboarding_provider.dart';
 import '../../domain/entities/workout_preferences_entity.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';

@@ -6,7 +6,7 @@ import {
   branchAdminOrAbove,
   AuthenticatedRequest
 } from '../../middleware/auth.middleware';
-import { serverError } from '../../lib/response';
+import { serverError } from '../../utils/response';
 
 const router = Router();
 

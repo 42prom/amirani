@@ -3,9 +3,9 @@ import {
   NotificationPayload,
   NotificationResult,
 } from './notification-provider.interface';
-import prisma from '../../../lib/prisma';
-import { decryptField } from '../../../lib/db-crypto';
-import logger from '../../../lib/logger';
+import prisma from '../../../utils/prisma';
+import { decryptField } from '../../../utils/crypto';
+import logger from '../../../utils/logger';
 
 // ─── Firebase Admin SDK (lazy init) ──────────────────────────────────────────
 
@@ -42,7 +42,7 @@ async function getFirebaseMessaging(): Promise<any | null> {
     const admin = await import('firebase-admin');
     return admin.messaging(firebaseApp);
   } catch (e) {
-    logger.error('[FCM] Failed to initialise Firebase Admin SDK', { e });
+    logger.error({ e }, '[FCM] Failed to initialise Firebase Admin SDK');
     return null;
   }
 }
@@ -77,7 +77,7 @@ export class PushNotificationProvider implements INotificationProvider {
       });
       return { success: true, messageId };
     } catch (error: any) {
-      logger.error('[FCM] send error', { error });
+      logger.error({ error }, '[FCM] send error');
       return { success: false, error: error.message };
     }
   }
@@ -118,3 +118,5 @@ export class PushNotificationProvider implements INotificationProvider {
     return m !== null;
   }
 }
+
+

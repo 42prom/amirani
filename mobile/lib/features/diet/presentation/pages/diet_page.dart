@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/diet_provider.dart';
 import '../providers/diet_onboarding_provider.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/diet_plan_storage_service.dart';
 import '../../../../core/services/meal_swap_service.dart';
@@ -16,7 +16,7 @@ import '../../domain/entities/diet_preferences_entity.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import '../../../gym/presentation/providers/trainer_assignment_provider.dart';
-import '../../../../core/widgets/plan_source_badge.dart';
+import 'package:amirani_app/core/widgets/plan_source_badge.dart';
 import '../../../../core/providers/tier_limits_provider.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/dio_provider.dart';
@@ -25,10 +25,10 @@ import '../../../../core/utils/app_notifications.dart';
 import '../../../../core/providers/diet_profile_sync_provider.dart';
 import '../../../../core/providers/points_provider.dart';
 import 'diet_onboarding_page.dart';
-import '../../../../core/widgets/premium_state_card.dart';
+import 'package:amirani_app/core/widgets/premium_state_card.dart';
 import '../../../../core/utils/food_emoji_registry.dart';
-import '../../../../core/widgets/user_avatar.dart';
-import '../../../../core/widgets/app_day_selector.dart';
+import 'package:amirani_app/core/widgets/user_avatar.dart';
+import 'package:amirani_app/core/widgets/app_day_selector.dart';
 
 // Note: generatedDietPlanProvider moved to diet_provider.dart
 

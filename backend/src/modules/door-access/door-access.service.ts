@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role, DoorSystemType } from '@prisma/client';
 import { DoorAdapterFactory, DoorSystemType as AdapterDoorType } from './adapters';
 import { assertMembershipAccess } from '../memberships/membership-utils';

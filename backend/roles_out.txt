@@ -1,4 +1,0 @@
-[super@amirani.dev] Error: 
-[owner@amirani.dev] Error: 
-[branch@amirani.dev] Error: 
-[mobile@amirani.dev] Error: 

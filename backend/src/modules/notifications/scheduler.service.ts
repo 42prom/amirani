@@ -1,7 +1,7 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { NotificationService } from './notification.service';
 import { NotificationType } from '@prisma/client';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 const DAY_ENUMS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
@@ -35,7 +35,7 @@ export class SchedulerService {
         this.processWorkoutReminders(now),
       ]);
     } catch (error) {
-      logger.error('[Scheduler] Scan failed', { error });
+      logger.error({ error }, '[Scheduler] Scan failed');
     } finally {
       this.isRunning = false;
     }
@@ -174,3 +174,4 @@ export class SchedulerService {
     return diff >= 0 && diff <= bufferM;
   }
 }
+

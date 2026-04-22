@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 // ── Condition list ────────────────────────────────────────────────────────────
 // Organised in logical groups so the 2-column grid reads naturally.

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 /// Section title row with an optional amber trailing action.
 ///

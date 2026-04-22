@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { success, badRequest, internalError } from '../../lib/response';
-import prisma from '../../lib/prisma';
+import { success, badRequest, internalError } from '../../utils/response';
+import prisma from '../../utils/prisma';
 
 const router = Router();
 router.use(authenticate);

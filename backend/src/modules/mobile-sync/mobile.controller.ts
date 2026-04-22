@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { z } from 'zod';
-import prisma from '../../lib/prisma';
-import logger from '../../lib/logger';
-import { serverError } from '../../lib/response';
+import prisma from '../../utils/prisma';
+import logger from '../../utils/logger';
+import { serverError } from '../../utils/response';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import { UserTier } from '@prisma/client';
 
@@ -524,7 +524,7 @@ export class MobileController {
         logger.warn(`[SYNC_DIET] Empty plan detected for user ${userId}. Master Template for ID: ${activePlan.id} may be compromised.`);
       }
 
-      logger.debug('[SYNC_DIET] Serving active diet plan', { planId: activePlan.id, mealCount: ((activePlan as any).meals?.length ?? 0) });
+      logger.debug({ planId: activePlan.id, mealCount: ((activePlan as any).meals?.length ?? 0) }, '[SYNC_DIET] Serving active diet plan');
 
       res.status(200).json({ data: activePlan });
     } catch (error: any) {
@@ -564,7 +564,7 @@ export class MobileController {
         });
       }
 
-      logger.info('[MEAL_LOG] Meal log updated', { userId, refId, date, logged });
+      logger.info({ userId, refId, date, logged }, '[MEAL_LOG] Meal log updated');
       res.status(200).json({ success: true, data: { refId, date, isLogged: logged } });
     } catch (error: any) {
       serverError(res, error);
@@ -1132,4 +1132,5 @@ export class MobileController {
     }
   }
 }
+
 

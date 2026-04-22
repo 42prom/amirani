@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/providers/tier_limits_provider.dart';
 import '../../../../core/utils/error_messages.dart';
-import '../../../../core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 

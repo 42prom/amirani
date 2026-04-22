@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
-import '../../../../core/localization/l10n_provider.dart';
-import '../../../../core/localization/l10n_keys.dart';
-import '../../../../core/localization/l10n_state.dart';
+import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
+import 'package:amirani_app/core/localization/l10n_state.dart';
 
 /// Language section for the profile settings modal.
 /// Renders nothing when the user has no alternative language configured.

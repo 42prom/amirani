@@ -17,8 +17,8 @@ import {
   forbidden,
   badRequest,
   internalError,
-} from '../../lib/response';
-import logger from '../../lib/logger';
+} from '../../utils/response';
+import logger from '../../utils/logger';
 
 const router = Router();
 
@@ -53,7 +53,7 @@ router.post('/check-in', async (req: AuthenticatedRequest, res: Response) => {
     if (err instanceof AttendanceAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error('Check-in error', { err });
+    logger.error({ err }, 'Check-in error');
     internalError(res);
   }
 });
@@ -77,7 +77,7 @@ router.post('/:id/check-out', async (req: AuthenticatedRequest, res: Response) =
     if (err instanceof AttendanceValidationError) {
       return badRequest(res, err.message);
     }
-    logger.error('Check-out error', { err });
+    logger.error({ err }, 'Check-out error');
     internalError(res);
   }
 });
@@ -111,7 +111,7 @@ router.get('/gyms/:gymId', gymOwnerOrAbove, async (req: AuthenticatedRequest, re
     if (err instanceof AttendanceAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error('Get gym attendance error', { err });
+    logger.error({ err }, 'Get gym attendance error');
     internalError(res);
   }
 });
@@ -135,7 +135,7 @@ router.get('/gyms/:gymId/today', gymOwnerOrAbove, async (req: AuthenticatedReque
     if (err instanceof AttendanceAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error('Get today attendance error', { err });
+    logger.error({ err }, 'Get today attendance error');
     internalError(res);
   }
 });
@@ -159,7 +159,7 @@ router.get('/gyms/:gymId/stats', gymOwnerOrAbove, async (req: AuthenticatedReque
     if (err instanceof AttendanceAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error('Get attendance stats error', { err });
+    logger.error({ err }, 'Get attendance stats error');
     internalError(res);
   }
 });
@@ -183,7 +183,7 @@ router.get('/users/:userId', async (req: AuthenticatedRequest, res: Response) =>
     if (err instanceof AttendanceAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error('Get user attendance error', { err });
+    logger.error({ err }, 'Get user attendance error');
     internalError(res);
   }
 });
@@ -206,7 +206,7 @@ router.get('/users/:userId/gyms/:gymId/missed', async (req: AuthenticatedRequest
     if (err instanceof AttendanceNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error('Get missed days error', { err });
+    logger.error({ err }, 'Get missed days error');
     internalError(res);
   }
 });
@@ -227,9 +227,10 @@ router.get('/me', async (req: AuthenticatedRequest, res: Response) => {
     );
     success(res, attendance);
   } catch (err) {
-    logger.error('Get my attendance error', { err });
+    logger.error({ err }, 'Get my attendance error');
     internalError(res);
   }
 });
 
 export default router;
+

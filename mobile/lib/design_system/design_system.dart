@@ -1,6 +1,6 @@
 // Amirani Design System — unified component library.
 // Import this single file to access all design tokens and components:
-//   import 'package:amirani/design_system/design_system.dart';
+//   import 'package:amirani_app/design_system/design_system.dart';
 
 export 'tokens/app_tokens.dart';
 export 'components/glass_card.dart';

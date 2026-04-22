@@ -12,7 +12,7 @@ import authRoutes from './modules/auth/auth.controller';
 import adminRoutes from './modules/admin/admin.controller';
 import gymRoutes from './modules/gym-management/gym.controller';
 import membershipRoutes from './modules/memberships/membership.controller';
-import { internalError } from './lib/response';
+import { internalError } from './utils/response';
 import equipmentCatalogRoutes from './modules/equipment/equipment-catalog.controller';
 import attendanceRoutes from './modules/attendance/attendance.controller';
 import doorAccessRoutes from './modules/door-access/door-access.controller';
@@ -47,8 +47,8 @@ import foodRoutes from './modules/food/food.controller';
 import nutritionStatsRoutes from './modules/food/nutrition-stats.controller';
 import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
-import { initSocket } from './lib/socket';
-import { startAiWorkers } from './lib/queue';
+import { initSocket } from './utils/socket';
+import { startAiWorkers } from './jobs/queue';
 import config from './config/env';
 
 const app = express();
@@ -60,7 +60,7 @@ const port = config.port;
 initSocket(httpServer);
 
 // ─── Rate Limiters ────────────────────────────────────────────────────────────
-import { globalLimiter } from './lib/rate-limiters';
+import { globalLimiter } from './middleware/rate-limit.middleware';
 
 // Middleware
 app.use(helmet({

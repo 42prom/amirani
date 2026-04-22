@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 /// Attribution pill shown on workout and diet plan cards.
 /// Exactly one badge is shown per card — AI or trainer, never both.

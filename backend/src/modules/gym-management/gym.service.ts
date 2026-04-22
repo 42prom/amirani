@@ -1,17 +1,17 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role, SubscriptionStatus } from '@prisma/client';
 import { hasGymAccess, isBranchAdminOf } from '../memberships/membership-utils';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../../config/env';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 import {
   validateRequired,
   validateEmail,
   combineValidations,
   sanitize,
-} from '../../lib/validation';
+} from '../../utils/validation';
 
 // ─── Simple In-Memory Cache for Occupancy Stats ─────────────────────────────
 
@@ -589,7 +589,7 @@ export class GymService {
       },
     };
     } catch (error: any) {
-      logger.error('[GymService] Critical Stats Error', { gymId, error });
+      logger.error({ gymId, error }, '[GymService] Critical Stats Error');
       throw new Error(`Analytics Engine Failure: ${error.message}`);
     }
   }
@@ -902,3 +902,4 @@ export class GymService {
     return Number(val) || 0;
   }
 }
+

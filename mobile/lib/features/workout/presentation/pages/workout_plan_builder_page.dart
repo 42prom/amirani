@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/services/ai_orchestration_service.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/data/exercise_database.dart';
 import '../../../../core/services/user_equipment_service.dart';
 import '../../../../core/services/gym_equipment_service.dart';
@@ -13,8 +13,8 @@ import '../widgets/interactive_muscle_selector.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
-import '../../../../core/widgets/premium_state_card.dart';
-import '../../../../core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/widgets/premium_state_card.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
 
 /// Workout plan type
 enum WorkoutPlanType { home, gym }

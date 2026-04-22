@@ -5,7 +5,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../providers/profile_sync_provider.dart';
 import '../../../gym/presentation/providers/gym_provider.dart';
 import '../../../gym/domain/entities/registration_requirements_entity.dart';
@@ -15,9 +15,9 @@ import '../../../../core/providers/workout_profile_sync_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/utils/error_messages.dart';
-import '../../../../core/localization/l10n_provider.dart';
-import '../../../../core/localization/l10n_state.dart';
-import '../../../../core/localization/language_flag.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/localization/l10n_state.dart';
+import 'package:amirani_app/core/localization/language_flag.dart';
 
 class ProfileSettingsModal extends ConsumerStatefulWidget {
   const ProfileSettingsModal({super.key});

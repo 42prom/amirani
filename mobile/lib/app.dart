@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/change_password_page.dart';
 import 'features/gym/presentation/pages/gym_self_registration_page.dart';
-import 'core/widgets/app_navigation_shell.dart';
+import 'package:amirani_app/core/widgets/app_navigation_shell.dart';
 import 'features/dashboard/presentation/pages/dashboard_page.dart';
 import 'features/workout/presentation/pages/workout_page.dart';
 import 'features/workout/presentation/pages/active_workout_session_page.dart';
@@ -36,9 +36,9 @@ import 'core/providers/storage_providers.dart';
 import 'core/services/push_notification_service.dart';
 import 'core/services/app_lifecycle_sync_service.dart';
 import 'core/providers/app_boot_provider.dart';
-import 'core/widgets/offline_banner.dart';
-import 'core/localization/l10n_keys.dart';
-import 'core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/widgets/offline_banner.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
 
 // Listenable that notifies GoRouter when auth state changes
 class RouterListenable extends ChangeNotifier {

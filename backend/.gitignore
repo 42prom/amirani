@@ -1,5 +1,25 @@
 node_modules
-# Keep environment variables out of version control
+dist
 .env
-
 /src/generated/prisma
+
+# Logs
+*.log
+logs/
+
+# Debug Scripts
+/scripts/debug/
+
+# Temporary Files
+tmp/
+temp/
+*.txt
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!vitest.config.ts
+
+# OS Files
+.DS_Store
+Thumbs.db

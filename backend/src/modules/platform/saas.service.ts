@@ -1,4 +1,4 @@
-import prisma from "../../lib/prisma";
+import prisma from "../../utils/prisma";
 import { SaaSSubscriptionStatus } from '@prisma/client';
 
 export interface SaaSStatusResponse {
@@ -221,3 +221,4 @@ export class SaaSService {
     });
   }
 }
+

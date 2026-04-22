@@ -8,9 +8,9 @@ import {
   superAdminOnly,
   AuthenticatedRequest
 } from '../../middleware/auth.middleware';
-import prisma from '../../lib/prisma';
-import { success, forbidden, notFound, internalError, serverError, badRequest, created } from '../../lib/response';
-import logger from '../../lib/logger';
+import prisma from '../../utils/prisma';
+import { success, forbidden, notFound, internalError, serverError, badRequest, created } from '../../utils/response';
+import logger from '../../utils/logger';
 
 const router = Router();
 
@@ -268,7 +268,7 @@ router.delete('/leave/:gymId', async (req: AuthenticatedRequest, res: Response) 
 
     return success(res, { left: true, gymId });
   } catch (err) {
-    logger.error('[Membership] leave error', { err });
+    logger.error({ err }, '[Membership] leave error');
     serverError(res, err);
   }
 });
@@ -293,7 +293,7 @@ router.get('/my', async (req: AuthenticatedRequest, res: Response) => {
 
     return success(res, memberships);
   } catch (err) {
-    logger.error('[Membership] /my error', { err });
+    logger.error({ err }, '[Membership] /my error');
     serverError(res, err);
   }
 });
@@ -338,3 +338,4 @@ router.delete('/gyms/:gymId/members/:userId', branchAdminOrAbove, async (req: Au
 });
 
 export default router;
+

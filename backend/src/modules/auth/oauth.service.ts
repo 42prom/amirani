@@ -1,11 +1,11 @@
 import { OAuth2Client } from 'google-auth-library';
 import * as https from 'https';
 import * as jwt from 'jsonwebtoken';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 import config from '../../config/env';
 import { AuthService, AuthResult, AuthenticationError, ValidationError } from './auth.service';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // DB-backed credential helpers (fall back to env vars)
 async function getGoogleClientId(): Promise<string | undefined> {
@@ -94,9 +94,9 @@ export class OAuthService {
             avatarUrl: avatarUrl ?? null,
           },
         });
-        logger.info('[OAuth] New user created', { userId: user.id });
+        logger.info({ userId: user.id }, '[OAuth] New user created');
       } catch (error: any) {
-        logger.error('[OAuth] Failed to create user', { error });
+        logger.error({ error }, '[OAuth] Failed to create user');
         throw error;
       }
     } else if (!user.isActive) {
@@ -165,7 +165,7 @@ export class OAuthService {
         avatarUrl: payload.picture,
       };
     } catch (error: any) {
-      logger.warn('[OAuth] Google ID token verification failed', { message: error.message });
+      logger.warn({ message: error.message }, '[OAuth] Google ID token verification failed');
       throw new AuthenticationError('Invalid Google ID token');
     }
   }
@@ -203,3 +203,4 @@ export class OAuthService {
     }
   }
 }
+

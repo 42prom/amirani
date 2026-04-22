@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 import config from '../../config/env';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 import {
   validateEmail,
   validatePassword,
@@ -11,7 +11,7 @@ import {
   validateSelfRegisterRole,
   combineValidations,
   sanitize,
-} from '../../lib/validation';
+} from '../../utils/validation';
 
 // ─── DTOs ────────────────────────────────────────────────────────────────────
 

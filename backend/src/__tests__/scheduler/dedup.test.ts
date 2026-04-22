@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Prisma mock ───────────────────────────────────────────────────────────────
-vi.mock('../../lib/prisma', () => ({
+vi.mock('../../utils/prisma', () => ({
   default: {
     notification: { findFirst: vi.fn() },
     dietPlan: { findMany: vi.fn() },
@@ -24,7 +24,7 @@ vi.mock('../../config/env', () => ({
   },
 }));
 
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { NotificationService } from '../../modules/notifications/notification.service';
 
 // ── isMatchingTime helper (extracted from private static) ────────────────────
@@ -197,3 +197,4 @@ describe('workout reminder 7-9am window', () => {
     expect(hour < 7 || hour >= 9).toBe(true);
   });
 });
+

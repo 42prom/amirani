@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 
 // ─── QR payload TTLs ─────────────────────────────────────────────────────────
 

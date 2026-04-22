@@ -1,8 +1,8 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { MarketingService, CampaignAudience } from '../marketing/marketing.service';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ export class AnnouncementService {
             });
             delivered += Math.min(BATCH, userIds.length - i);
           } catch (err) {
-            logger.error('[Announcement] Batch send error', { err });
+            logger.error({ err }, '[Announcement] Batch send error');
           }
         }
 
@@ -83,7 +83,7 @@ export class AnnouncementService {
           data: { totalDelivered: delivered },
         });
       } catch (err) {
-        logger.error('[Announcement] Delivery error', { err });
+        logger.error({ err }, '[Announcement] Delivery error');
       }
     });
 
@@ -162,3 +162,4 @@ export class AnnouncementService {
     }
   }
 }
+

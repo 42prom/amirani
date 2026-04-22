@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/data/exercise_database.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';

@@ -6,7 +6,7 @@ import {
   TrainerAccessDeniedError,
 } from './trainer.service';
 import { FoodService } from '../food/food.service';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { NotificationService } from '../notifications/notification.service';
 import { NotificationType } from '@prisma/client';
@@ -18,9 +18,9 @@ import {
   forbidden,
   badRequest,
   internalError,
-} from '../../lib/response';
+} from '../../utils/response';
 import { Role } from '@prisma/client';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 const router = Router();
 router.use(authenticate);
@@ -39,7 +39,7 @@ const trainerOnly = (req: AuthenticatedRequest, res: Response, next: Function) =
 function handleServiceError(err: unknown, res: Response) {
   if (err instanceof TrainerNotFoundError) return notFound(res, err.resource);
   if (err instanceof TrainerAccessDeniedError) return forbidden(res, err.message);
-  logger.error('[Trainer] Error', { err });
+  logger.error({ err }, '[Trainer] Error');
   internalError(res);
 }
 
@@ -1011,3 +1011,4 @@ router.delete('/sessions/:sessionId/book', async (req: AuthenticatedRequest, res
 });
 
 export default router;
+

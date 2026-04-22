@@ -1,6 +1,6 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { PlatformConfigService } from '../platform/platform-config.service';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 
@@ -176,7 +176,7 @@ export class StripeConnectService {
     });
 
     if (!gym) {
-      logger.error('[Stripe Connect] No gym found for account', { stripeAccountId });
+      logger.error({ stripeAccountId }, '[Stripe Connect] No gym found for account');
       return;
     }
 
@@ -196,7 +196,7 @@ export class StripeConnectService {
       },
     });
 
-    logger.info('[Stripe Connect] Updated gym status', { gymId: gym.id, status });
+    logger.info({ gymId: gym.id, status }, '[Stripe Connect] Updated gym status');
   }
 
   /**
@@ -316,3 +316,4 @@ export class StripeConnectService {
     });
   }
 }
+

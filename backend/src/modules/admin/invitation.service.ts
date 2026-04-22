@@ -1,7 +1,7 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { InvitationStatus } from '@prisma/client';
 import crypto from 'crypto';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 import { EmailNotificationProvider } from '../notifications/providers/email.provider';
 
 const emailProvider = new EmailNotificationProvider();
@@ -17,7 +17,7 @@ async function sendInvitationEmail(email: string, token: string): Promise<void> 
       data: { registrationUrl, token },
     }, email);
   } catch (err) {
-    logger.warn('[Invitation] Failed to send invitation email — invitation created but email not delivered', { email, err });
+    logger.warn({ email, err }, '[Invitation] Failed to send invitation email — invitation created but email not delivered');
   }
 }
 
@@ -208,3 +208,4 @@ export class InvitationService {
     });
   }
 }
+

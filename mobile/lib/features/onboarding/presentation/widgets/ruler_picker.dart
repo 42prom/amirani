@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 
 /// Horizontal scrollable ruler picker.
 /// Uses LayoutBuilder so the centre indicator always aligns with the selected

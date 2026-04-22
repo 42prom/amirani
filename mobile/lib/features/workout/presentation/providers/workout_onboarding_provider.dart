@@ -14,7 +14,7 @@ import '../../../../core/models/user_body_metrics.dart';
 import '../../../../core/providers/unit_system_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import 'workout_provider.dart';
-import '../../../../core/localization/l10n_provider.dart';
+import 'package:amirani_app/core/localization/l10n_provider.dart';
 
 /// Onboarding step enum
 enum WorkoutOnboardingStep {

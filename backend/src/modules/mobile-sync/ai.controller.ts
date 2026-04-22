@@ -1,12 +1,12 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../middleware/auth.middleware';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { z } from 'zod';
-import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../lib/queue';
+import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs/queue';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import { UserTier } from '@prisma/client';
-import { serverError } from '../../lib/response';
-import logger from '../../lib/logger';
+import { serverError } from '../../utils/response';
+import logger from '../../utils/logger';
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -176,7 +176,7 @@ export class AIController {
         },
       });
     } catch (err: any) {
-      logger.error('[AI] generatePlan error', { err });
+      logger.error({ err }, '[AI] generatePlan error');
       serverError(res, err);
     }
   }
@@ -202,8 +202,9 @@ export class AIController {
       res.setHeader('Pragma', 'no-cache');
       return res.status(200).json({ success: true, data: status });
     } catch (err: any) {
-      logger.error('[AI] getJobStatus error', { err });
+      logger.error({ err }, '[AI] getJobStatus error');
       serverError(res, err);
     }
   }
 }
+

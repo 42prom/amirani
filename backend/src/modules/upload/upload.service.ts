@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import logger from '../../lib/logger';
+import logger from '../../utils/logger';
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -73,7 +73,7 @@ export class UploadService {
       }
       return false;
     } catch (error) {
-      logger.warn('Error deleting file', { error });
+      logger.warn({ error }, 'Error deleting file');
       return false;
     }
   }
@@ -91,3 +91,4 @@ export class UploadValidationError extends Error {
     this.name = 'UploadValidationError';
   }
 }
+

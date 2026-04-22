@@ -3,11 +3,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../design_system/design_system.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/design_system/design_system.dart';
+import 'package:amirani_app/theme/app_theme.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
-import '../../../../core/widgets/premium_state_card.dart';
+import 'package:amirani_app/core/widgets/premium_state_card.dart';
 import '../providers/progress_provider.dart';
 import '../../../../core/services/mobile_sync_service.dart';
 

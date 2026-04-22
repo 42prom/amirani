@@ -4,7 +4,7 @@ import express from 'express';
 import { randomUUID } from 'crypto';
 
 // ── Prisma mock ───────────────────────────────────────────────────────────────
-vi.mock('../../lib/prisma', () => ({
+vi.mock('../../utils/prisma', () => ({
   default: {
     user: {
       findUnique: vi.fn(),
@@ -36,7 +36,7 @@ vi.mock('../../config/env', () => ({
   },
 }));
 
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import authRoutes from '../../modules/auth/auth.controller';
 
 function buildApp() {
@@ -150,3 +150,4 @@ describe('GET /auth/me', () => {
     expect(res.status).toBe(401);
   });
 });
+

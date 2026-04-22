@@ -1,4 +1,4 @@
-import prisma, { Prisma } from '../../lib/prisma';
+import prisma, { Prisma } from '../../utils/prisma';
 import { Role } from '@prisma/client';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────

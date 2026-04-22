@@ -3,10 +3,10 @@ import {
   NotificationPayload,
   NotificationResult,
 } from './notification-provider.interface';
-import prisma from '../../../lib/prisma';
+import prisma from '../../../utils/prisma';
 import axios from 'axios';
 import * as nodemailer from 'nodemailer';
-import { decryptField } from '../../../lib/db-crypto';
+import { decryptField } from '../../../utils/crypto';
 
 /**
  * Email Notification Provider
@@ -136,3 +136,4 @@ export class EmailNotificationProvider implements INotificationProvider {
     `;
   }
 }
+

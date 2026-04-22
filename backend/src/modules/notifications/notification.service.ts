@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { NotificationType, NotificationChannel } from '@prisma/client';
 import {
   NotificationProviderFactory,

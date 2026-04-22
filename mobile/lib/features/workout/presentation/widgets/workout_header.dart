@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../theme/app_theme.dart';
-import '../../../../core/widgets/user_avatar.dart';
+import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 

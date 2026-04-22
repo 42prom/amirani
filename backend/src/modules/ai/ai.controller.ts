@@ -1,10 +1,10 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../lib/queue';
-import { success, badRequest, internalError, rateLimited } from '../../lib/response';
-import prisma from '../../lib/prisma';
-import logger from '../../lib/logger';
+import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs/queue';
+import { success, badRequest, internalError, rateLimited } from '../../utils/response';
+import prisma from '../../utils/prisma';
+import logger from '../../utils/logger';
 
 const router = Router();
 router.use(authenticate);
@@ -162,7 +162,7 @@ router.post('/generate-workout', async (req: AuthenticatedRequest, res: Response
       userMetrics: mergedMetrics,
     });
 
-    logger.info('[AI] Workout plan job enqueued', { userId, jobId });
+    logger.info({ userId, jobId }, '[AI] Workout plan job enqueued');
 
     return success(res, {
       jobId,
@@ -170,7 +170,7 @@ router.post('/generate-workout', async (req: AuthenticatedRequest, res: Response
       message: 'Your workout plan is being generated. Poll /api/ai/job-status for updates.',
     }, undefined, 202);
   } catch (err) {
-    logger.error('[AI] generate-workout enqueue error', { err });
+    logger.error({ err }, '[AI] generate-workout enqueue error');
     internalError(res);
   }
 });
@@ -245,7 +245,7 @@ router.post('/generate-diet', async (req: AuthenticatedRequest, res: Response) =
       mealsPerDay: parsed.data.mealsPerDay,
     });
 
-    logger.info('[AI] Diet plan job enqueued', { userId, jobId });
+    logger.info({ userId, jobId }, '[AI] Diet plan job enqueued');
 
     return success(res, {
       jobId,
@@ -253,7 +253,7 @@ router.post('/generate-diet', async (req: AuthenticatedRequest, res: Response) =
       message: 'Your diet plan is being generated. Poll /api/ai/job-status for updates.',
     }, undefined, 202);
   } catch (err) {
-    logger.error('[AI] generate-diet enqueue error', { err });
+    logger.error({ err }, '[AI] generate-diet enqueue error');
     internalError(res);
   }
 });
@@ -278,9 +278,10 @@ router.get('/job-status/:jobId', async (req: AuthenticatedRequest, res: Response
 
     return success(res, status);
   } catch (err) {
-    logger.error('[AI] job-status check error', { err });
+    logger.error({ err }, '[AI] job-status check error');
     internalError(res);
   }
 });
 
 export default router;
+

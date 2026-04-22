@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import {
@@ -8,7 +8,7 @@ import {
   validateRequired,
   combineValidations,
   sanitize,
-} from '../../lib/validation';
+} from '../../utils/validation';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 

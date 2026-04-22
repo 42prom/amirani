@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest, branchAdminOrAbove } from '../../middleware/auth.middleware';
 import { ChurnService } from './churn.service';
 import { RevenueService } from './revenue.service';
-import prisma from '../../lib/prisma';
+import prisma from '../../utils/prisma';
 import { Role } from '@prisma/client';
 
 const router = Router();
