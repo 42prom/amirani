@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
 import config from '../config/env';
-import prisma from './prisma';
-import { getIO } from './socket';
+import prisma from '../lib/prisma';
+import { getIO } from '../lib/socket';
 
 // ─── Redis client (singleton) ─────────────────────────────────────────────────
 
@@ -48,7 +48,7 @@ export async function awardPoints(params: {
     include: { room: { select: { id: true, isActive: true } } },
   });
 
-  const activeMemberships = memberships.filter((m) => m.room.isActive);
+  const activeMemberships = memberships.filter((m) => (m.room as any).isActive);
   if (activeMemberships.length === 0) return;
 
   const redis = getRedis();
@@ -125,7 +125,9 @@ export async function getRoomLeaderboard(
       where: { id: { in: entries.map((e) => e.userId) } },
       select: { id: true, fullName: true, avatarUrl: true },
     });
-    const userMap = new Map(users.map((u) => [u.id, u]));
+    const userMap = new Map<string, { fullName: string; avatarUrl: string | null }>(
+      users.map((u) => [u.id, { fullName: u.fullName || 'Unknown', avatarUrl: u.avatarUrl }])
+    );
 
     return entries.map((e, idx) => ({
       rank:        idx + 1,
@@ -147,8 +149,8 @@ export async function getRoomLeaderboard(
   return memberships.map((m, idx) => ({
     rank:        idx + 1,
     userId:      m.userId,
-    fullName:    m.user.fullName,
-    avatarUrl:   m.user.avatarUrl,
+    fullName:    (m.user as any).fullName || 'Unknown',
+    avatarUrl:   (m.user as any).avatarUrl,
     totalPoints: m.totalPoints,
   }));
 }
@@ -189,7 +191,7 @@ export async function recalculateUserStats(userId: string) {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     
-    const activityDates = activities.map(a => {
+    const activityDates = activities.map((a: { date: Date | string }) => {
       const d = new Date(a.date);
       d.setUTCHours(0, 0, 0, 0);
       return d.getTime();
@@ -200,17 +202,17 @@ export async function recalculateUserStats(userId: string) {
     
     let currentCheck = today;
     // If no activity today, check if streak is still alive from yesterday
-    if (uniqueDates[0] < today.getTime()) {
+    if ((uniqueDates[0] as number) < today.getTime()) {
       const yesterday = new Date(today);
       yesterday.setUTCDate(today.getUTCDate() - 1);
       currentCheck = yesterday;
     }
 
     for (const dateTs of uniqueDates) {
-      if (dateTs === currentCheck.getTime()) {
+      if ((dateTs as number) === currentCheck.getTime()) {
         streak++;
         currentCheck.setUTCDate(currentCheck.getUTCDate() - 1);
-      } else if (dateTs < currentCheck.getTime()) {
+      } else if ((dateTs as number) < currentCheck.getTime()) {
         // Gap found
         break;
       }

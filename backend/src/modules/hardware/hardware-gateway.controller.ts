@@ -16,7 +16,7 @@ import {
   AuthenticatedRequest,
 } from '../../middleware/auth.middleware';
 import { success, badRequest, forbidden, notFound, internalError } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 import * as GW from './hardware-gateway.service';
 
 const router = Router();

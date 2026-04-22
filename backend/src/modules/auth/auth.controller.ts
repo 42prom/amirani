@@ -18,10 +18,10 @@ import { OAuthService } from './oauth.service';
 import { NotificationService } from '../notifications/notification.service';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { getFullUrl } from '../../utils/url';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import config from '../../config/env';
-import logger from '../../utils/logger';
-import { loginLimiter, registerLimiter, passwordLimiter } from '../../middleware/rate-limit.middleware';
+import logger from '../../lib/logger';
+import { loginLimiter, registerLimiter, passwordLimiter } from '../../lib/rate-limiters';
 
 const router = Router();
 
@@ -42,7 +42,7 @@ router.get('/me', authenticate, async (req: AuthenticatedRequest, res: Response)
     if (err instanceof AuthenticationError) {
       return unauthorized(res, err.message);
     }
-    logger.error({ err }, 'Get profile error');
+    logger.error('Get profile error', { err });
     internalError(res);
   }
 });
@@ -70,7 +70,7 @@ router.post('/register', registerLimiter, async (req: Request, res: Response) =>
     if (err instanceof ConflictError) {
       return conflict(res, err.message);
     }
-    logger.error({ err }, 'Register error');
+    logger.error('Register error', { err });
     internalError(res);
   }
 });
@@ -97,7 +97,7 @@ router.post('/register-invite', registerLimiter, async (req: Request, res: Respo
     if (err instanceof ConflictError) {
       return conflict(res, err.message);
     }
-    logger.error({ err }, 'Register with invitation error');
+    logger.error('Register with invitation error', { err });
     internalError(res);
   }
 });
@@ -124,7 +124,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     if (err instanceof AuthenticationError) {
       return unauthorized(res, err.message);
     }
-    logger.error({ err }, 'Login error');
+    logger.error('Login error', { err });
     internalError(res);
   }
 });
@@ -151,7 +151,7 @@ router.get('/config', async (req: Request, res: Response) => {
 
     success(res, combinedConfig);
   } catch (err) {
-    logger.error({ err }, 'Get auth config error');
+    logger.error('Get auth config error', { err });
     internalError(res);
   }
 });
@@ -173,7 +173,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     if (err instanceof AuthenticationError) {
       return unauthorized(res, err.message);
     }
-    logger.error({ err }, 'Refresh token error');
+    logger.error('Refresh token error', { err });
     internalError(res);
   }
 });
@@ -191,7 +191,7 @@ router.post('/logout', async (req: Request, res: Response) => {
     }
     success(res, { message: 'Logged out successfully' });
   } catch (err) {
-    logger.error({ err }, 'Logout error');
+    logger.error('Logout error', { err });
     internalError(res);
   }
 });
@@ -205,7 +205,7 @@ router.post('/logout-all', authenticate, async (req: AuthenticatedRequest, res: 
     await AuthService.revokeAllRefreshTokens(req.user!.userId);
     success(res, { message: 'Logged out from all devices' });
   } catch (err) {
-    logger.error({ err }, 'Logout all error');
+    logger.error('Logout all error', { err });
     internalError(res);
   }
 });
@@ -221,9 +221,9 @@ router.post('/oauth', loginLimiter, async (req: Request, res: Response) => {
     if (!provider || !idToken) {
       return validationError(res, [{ field: 'provider', message: 'provider and idToken are required' }]);
     }
-    logger.info({ provider }, '[Auth] OAuth Login attempt');
+    logger.info('[Auth] OAuth Login attempt', { provider });
     const result = await OAuthService.authenticate(provider, idToken);
-    logger.info({ userId: result.user.id }, '[Auth] OAuth Login success');
+    logger.info('[Auth] OAuth Login success', { userId: result.user.id });
     success(res, {
       ...result,
       user: {
@@ -235,7 +235,7 @@ router.post('/oauth', loginLimiter, async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof ValidationError) return validationError(res, err.details);
     if (err instanceof AuthenticationError) return unauthorized(res, (err as AuthenticationError).message);
-    logger.error({ err }, 'OAuth error');
+    logger.error('OAuth error', { err });
     internalError(res);
   }
 });
@@ -312,7 +312,7 @@ if (config.nodeEnv === 'development') {
         tokens,
       });
     } catch (err) {
-      logger.error({ err }, '[DEV] Token generation error');
+      logger.error('[DEV] Token generation error', { err });
       internalError(res);
     }
   });

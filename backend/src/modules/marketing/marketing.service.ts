@@ -1,7 +1,7 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -223,7 +223,7 @@ export class MarketingService {
         });
         delivered += batch.length;
       } catch (err) {
-        logger.error({ batchStart: i, err }, '[Marketing] Batch failed');
+        logger.error('[Marketing] Batch failed', { batchStart: i, err });
       }
     }
 

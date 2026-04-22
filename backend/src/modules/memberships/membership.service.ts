@@ -1,10 +1,10 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role, SubscriptionStatus, NotificationType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { NotificationService } from '../notifications/notification.service';
 import { calcMembershipEndDate, hasGymAccess, isBranchAdminOf } from './membership-utils';
 import { AuditLogService, AuditAction } from '../audit/audit.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 
@@ -270,7 +270,7 @@ export class MembershipService {
         },
       });
     } catch (err) {
-      logger.warn({ err }, '[MembershipService] Failed to send status update notification');
+      logger.warn('[MembershipService] Failed to send status update notification', { err });
     }
 
     return updated;
@@ -763,7 +763,7 @@ export class MembershipService {
         },
       });
     } catch (err) {
-      logger.warn({ err }, '[MembershipService] Failed to send activation notification');
+      logger.warn('[MembershipService] Failed to send activation notification', { err });
     }
 
     return {

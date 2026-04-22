@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { upload, UploadService, UploadCategory, ensureUploadDirs } from './upload.service';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { success, validationError, internalError } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -32,7 +32,7 @@ router.post('/:category', (req: AuthenticatedRequest, res: Response) => {
       if (err.code === 'LIMIT_FILE_SIZE') {
         return validationError(res, [{ field: 'file', message: 'File size exceeds 5MB limit.' }]);
       }
-      logger.error({ err }, 'Upload error');
+      logger.error('Upload error', { err });
       return internalError(res);
     }
 
@@ -71,7 +71,7 @@ router.delete('/:category/:filename', async (req: AuthenticatedRequest, res: Res
       success(res, { message: 'File not found or already deleted.' });
     }
   } catch (err) {
-    logger.error({ err }, 'Delete file error');
+    logger.error('Delete file error', { err });
     internalError(res);
   }
 });

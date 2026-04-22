@@ -22,7 +22,7 @@ import {
   internalError,
 } from '../../utils/response';
 import { awardPoints, POINTS } from '../../utils/leaderboard.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -55,7 +55,7 @@ router.post(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Create door system error');
+      logger.error('Create door system error', { err });
       internalError(res);
     }
   }
@@ -84,7 +84,7 @@ router.get(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Get door systems error');
+      logger.error('Get door systems error', { err });
       internalError(res);
     }
   }
@@ -113,7 +113,7 @@ router.patch(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Update door system error');
+      logger.error('Update door system error', { err });
       internalError(res);
     }
   }
@@ -141,7 +141,7 @@ router.delete(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Delete door system error');
+      logger.error('Delete door system error', { err });
       internalError(res);
     }
   }
@@ -170,7 +170,7 @@ router.get(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Check door health error');
+      logger.error('Check door health error', { err });
       internalError(res);
     }
   }
@@ -199,7 +199,7 @@ router.post('/systems/:id/unlock', async (req: AuthenticatedRequest, res: Respon
     if (err instanceof DoorAccessValidationError) {
       return badRequest(res, err.message);
     }
-    logger.error({ err }, 'Request unlock error');
+    logger.error('Request unlock error', { err });
     internalError(res);
   }
 });
@@ -221,7 +221,7 @@ router.post('/systems/:id/validate', async (req: AuthenticatedRequest, res: Resp
     if (err instanceof DoorAccessNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Validate unlock error');
+    logger.error('Validate unlock error', { err });
     internalError(res);
   }
 });
@@ -249,7 +249,7 @@ router.post(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Revoke access error');
+      logger.error('Revoke access error', { err });
       internalError(res);
     }
   }
@@ -286,7 +286,7 @@ router.get(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Get access logs error');
+      logger.error('Get access logs error', { err });
       internalError(res);
     }
   }
@@ -320,7 +320,7 @@ router.get(
       if (err instanceof DoorAccessDeniedError) {
         return forbidden(res, err.message);
       }
-      logger.error({ err }, 'Get gym access logs error');
+      logger.error('Get gym access logs error', { err });
       internalError(res);
     }
   }
@@ -340,7 +340,7 @@ router.get('/gyms/:gymId/access-check', async (req: AuthenticatedRequest, res: R
     );
     success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Access check error');
+    logger.error('Access check error', { err });
     internalError(res);
   }
 });
@@ -362,7 +362,7 @@ router.get('/gyms/:gymId/access-schedule', async (req: AuthenticatedRequest, res
 
     success(res, schedule);
   } catch (err) {
-    logger.error({ err }, 'Get access schedule error');
+    logger.error('Get access schedule error', { err });
     internalError(res);
   }
 });
@@ -381,7 +381,7 @@ router.get('/gyms/:gymId/access-windows', async (req: AuthenticatedRequest, res:
     );
     success(res, windows);
   } catch (err) {
-    logger.error({ err }, 'Get access windows error');
+    logger.error('Get access windows error', { err });
     internalError(res);
   }
 });
@@ -424,7 +424,7 @@ router.post('/systems/:id/unlock-with-validation', async (req: AuthenticatedRequ
       sourceType: 'CHECKIN',
       delta:      POINTS.CHECKIN,
       reason:     'Gym check-in',
-    }).catch((err) => logger.warn({ err }, 'awardPoints(CHECKIN) failed'));
+    }).catch((err) => logger.warn('awardPoints(CHECKIN) failed', { err }));
 
     success(res, {
       ...unlockResult,
@@ -440,7 +440,7 @@ router.post('/systems/:id/unlock-with-validation', async (req: AuthenticatedRequ
     if (err instanceof DoorAccessValidationError) {
       return badRequest(res, err.message);
     }
-    logger.error({ err }, 'Request unlock with validation error');
+    logger.error('Request unlock with validation error', { err });
     internalError(res);
   }
 });

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 
 const prismaAny = prisma as any;

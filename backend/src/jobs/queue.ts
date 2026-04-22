@@ -1,7 +1,7 @@
 import { Queue, Worker, Job } from 'bullmq';
 import config from '../config/env';
-import logger from './logger';
-import { decryptField } from './db-crypto';
+import logger from '../lib/logger';
+import { decryptField } from '../lib/db-crypto';
 import { NotificationType, NotificationChannel, DifficultyLevel, DayOfWeek } from '@prisma/client';
 
 // ─── Provider Constants ───────────────────────────────────────────────────────
@@ -665,7 +665,7 @@ function resolveModelName(aiConfig: any): string {
 
 async function processAiJob(job: Job<AiJobPayload>, type: 'WORKOUT' | 'DIET') {
   // Import here to avoid circular deps and keep startup clean
-  const { default: prisma } = await import('./prisma');
+  const { default: prisma } = await import('../lib/prisma');
   const { PlatformConfigService } = await import('../modules/platform/platform-config.service');
 
   await job.updateProgress({ progress: 10, message: 'Consulting top-tier coaches...' });
@@ -2046,7 +2046,7 @@ ${mealBudgetLine}`;
 }
 
 async function processPushNotification(job: Job<PushNotificationPayload>) {
-  const { default: prisma } = await import('./prisma');
+  const { default: prisma } = await import('../lib/prisma');
   for (const userId of job.data.userIds) {
     await prisma.notification.create({
       data: {

@@ -1,6 +1,8 @@
+import { vi } from 'vitest';
+
 // Global test setup — runs before every test file
 // Suppress logger output during tests to keep output clean
-vi.mock('../utils/logger', () => ({
+vi.mock('../lib/logger', () => ({
   default: {
     info: vi.fn(),
     warn: vi.fn(),

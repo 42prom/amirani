@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { randomUUID } from 'crypto';
-import logger from './logger';
+import logger from '../lib/logger';
 
 /**
  * Standardized API response utilities
@@ -152,7 +152,7 @@ export function rateLimited(res: Response): void {
 // Use this instead of internalError when you have an Error object to log.
 export function serverError(res: Response, err: unknown): void {
   const ref = randomUUID();
-  logger.error({ ref, err }, 'Unhandled server error');
+  logger.error('Unhandled server error', { ref, err });
   error(res, 500, ErrorCodes.INTERNAL_ERROR, `Internal server error (ref: ${ref})`);
 }
 

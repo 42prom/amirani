@@ -1,9 +1,9 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { PaymentStatus, PaymentMethod, SubscriptionStatus } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { NotificationType } from '@prisma/client';
 import { calcMembershipEndDate } from '../memberships/membership-utils';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 // In production, import Stripe: import Stripe from 'stripe';
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -360,7 +360,7 @@ export class PaymentService {
         break;
 
       default:
-        logger.info({ type }, '[Stripe] Unhandled webhook event');
+        logger.info('[Stripe] Unhandled webhook event', { type });
     }
 
     return { received: true };

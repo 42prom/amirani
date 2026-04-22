@@ -1,6 +1,6 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { NotificationService } from '../notifications/notification.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,13 +41,13 @@ export class AutomationService {
       where: { isActive: true },
     });
 
-    logger.info({ count: rules.length }, '[Automations] Processing rules');
+    logger.info('[Automations] Processing rules', { count: rules.length });
 
     for (const rule of rules) {
       try {
         await this.processRule(rule, null);
       } catch (err) {
-        logger.error({ ruleId: rule.id, ruleName: rule.name, err }, '[Automations] Rule failed');
+        logger.error('[Automations] Rule failed', { ruleId: rule.id, ruleName: rule.name, err });
       }
     }
   }

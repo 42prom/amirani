@@ -1,7 +1,7 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { AIProvider, UserTier } from '@prisma/client';
-import { encryptField, decryptField } from '../../utils/crypto';
-import logger from '../../utils/logger';
+import { encryptField, decryptField } from '../../lib/db-crypto';
+import logger from '../../lib/logger';
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 

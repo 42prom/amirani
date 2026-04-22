@@ -1,11 +1,11 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role, SubscriptionStatus } from '@prisma/client';
 import { hasGymAccess, isBranchAdminOf } from '../memberships/membership-utils';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../../config/env';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 import {
   validateRequired,
   validateEmail,
@@ -589,7 +589,7 @@ export class GymService {
       },
     };
     } catch (error: any) {
-      logger.error({ gymId, error }, '[GymService] Critical Stats Error');
+      logger.error('[GymService] Critical Stats Error', { gymId, error });
       throw new Error(`Analytics Engine Failure: ${error.message}`);
     }
   }

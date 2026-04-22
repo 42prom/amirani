@@ -1,4 +1,4 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { DayOfWeek } from '@prisma/client';
 import { validateMembershipAccess } from '../memberships/membership-utils';
 

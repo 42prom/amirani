@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { AuthenticatedRequest, authenticate, superAdminOnly } from '../../middleware/auth.middleware';
 import { PlatformConfigService, PlatformConfigError } from './platform-config.service';
 import { success, badRequest, serverError } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 import { AIProvider, UserTier } from '@prisma/client';
 
 const router = Router();

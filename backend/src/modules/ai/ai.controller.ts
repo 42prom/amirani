@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs/queue';
 import { success, badRequest, internalError, rateLimited } from '../../utils/response';
-import prisma from '../../utils/prisma';
-import logger from '../../utils/logger';
+import prisma from '../../lib/prisma';
+import logger from '../../lib/logger';
 
 const router = Router();
 router.use(authenticate);
@@ -15,7 +15,7 @@ router.use(authenticate);
 
 async function checkAiRateLimit(userId: string): Promise<boolean> {
   try {
-    const { redisConnection } = await import('../../lib/queue');
+    const { redisConnection } = await import('../../jobs/queue');
     const Redis = (await import('ioredis')).default;
     const redis = new Redis(redisConnection as any);
 
@@ -162,7 +162,7 @@ router.post('/generate-workout', async (req: AuthenticatedRequest, res: Response
       userMetrics: mergedMetrics,
     });
 
-    logger.info({ userId, jobId }, '[AI] Workout plan job enqueued');
+    logger.info('[AI] Workout plan job enqueued', { userId, jobId });
 
     return success(res, {
       jobId,
@@ -170,7 +170,7 @@ router.post('/generate-workout', async (req: AuthenticatedRequest, res: Response
       message: 'Your workout plan is being generated. Poll /api/ai/job-status for updates.',
     }, undefined, 202);
   } catch (err) {
-    logger.error({ err }, '[AI] generate-workout enqueue error');
+    logger.error('[AI] generate-workout enqueue error', { err });
     internalError(res);
   }
 });
@@ -245,7 +245,7 @@ router.post('/generate-diet', async (req: AuthenticatedRequest, res: Response) =
       mealsPerDay: parsed.data.mealsPerDay,
     });
 
-    logger.info({ userId, jobId }, '[AI] Diet plan job enqueued');
+    logger.info('[AI] Diet plan job enqueued', { userId, jobId });
 
     return success(res, {
       jobId,
@@ -253,7 +253,7 @@ router.post('/generate-diet', async (req: AuthenticatedRequest, res: Response) =
       message: 'Your diet plan is being generated. Poll /api/ai/job-status for updates.',
     }, undefined, 202);
   } catch (err) {
-    logger.error({ err }, '[AI] generate-diet enqueue error');
+    logger.error('[AI] generate-diet enqueue error', { err });
     internalError(res);
   }
 });
@@ -278,7 +278,7 @@ router.get('/job-status/:jobId', async (req: AuthenticatedRequest, res: Response
 
     return success(res, status);
   } catch (err) {
-    logger.error({ err }, '[AI] job-status check error');
+    logger.error('[AI] job-status check error', { err });
     internalError(res);
   }
 });

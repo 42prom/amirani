@@ -1,4 +1,4 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { DepositStatus, DepositType, Role } from '@prisma/client';
 
 export class DepositService {

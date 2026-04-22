@@ -22,7 +22,7 @@ import {
   forbidden,
   internalError,
 } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -43,7 +43,7 @@ router.post('/gym-owners', superAdminOnly, async (req: AuthenticatedRequest, res
     if (err instanceof AdminConflictError) {
       return conflict(res, err.message);
     }
-    logger.error({ err }, 'Create gym owner error');
+    logger.error('Create gym owner error', { err });
     internalError(res);
   }
 });
@@ -56,7 +56,7 @@ router.get('/gym-owners', superAdminOnly, async (req: AuthenticatedRequest, res:
     const gymOwners = await AdminService.getAllGymOwners();
     success(res, gymOwners);
   } catch (err) {
-    logger.error({ err }, 'Get gym owners error');
+    logger.error('Get gym owners error', { err });
     internalError(res);
   }
 });
@@ -86,7 +86,7 @@ router.post('/branch-admins', gymOwnerOrAbove, async (req: AuthenticatedRequest,
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Create branch admin error');
+    logger.error('Create branch admin error', { err });
     internalError(res);
   }
 });
@@ -116,7 +116,7 @@ router.post('/trainers', branchAdminOrAbove, async (req: AuthenticatedRequest, r
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Create trainer error');
+    logger.error('Create trainer error', { err });
     internalError(res);
   }
 });
@@ -140,7 +140,7 @@ router.get('/gyms/:gymId/trainers', branchAdminOrAbove, async (req: Authenticate
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Get gym trainers error');
+    logger.error('Get gym trainers error', { err });
     internalError(res);
   }
 });
@@ -165,7 +165,7 @@ router.patch('/trainers/:id', branchAdminOrAbove, async (req: AuthenticatedReque
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Update trainer error');
+    logger.error('Update trainer error', { err });
     internalError(res);
   }
 });
@@ -181,7 +181,7 @@ router.patch('/gym-owners/:id', superAdminOnly, async (req: AuthenticatedRequest
     if (err instanceof AdminNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Update gym owner error');
+    logger.error('Update gym owner error', { err });
     internalError(res);
   }
 });
@@ -201,7 +201,7 @@ router.post('/gym-owners/:id/extend-saas-trial', superAdminOnly, async (req: Aut
     if (err instanceof AdminNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Extend SaaS trial error');
+    logger.error('Extend SaaS trial error', { err });
     internalError(res);
   }
 });
@@ -225,7 +225,7 @@ router.delete('/trainers/:id', branchAdminOrAbove, async (req: AuthenticatedRequ
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Delete trainer error');
+    logger.error('Delete trainer error', { err });
     internalError(res);
   }
 });
@@ -248,7 +248,7 @@ router.delete('/branch-admins/:id', gymOwnerOrAbove, async (req: AuthenticatedRe
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Delete branch admin error');
+    logger.error('Delete branch admin error', { err });
     internalError(res);
   }
 });
@@ -271,7 +271,7 @@ router.post('/users/:id/deactivate', gymOwnerOrAbove, async (req: AuthenticatedR
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Deactivate user error');
+    logger.error('Deactivate user error', { err });
     internalError(res);
   }
 });
@@ -294,7 +294,7 @@ router.post('/users/:id/activate', superAdminOnly, async (req: AuthenticatedRequ
     if (err instanceof AdminAccessDeniedError) {
       return forbidden(res, err.message);
     }
-    logger.error({ err }, 'Activate user error');
+    logger.error('Activate user error', { err });
     internalError(res);
   }
 });
@@ -306,7 +306,7 @@ router.get('/exercise-library/stats', superAdminOnly, async (req: AuthenticatedR
     const stats = await AdminService.getExerciseLibraryStats();
     return success(res, stats);
   } catch (err) {
-    logger.error({ err }, 'Exercise library stats error');
+    logger.error('Exercise library stats error', { err });
     internalError(res);
   }
 });
@@ -319,7 +319,7 @@ router.get('/exercise-library', superAdminOnly, async (req: AuthenticatedRequest
     const exercises = await AdminService.listExerciseLibrary({ q, muscle, diff });
     return success(res, { exercises });
   } catch (err) {
-    logger.error({ err }, 'Exercise library list error');
+    logger.error('Exercise library list error', { err });
     internalError(res);
   }
 });
@@ -333,7 +333,7 @@ router.post('/exercise-library/import', superAdminOnly, async (req: Authenticate
     const result = await AdminService.importExerciseLibrary(records);
     return success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Exercise library import error');
+    logger.error('Exercise library import error', { err });
     internalError(res);
   }
 });
@@ -344,7 +344,7 @@ router.post('/exercise-library', superAdminOnly, async (req: AuthenticatedReques
     return created(res, exercise);
   } catch (err: any) {
     if (err?.code === 'P2002') return conflict(res, 'An exercise with this name already exists');
-    logger.error({ err }, 'Exercise library create error');
+    logger.error('Exercise library create error', { err });
     internalError(res);
   }
 });
@@ -355,7 +355,7 @@ router.patch('/exercise-library/:id', superAdminOnly, async (req: AuthenticatedR
     return success(res, exercise);
   } catch (err: any) {
     if (err instanceof AdminNotFoundError) return notFound(res, err.resource);
-    logger.error({ err }, 'Exercise library update error');
+    logger.error('Exercise library update error', { err });
     internalError(res);
   }
 });
@@ -366,7 +366,7 @@ router.delete('/exercise-library/:id', superAdminOnly, async (req: Authenticated
     return success(res, { deleted: true });
   } catch (err) {
     if (err instanceof AdminNotFoundError) return notFound(res, err.resource);
-    logger.error({ err }, 'Exercise library delete error');
+    logger.error('Exercise library delete error', { err });
     internalError(res);
   }
 });
@@ -378,7 +378,7 @@ router.get('/ingredient-library/stats', superAdminOnly, async (req: Authenticate
     const stats = await AdminService.getIngredientLibraryStats();
     return success(res, stats);
   } catch (err) {
-    logger.error({ err }, 'Ingredient library stats error');
+    logger.error('Ingredient library stats error', { err });
     internalError(res);
   }
 });
@@ -391,7 +391,7 @@ router.get('/ingredient-library', superAdminOnly, async (req: AuthenticatedReque
     const ingredients = await AdminService.listIngredientLibrary({ q, category, verified });
     return success(res, { ingredients });
   } catch (err) {
-    logger.error({ err }, 'Ingredient library list error');
+    logger.error('Ingredient library list error', { err });
     internalError(res);
   }
 });
@@ -405,7 +405,7 @@ router.post('/ingredient-library/import', superAdminOnly, async (req: Authentica
     const result = await AdminService.importIngredientLibrary(records);
     return success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Ingredient library import error');
+    logger.error('Ingredient library import error', { err });
     internalError(res);
   }
 });
@@ -416,7 +416,7 @@ router.post('/ingredient-library', superAdminOnly, async (req: AuthenticatedRequ
     return created(res, ingredient);
   } catch (err: any) {
     if (err?.code === 'P2002') return conflict(res, 'An ingredient with this barcode already exists');
-    logger.error({ err }, 'Ingredient library create error');
+    logger.error('Ingredient library create error', { err });
     internalError(res);
   }
 });
@@ -427,7 +427,7 @@ router.patch('/ingredient-library/:id/verify', superAdminOnly, async (req: Authe
     return success(res, ingredient);
   } catch (err) {
     if (err instanceof AdminNotFoundError) return notFound(res, err.resource);
-    logger.error({ err }, 'Ingredient verify error');
+    logger.error('Ingredient verify error', { err });
     internalError(res);
   }
 });
@@ -438,7 +438,7 @@ router.patch('/ingredient-library/:id', superAdminOnly, async (req: Authenticate
     return success(res, ingredient);
   } catch (err) {
     if (err instanceof AdminNotFoundError) return notFound(res, err.resource);
-    logger.error({ err }, 'Ingredient library update error');
+    logger.error('Ingredient library update error', { err });
     internalError(res);
   }
 });
@@ -449,7 +449,7 @@ router.delete('/ingredient-library/:id', superAdminOnly, async (req: Authenticat
     return success(res, { deleted: true });
   } catch (err) {
     if (err instanceof AdminNotFoundError) return notFound(res, err.resource);
-    logger.error({ err }, 'Ingredient library delete error');
+    logger.error('Ingredient library delete error', { err });
     internalError(res);
   }
 });
@@ -461,7 +461,7 @@ router.get('/food-cache/stats', superAdminOnly, async (req: AuthenticatedRequest
     const stats = await AdminService.getExternalFoodCacheStats();
     return success(res, stats);
   } catch (err) {
-    logger.error({ err }, 'Food cache stats error');
+    logger.error('Food cache stats error', { err });
     internalError(res);
   }
 });
@@ -473,7 +473,7 @@ router.get('/food-cache', superAdminOnly, async (req: AuthenticatedRequest, res:
     const items  = await AdminService.listExternalFoodCache({ source, q });
     return success(res, { items });
   } catch (err) {
-    logger.error({ err }, 'Food cache list error');
+    logger.error('Food cache list error', { err });
     internalError(res);
   }
 });
@@ -487,7 +487,7 @@ router.delete('/food-cache', superAdminOnly, async (req: AuthenticatedRequest, r
     const result = await AdminService.pruneExternalFoodCache(days);
     return success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Food cache prune error');
+    logger.error('Food cache prune error', { err });
     internalError(res);
   }
 });

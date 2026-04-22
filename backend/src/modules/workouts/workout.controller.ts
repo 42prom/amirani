@@ -1,10 +1,10 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { success, badRequest, internalError } from '../../utils/response';
 import { awardPoints, POINTS } from '../../utils/leaderboard.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 router.use(authenticate);
@@ -192,7 +192,7 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
       sourceType: 'WORKOUT',
       delta:      POINTS.WORKOUT_COMPLETE,
       reason:     `Completed workout: ${routineName}`,
-    }).catch((err) => logger.warn({ err }, 'awardPoints failed'));
+    }).catch((err) => logger.warn('awardPoints failed', { err }));
 
     return success(res, {
       historyId: history.id,
@@ -202,7 +202,7 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
       progressions: progressionResults,
     }, undefined, 201);
   } catch (err) {
-    logger.error({ err }, '[Workout] save history error');
+    logger.error('[Workout] save history error', { err });
     internalError(res);
   }
 });
@@ -243,7 +243,7 @@ router.get('/history', async (req: AuthenticatedRequest, res: Response) => {
 
     return success(res, { history, total, limit, offset });
   } catch (err) {
-    logger.error({ err }, '[Workout] get history error');
+    logger.error('[Workout] get history error', { err });
     internalError(res);
   }
 });
@@ -268,7 +268,7 @@ router.get('/history/:id', async (req: AuthenticatedRequest, res: Response) => {
 
     return success(res, history);
   } catch (err) {
-    logger.error({ err }, '[Workout] get history detail error');
+    logger.error('[Workout] get history detail error', { err });
     internalError(res);
   }
 });

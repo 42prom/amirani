@@ -1,6 +1,6 @@
 import { Worker, Job } from 'bullmq';
-import prisma from './prisma';
-import logger from './logger';
+import prisma from '../lib/prisma';
+import logger from '../lib/logger';
 
 const ARCHIVE_WINDOW_DAYS = 90;
 

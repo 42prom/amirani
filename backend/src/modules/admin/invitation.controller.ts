@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { InvitationService, InvitationError } from './invitation.service';
 import { authenticate, superAdminOnly, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { success, created, badRequest, serverError } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 

@@ -5,7 +5,7 @@ import {
   PaymentError,
   PaymentNotFoundError,
 } from './payment.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 import { PaymentStatus } from '@prisma/client';
 import {
   authenticate,
@@ -60,7 +60,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
       }
       const rawBody = req.body as Buffer;
       if (!verifyStripeSignature(rawBody, sig, webhookSecret)) {
-        logger.warn({ sig }, '[Stripe] Webhook signature verification failed');
+        logger.warn('[Stripe] Webhook signature verification failed', { sig });
         return badRequest(res, 'Webhook signature verification failed');
       }
       event = JSON.parse(rawBody.toString('utf8'));
@@ -72,7 +72,7 @@ router.post('/webhook', async (req: Request, res: Response) => {
     const result = await PaymentService.handleWebhook(event);
     success(res, result);
   } catch (err: any) {
-    logger.error({ err }, '[Stripe] Webhook processing error');
+    logger.error('[Stripe] Webhook processing error', { err });
     serverError(res, err);
   }
 });
@@ -111,7 +111,7 @@ router.post('/create-intent', async (req: AuthenticatedRequest, res: Response) =
     if (err instanceof PaymentNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Create payment intent error');
+    logger.error('Create payment intent error', { err });
     internalError(res);
   }
 });
@@ -144,7 +144,7 @@ router.post('/subscribe', async (req: AuthenticatedRequest, res: Response) => {
     if (err instanceof PaymentNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Subscribe error');
+    logger.error('Subscribe error', { err });
     internalError(res);
   }
 });
@@ -165,7 +165,7 @@ router.get('/history', async (req: AuthenticatedRequest, res: Response) => {
 
     success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Get payment history error');
+    logger.error('Get payment history error', { err });
     internalError(res);
   }
 });
@@ -185,7 +185,7 @@ router.post('/subscriptions/:id/cancel', async (req: AuthenticatedRequest, res: 
     if (err instanceof PaymentNotFoundError) {
       return notFound(res, err.resource);
     }
-    logger.error({ err }, 'Cancel subscription error');
+    logger.error('Cancel subscription error', { err });
     internalError(res);
   }
 });
@@ -205,7 +205,7 @@ router.get(
       const stats = await PaymentService.getGymRevenueStats(req.params.gymId);
       success(res, stats);
     } catch (err) {
-      logger.error({ err }, 'Get revenue stats error');
+      logger.error('Get revenue stats error', { err });
       internalError(res);
     }
   }
@@ -220,7 +220,7 @@ router.post('/process-expiring', authenticate, superAdminOnly, async (req: Authe
     const result = await PaymentService.processExpiringSubscriptions();
     success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Process expiring subscriptions error');
+    logger.error('Process expiring subscriptions error', { err });
     internalError(res);
   }
 });

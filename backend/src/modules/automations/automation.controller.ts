@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest, branchAdminOrAbove } from '../../middleware/auth.middleware';
 import { AutomationService, ALL_TRIGGERS } from './automation.service';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 
 const router = Router();

@@ -1,8 +1,8 @@
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { AccessControlService } from '../door-access/access-control.service';
-import { awardPoints, POINTS } from '../../lib/leaderboard.service';
-import logger from '../../utils/logger';
-import { getIO } from '../../utils/socket';
+import { awardPoints, POINTS } from '../../utils/leaderboard.service';
+import logger from '../../lib/logger';
+import { getIO } from '../../lib/socket';
 import { GatewayCmd, CommandStatus } from '@prisma/client';
 
 // ─── Gateway Registration ─────────────────────────────────────────────────────
@@ -268,7 +268,7 @@ export async function validateCardScan(params: {
       sourceType: 'CHECKIN',
       delta: POINTS.CHECKIN,
       reason: `Card check-in at ${gateway.gym.name}`,
-    }).catch((err) => logger.error('[HW] awardPoints error', { err }));
+    }).catch((err: any) => logger.error('[HW] awardPoints error', { err }));
   }
 
   await _logAccess(gymId, userId, gateway.id, true, params.deviceInfo);

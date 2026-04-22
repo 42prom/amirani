@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { z } from 'zod';
 import { getFullUrl } from '../../utils/url';
 import { recalculateUserStats } from '../../utils/leaderboard.service';
 import { v4 as uuidv4 } from 'uuid';
 import { inferMealType } from './mobile.controller';
 import { serverError } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 
 const SyncUpSchema = z.object({
@@ -108,7 +108,7 @@ export class SyncController {
         // Handle Profile updates
         if (parsedBody.changes.profile) {
             const p = parsedBody.changes.profile;
-            logger.debug({ userId }, '[Sync] Updating profile');
+            logger.debug('[Sync] Updating profile', { userId });
             
             // Auto-calculate fullName if segments are provided but fullName isn't explicitly sent
             let fullName = p.fullName;
@@ -206,7 +206,7 @@ export class SyncController {
 
       res.status(200).json({ success: true, message: 'Sync up successful.' });
     } catch (error: any) {
-      logger.error({ error }, '[Sync] Error in syncUp');
+      logger.error('[Sync] Error in syncUp', { error });
       
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 

@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import {

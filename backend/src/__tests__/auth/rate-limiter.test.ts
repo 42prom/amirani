@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import { loginLimiter, registerLimiter } from '../../middleware/rate-limit.middleware';
+import { loginLimiter, registerLimiter } from '../../lib/rate-limiters';
 
-vi.mock('../../utils/prisma', () => ({
+vi.mock('../../lib/prisma', () => ({
   default: {
     user: { findUnique: vi.fn().mockResolvedValue(null) },
     refreshToken: { create: vi.fn(), deleteMany: vi.fn() },

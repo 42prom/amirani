@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 import config from '../../config/env';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 import {
   validateEmail,
   validatePassword,

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Prisma mock ───────────────────────────────────────────────────────────────
-vi.mock('../../utils/prisma', () => ({
+vi.mock('../../lib/prisma', () => ({
   default: {
     notification: { findFirst: vi.fn() },
     dietPlan: { findMany: vi.fn() },
@@ -24,7 +24,7 @@ vi.mock('../../config/env', () => ({
   },
 }));
 
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { NotificationService } from '../../modules/notifications/notification.service';
 
 // ── isMatchingTime helper (extracted from private static) ────────────────────

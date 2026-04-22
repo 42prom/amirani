@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { StripeConnectService, StripeConnectError } from './stripe-connect.service';
 import {
   authenticate,
@@ -10,7 +10,7 @@ import {
 } from '../../middleware/auth.middleware';
 import { success, created, notFound, forbidden, badRequest, serverError } from '../../utils/response';
 import { Role, DayOfWeek } from '@prisma/client';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 

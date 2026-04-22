@@ -1,6 +1,6 @@
 import { Router, Response, Request } from 'express';
 import { getFullUrl } from '../../utils/url';
-import prisma from '../../utils/prisma';
+import prisma from '../../lib/prisma';
 import { AccessControlService } from '../door-access/access-control.service';
 import {
   authenticate,
@@ -11,7 +11,7 @@ import {
 import { success, forbidden, badRequest, notFound, internalError } from '../../utils/response';
 import { GymQrService } from './gym-qr.service';
 import { awardPoints, POINTS } from '../../utils/leaderboard.service';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -36,7 +36,7 @@ router.post('/qr/generate', authenticate, branchAdminOrAbove, async (req: Authen
     return success(res, { qrData, expiresAt });
   } catch (err: any) {
     if (err.status) return res.status(err.status).json({ success: false, error: { message: err.message } });
-    logger.error({ err }, '[GymEntry] qr/generate error');
+    logger.error('[GymEntry] qr/generate error', { err });
     internalError(res);
   }
 });
@@ -99,7 +99,7 @@ router.post('/qr/verify', authenticate, async (req: AuthenticatedRequest, res: R
       existingMembership,
     });
   } catch (err) {
-    logger.error({ err }, '[GymEntry] qr/verify error');
+    logger.error('[GymEntry] qr/verify error', { err });
     internalError(res);
   }
 });
@@ -238,7 +238,7 @@ router.post('/check-in/qr', authenticate, async (req: AuthenticatedRequest, res:
       sourceType: 'CHECKIN',
       delta: POINTS.CHECKIN,
       reason: `Gym check-in at ${doorSystem.gym.name}`,
-    }).catch((err) => logger.error({ err }, '[GymEntry] awardPoints error'));
+    }).catch((err) => logger.error('[GymEntry] awardPoints error', { err }));
 
     const daysRemaining = Math.max(0, Math.ceil(
       (new Date(membership.endDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
@@ -257,7 +257,7 @@ router.post('/check-in/qr', authenticate, async (req: AuthenticatedRequest, res:
       alreadyCheckedIn: false,
     });
   } catch (err) {
-    logger.error({ err }, '[GymEntry] check-in/qr error');
+    logger.error('[GymEntry] check-in/qr error', { err });
     internalError(res);
   }
 });
@@ -325,7 +325,7 @@ router.post('/check-in/nfc', authenticate, async (req: AuthenticatedRequest, res
       sourceType: 'CHECKIN',
       delta: POINTS.CHECKIN,
       reason: `NFC check-in at gym ${gymId}`,
-    }).catch((err) => logger.error({ err }, '[GymEntry] awardPoints error'));
+    }).catch((err) => logger.error('[GymEntry] awardPoints error', { err }));
 
     return success(res, {
       id: attendance.id,
@@ -335,7 +335,7 @@ router.post('/check-in/nfc', authenticate, async (req: AuthenticatedRequest, res
       message: 'Access Granted: Welcome!',
     });
   } catch (err) {
-    logger.error({ err }, '[GymEntry] check-in/nfc error');
+    logger.error('[GymEntry] check-in/nfc error', { err });
     internalError(res);
   }
 });
@@ -410,7 +410,7 @@ router.get('/details/:gymId', authenticate, async (req: AuthenticatedRequest, re
       equipment: gym.equipment.map(e => e.name),
     });
   } catch (err) {
-    logger.error({ err }, '[GymEntry] details error');
+    logger.error('[GymEntry] details error', { err });
     internalError(res);
   }
 });
@@ -451,7 +451,7 @@ router.post('/check-out', authenticate, async (req: AuthenticatedRequest, res: R
 
     return success(res, { checkedOut: true, duration, checkOut: checkOutTime.toISOString() });
   } catch (err) {
-    logger.error({ err }, '[GymEntry] check-out error');
+    logger.error('[GymEntry] check-out error', { err });
     internalError(res);
   }
 });
@@ -527,7 +527,7 @@ router.get(
         })),
       });
     } catch (err) {
-      logger.error({ err }, '[GymEntry] live error');
+      logger.error('[GymEntry] live error', { err });
       internalError(res);
     }
   }

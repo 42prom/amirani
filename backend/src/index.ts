@@ -47,7 +47,7 @@ import foodRoutes from './modules/food/food.controller';
 import nutritionStatsRoutes from './modules/food/nutrition-stats.controller';
 import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
-import { initSocket } from './utils/socket';
+import { initSocket } from './lib/socket';
 import { startAiWorkers } from './jobs/queue';
 import config from './config/env';
 
@@ -60,7 +60,7 @@ const port = config.port;
 initSocket(httpServer);
 
 // ─── Rate Limiters ────────────────────────────────────────────────────────────
-import { globalLimiter } from './middleware/rate-limit.middleware';
+import { globalLimiter } from './lib/rate-limiters';
 
 // Middleware
 app.use(helmet({

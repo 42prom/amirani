@@ -10,8 +10,8 @@ import {
   badRequest,
   internalError,
 } from '../../utils/response';
-import prisma from '../../utils/prisma';
-import logger from '../../utils/logger';
+import prisma from '../../lib/prisma';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -35,7 +35,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 
     success(res, result);
   } catch (err) {
-    logger.error({ err }, 'Get notifications error');
+    logger.error('Get notifications error', { err });
     internalError(res);
   }
 });
@@ -49,7 +49,7 @@ router.post('/:id/read', async (req: AuthenticatedRequest, res: Response) => {
     await NotificationService.markAsRead(req.params.id, req.user!.userId);
     success(res, { marked: true });
   } catch (err) {
-    logger.error({ err }, 'Mark as read error');
+    logger.error('Mark as read error', { err });
     internalError(res);
   }
 });
@@ -63,7 +63,7 @@ router.post('/read-all', async (req: AuthenticatedRequest, res: Response) => {
     const result = await NotificationService.markAllAsRead(req.user!.userId);
     success(res, { marked: result.count });
   } catch (err) {
-    logger.error({ err }, 'Mark all as read error');
+    logger.error('Mark all as read error', { err });
     internalError(res);
   }
 });
@@ -77,7 +77,7 @@ router.get('/preferences', async (req: AuthenticatedRequest, res: Response) => {
     const preferences = await NotificationService.getPreferences(req.user!.userId);
     success(res, preferences);
   } catch (err) {
-    logger.error({ err }, 'Get preferences error');
+    logger.error('Get preferences error', { err });
     internalError(res);
   }
 });
@@ -94,7 +94,7 @@ router.patch('/preferences', async (req: AuthenticatedRequest, res: Response) =>
     );
     success(res, preferences);
   } catch (err) {
-    logger.error({ err }, 'Update preferences error');
+    logger.error('Update preferences error', { err });
     internalError(res);
   }
 });
@@ -138,7 +138,7 @@ router.post('/register-device', async (req: AuthenticatedRequest, res: Response)
 
     success(res, { registered: true });
   } catch (err) {
-    logger.error({ err }, 'Register device error');
+    logger.error('Register device error', { err });
     internalError(res);
   }
 });
@@ -168,7 +168,7 @@ router.post('/test', async (req: AuthenticatedRequest, res: Response) => {
     if (err instanceof NotificationError) {
       return badRequest(res, err.message);
     }
-    logger.error({ err }, 'Test notification error');
+    logger.error('Test notification error', { err });
     internalError(res);
   }
 });

@@ -25,7 +25,7 @@ import {
   validationError,
   internalError,
 } from '../../utils/response';
-import logger from '../../utils/logger';
+import logger from '../../lib/logger';
 
 const router = Router();
 
@@ -72,7 +72,7 @@ router.post(
       if (error instanceof MembershipAccessDeniedError) {
         return forbidden(res, error.message);
       }
-      logger.error({ error }, 'Manual create error');
+      logger.error('Manual create error', { error });
       return internalError(res, 'Failed to create member');
     }
   }
@@ -120,7 +120,7 @@ router.post(
       if (error instanceof MembershipAccessDeniedError) {
         return forbidden(res, error.message);
       }
-      logger.error({ error }, 'Manual activate error');
+      logger.error('Manual activate error', { error });
       return internalError(res, 'Failed to activate membership');
     }
   }
@@ -153,7 +153,7 @@ router.get(
       if (error instanceof MembershipAccessDeniedError) {
         return forbidden(res, error.message);
       }
-      logger.error({ error }, 'Search members error');
+      logger.error('Search members error', { error });
       return internalError(res, 'Failed to search members');
     }
   }
@@ -255,7 +255,7 @@ router.get(
         logs: exportData,
       });
     } catch (error: unknown) {
-      logger.error({ error }, 'Export logs error');
+      logger.error('Export logs error', { error });
       return internalError(res, 'Failed to export logs');
     }
   }

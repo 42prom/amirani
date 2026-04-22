@@ -3,7 +3,7 @@ import {
   NotificationPayload,
   NotificationResult,
 } from './notification-provider.interface';
-import prisma from '../../../utils/prisma';
+import prisma from '../../../lib/prisma';
 import { NotificationType, NotificationChannel } from '@prisma/client';
 
 /**
