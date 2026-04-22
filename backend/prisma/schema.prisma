@@ -88,9 +88,11 @@ model User {
   dailyRecoveries          DailyRecovery[]
   foodLogs                 FoodLog[]
   mealLogs                 MealLog[]
+  userTasks                UserTask[]
 
   @@map("users")
 }
+
 
 model Invitation {
   id             String           @id @default(uuid())
@@ -973,6 +975,41 @@ model DailyProgress {
   @@index([userId, date(sort: Desc)])
   @@map("daily_progress")
 }
+
+enum UserTaskType {
+  WORKOUT_SESSION
+  MEAL
+  CUSTOM
+}
+
+// Tasks auto-created from AI plan generation and trainer plan assignments.
+// Members mark them done; no trainer verification required (trust-based).
+model UserTask {
+  id          String    @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  taskType    UserTaskType  @default(CUSTOM)
+  points      Int       @default(10)
+  dueDate     DateTime  @db.Date
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  // Optional link to the source plan
+  workoutPlanId String?
+  dietPlanId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, dueDate(sort: Desc)])
+  @@index([userId, isCompleted])
+  @@map("user_tasks")
+}
+
+
 
 model UserChallenge {
   id            String           @id @default(uuid())

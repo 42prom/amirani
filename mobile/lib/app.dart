@@ -14,6 +14,10 @@ import 'features/workout/presentation/pages/active_workout_session_page.dart';
 import 'features/diet/presentation/pages/diet_page.dart';
 import 'features/gym/presentation/pages/gym_page.dart';
 import 'features/challenge/presentation/pages/challenge_page.dart';
+import 'features/challenge_rooms/presentation/pages/rooms_list_page.dart';
+import 'features/challenge_rooms/presentation/pages/room_detail_page.dart';
+import 'features/tasks/presentation/pages/tasks_page.dart';
+import 'features/gamification/presentation/pages/gamification_page.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/dashboard/presentation/providers/dashboard_provider.dart';
 import 'features/dashboard/presentation/providers/recovery_provider.dart';
@@ -133,6 +137,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/workout/session',
         builder: (context, state) => const ActiveWorkoutSessionPage(),
       ),
+      // Deep-link: room detail reachable from anywhere (notifications, links)
+      GoRoute(
+        path: '/rooms/:roomId',
+        builder: (context, state) {
+          final roomId = state.pathParameters['roomId']!;
+          return RoomDetailPage(roomId: roomId);
+        },
+      ),
 
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -160,6 +172,33 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/challenge',
                 builder: (context, state) => const ChallengePage(),
+              ),
+            ],
+          ),
+          // ── Challenge Rooms branch ────────────────────────────────────────
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/rooms',
+                builder: (context, state) => const RoomsListPage(),
+              ),
+            ],
+          ),
+          // ── Tasks branch ─────────────────────────────────────────────────
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/tasks',
+                builder: (context, state) => const TasksPage(),
+              ),
+            ],
+          ),
+          // ── Gamification branch ───────────────────────────────────────────
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/gamification',
+                builder: (context, state) => const GamificationPage(),
               ),
             ],
           ),
