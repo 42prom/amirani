@@ -10,6 +10,7 @@ class DailySnapshot {
   final int? dietScore;    // null when member has no diet plan that day
   final int? workoutScore; // null when member has no workout plan that day
   final int? gymMinutes;   // null when member had no gym visit that day
+  final int? recoveryScore; // 0–100, null if no recovery data
 
   const DailySnapshot({
     required this.date,
@@ -17,6 +18,7 @@ class DailySnapshot {
     this.dietScore,
     this.workoutScore,
     this.gymMinutes,
+    this.recoveryScore,
   });
 
   String get storageKey => 'snap_${_fmt(date)}';
@@ -27,6 +29,7 @@ class DailySnapshot {
         if (dietScore != null) 'diet': dietScore,
         if (workoutScore != null) 'workout': workoutScore,
         if (gymMinutes != null) 'gym': gymMinutes,
+        if (recoveryScore != null) 'recovery': recoveryScore,
       };
 
   factory DailySnapshot.fromJson(Map<String, dynamic> json) => DailySnapshot(
@@ -35,6 +38,7 @@ class DailySnapshot {
         dietScore: json['diet'] != null ? (json['diet'] as num?)?.toInt() : null,
         workoutScore: json['workout'] != null ? (json['workout'] as num?)?.toInt() : null,
         gymMinutes: json['gym'] != null ? (json['gym'] as num?)?.toInt() : null,
+        recoveryScore: json['recovery'] != null ? (json['recovery'] as num?)?.toInt() : null,
       );
 
   static String _fmt(DateTime d) =>
@@ -126,6 +130,30 @@ class DailySnapshotService {
       LocalDBService.kvBox.delete(k);
     }
   }
+
+  /// Compute recovery score (0–100) based on health metrics.
+  /// Algorithm weighted: 40% HRV, 40% Sleep, 20% Activity Balance.
+  int calculateRecoveryScore({
+    required double hrv,          // Heart Rate Variability (ms)
+    required double sleepHours,   // Sleep duration (hours)
+    required int sleepQuality,    // Sleep quality (1–10)
+    required int steps,           // Step count
+  }) {
+    // 1. HRV Score (Target: 100ms = 100pts)
+    final hrvScore = (hrv / 1.0).clamp(0.0, 100.0);
+
+    // 2. Sleep Score (Target: 8hrs = 50pts + 10 quality = 50pts)
+    final sleepQtyScore = (sleepHours / 8.0 * 50.0).clamp(0.0, 50.0);
+    final sleepQualScore = (sleepQuality * 5.0).clamp(0.0, 50.0);
+    final totalSleepScore = sleepQtyScore + sleepQualScore;
+
+    // 3. Activity Balance (Target: 10k steps = 100pts)
+    final activityScore = (steps / 100.0).clamp(0.0, 100.0);
+
+    // Final weighted average
+    final finalScore = (hrvScore * 0.4) + (totalSleepScore * 0.4) + (activityScore * 0.2);
+    return finalScore.round();
+  }
 }
 
 // ─── Providers ────────────────────────────────────────────────────────────────
@@ -145,6 +173,7 @@ class SnapshotBar {
   final int? diet;
   final int? workout;
   final int? gymMinutes;
+  final int? recovery;
   final bool hasAnyData;
 
   const SnapshotBar({
@@ -153,6 +182,7 @@ class SnapshotBar {
     this.diet,
     this.workout,
     this.gymMinutes,
+    this.recovery,
     required this.hasAnyData,
   });
 }

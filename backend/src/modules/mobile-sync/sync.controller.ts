@@ -7,6 +7,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { inferMealType } from './mobile.controller';
 import { serverError } from '../../utils/response';
 import logger from '../../lib/logger';
+import { ProgressService } from './progress.service';
+import { awardPoints, POINTS } from '../../utils/leaderboard.service';
 
 
 const SyncUpSchema = z.object({
@@ -73,22 +75,49 @@ export class SyncController {
           logger.debug(`[Sync] Processing ${parsedBody.changes.dailyProgress.length} daily progress updates`, { userId });
           for (const dp of parsedBody.changes.dailyProgress) {
             const dpId = dp.id || uuidv4();
-            // Zod schema intentionally omits caloriesConsumed/protein/carbs/fats — those are
-            // server-owned via food.service.ts atomic increments. Spreading dp here is safe.
-            await tx.dailyProgress.upsert({
+            // ─── TASK COUNTER INTEGRATION ──────────────────────────────────────────
+            // If the mobile app doesn't send tasksTotal, we calculate it now.
+            let tasksTotal = dp.tasksTotal;
+            if (tasksTotal === undefined || tasksTotal === null) {
+              tasksTotal = await ProgressService.calculateTasksTotal(userId, new Date(dp.date));
+            }
+
+            const existingProgress = await tx.dailyProgress.findUnique({
+              where: { userId_date: { userId, date: new Date(dp.date) } }
+            });
+
+            const newProgress = await tx.dailyProgress.upsert({
               where: { userId_date: { userId, date: new Date(dp.date) } },
               update: {
                 ...dp,
+                tasksTotal,
                 id: dpId,
                 date: new Date(dp.date)
               },
               create: {
                 ...dp,
+                tasksTotal,
                 id: dpId,
                 userId: userId,
                 date: new Date(dp.date)
               }
             });
+
+            // ─── PERFECT DAY BONUS ──────────────────────────────────────────────────
+            // Award points if 100% completion is reached for the first time.
+            const wasAlreadyPerfect = existingProgress && existingProgress.tasksTotal > 0 && existingProgress.tasksCompleted >= existingProgress.tasksTotal;
+            const isNowPerfect = newProgress.tasksTotal > 0 && newProgress.tasksCompleted >= newProgress.tasksTotal;
+
+            if (isNowPerfect && !wasAlreadyPerfect) {
+              logger.info(`[Gamification] Awarding Perfect Day bonus to user ${userId}`, { date: dp.date });
+              await awardPoints({
+                userId,
+                sourceId: newProgress.id,
+                sourceType: 'PERFECT_DAY',
+                delta: POINTS.PERFECT_DAY,
+                reason: 'Reached 100% task completion for the day'
+              });
+            }
           }
         }
 
@@ -135,26 +164,34 @@ export class SyncController {
             // ─── TRUST MEMBER: Update Global Points & Streak ─────────────────────────
             const currentUser = await tx.user.findUnique({
                 where: { id: userId },
-                select: { totalPoints: true, streakDays: true } as any
+                select: { totalPoints: true, streakDays: true }
             });
 
             await tx.user.update({
                 where: { id: userId },
                 data: {
-                    ...updateData,
+                    fullName: fullName ?? undefined,
+                    avatarUrl: p.avatarUrl,
+                    idPhotoUrl: p.idPhotoUrl,
+                    gender: normalizeGender(p.gender) as any, // Enum mapping
+                    dob: p.dob, // Schema is String?
+                    weight: p.weight,
+                    height: p.height,
                     targetWeightKg: p.targetWeightKg?.toString(),
-                    totalPoints: p.totalPoints as any,
-                    streakDays: p.streakDays as any,
+                    medicalConditions: p.medicalConditions,
+                    noMedicalConditions: p.noMedicalConditions,
+                    personalNumber: p.personalNumber,
+                    phoneNumber: p.phoneNumber,
+                    address: p.address,
+                    totalPoints: p.totalPoints,
+                    streakDays: p.streakDays,
                     timezone: p.timezone,
                     lastActivityAt: new Date(),
-                    ...(fullName ? { fullName } : {})
-                } as any
+                }
             });
 
             // ─── TRUST MEMBER: Update Leaderboard Points ──────────────────────────────
-            // If totalPoints decreased or increased, we reflect the delta in active rooms
-            // so the leaderboard stays in sync with the 'Trusted' member data.
-            const totalPointsDelta = (p.totalPoints || 0) - ((currentUser as any)?.totalPoints || 0);
+            const totalPointsDelta = (p.totalPoints || 0) - (currentUser?.totalPoints || 0);
             if (totalPointsDelta !== 0) {
                 await tx.roomMembership.updateMany({
                     where: { userId: userId },
@@ -170,8 +207,8 @@ export class SyncController {
                 await tx.trainerProfile.updateMany({
                     where: { userId: userId },
                     data: {
-                        ...(fullName ? { fullName } : {}),
-                        ...(p.avatarUrl ? { avatarUrl: p.avatarUrl } : {}),
+                        fullName: fullName ?? undefined,
+                        avatarUrl: p.avatarUrl,
                     }
                 });
             }
@@ -185,19 +222,19 @@ export class SyncController {
             // Mark WorkoutPlans as deleted
             await tx.workoutPlan.updateMany({
                 where: { id: { in: ids }, userId },
-                data: { deletedAt: new Date() } as any
+                data: { deletedAt: new Date() }
             });
 
             // Mark DietPlans as deleted
             await tx.dietPlan.updateMany({
                 where: { id: { in: ids }, userId },
-                data: { deletedAt: new Date() } as any
+                data: { deletedAt: new Date() }
             });
 
             // Mark DailyProgress as deleted
             await tx.dailyProgress.updateMany({
                 where: { id: { in: ids }, userId },
-                data: { deletedAt: new Date() } as any
+                data: { deletedAt: new Date() }
             });
         }
       });

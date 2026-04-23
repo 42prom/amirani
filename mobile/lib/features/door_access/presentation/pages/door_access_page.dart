@@ -10,7 +10,7 @@ class DoorAccessPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state    = ref.watch(doorAccessProvider);
+    final state = ref.watch(doorAccessProvider);
     final notifier = ref.read(doorAccessProvider.notifier);
 
     return Scaffold(
@@ -66,14 +66,16 @@ class DoorAccessPage extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Text('Could not load history: $e',
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
+                        style: const TextStyle(
+                            color: Colors.redAccent, fontSize: 13)),
                   ),
                 ),
                 data: (history) {
                   if (history.isEmpty) {
                     return SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 24),
                         child: _EmptyHistory(),
                       ),
                     );
@@ -226,8 +228,12 @@ class _CheckInCard extends StatelessWidget {
   }
 
   Color get _borderColor {
-    if (state is DoorAccessGranted) return Colors.greenAccent.withValues(alpha: 0.4);
-    if (state is DoorAccessDenied) return Colors.redAccent.withValues(alpha: 0.4);
+    if (state is DoorAccessGranted) {
+      return Colors.greenAccent.withValues(alpha: 0.4);
+    }
+    if (state is DoorAccessDenied) {
+      return Colors.redAccent.withValues(alpha: 0.4);
+    }
     return AppTheme.primaryBrand.withValues(alpha: 0.3);
   }
 
@@ -246,15 +252,17 @@ class _CheckInCard extends StatelessWidget {
 
   String get _headline {
     if (state is DoorAccessGranted) return 'Access Granted! 🎉';
-    if (state is DoorAccessDenied)
+    if (state is DoorAccessDenied) {
       return 'Access Denied';
+    }
     if (state is DoorAccessLoading) return 'Verifying...';
     return 'Gym Door Access';
   }
 
   String get _subtitle {
-    if (state is DoorAccessDenied)
+    if (state is DoorAccessDenied) {
       return (state as DoorAccessDenied).message;
+    }
     if (state is DoorAccessGranted) return 'Welcome in!';
     if (state is DoorAccessLoading) return 'Checking your membership...';
     return 'Scan the QR code at the gym entrance to check in.';
@@ -264,7 +272,7 @@ class _CheckInCard extends StatelessWidget {
 // ── Granted details ────────────────────────────────────────────────────────────
 
 class _GrantedDetails extends StatelessWidget {
-  final result;
+  final dynamic result;
   const _GrantedDetails({required this.result});
 
   @override
@@ -306,10 +314,14 @@ class _Row extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 13)),
+        Text(label,
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.5), fontSize: 13)),
         Text(value,
             style: const TextStyle(
-                color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600)),
       ],
     );
   }
@@ -343,7 +355,9 @@ class _HistoryTile extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            entry.success ? Icons.check_circle_outline_rounded : Icons.cancel_outlined,
+            entry.success
+                ? Icons.check_circle_outline_rounded
+                : Icons.cancel_outlined,
             color: entry.success ? Colors.greenAccent : Colors.redAccent,
             size: 20,
           ),
@@ -385,10 +399,12 @@ class _EmptyHistory extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.history_rounded, size: 48, color: Colors.white.withValues(alpha: 0.15)),
+          Icon(Icons.history_rounded,
+              size: 48, color: Colors.white.withValues(alpha: 0.15)),
           const SizedBox(height: 12),
           Text('No check-ins yet.',
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 14)),
+              style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.4), fontSize: 14)),
         ],
       ),
     ).animate().fadeIn(duration: 500.ms);

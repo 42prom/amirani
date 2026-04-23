@@ -51,3 +51,11 @@ export function decryptField(value: string | null | undefined): string | null {
     return null;
   }
 }
+
+/**
+ * Utility for batch migrations.
+ * Takes an array of plaintext values and returns encrypted ones.
+ */
+export function batchEncrypt(values: string[]): (string | null)[] {
+  return values.map(v => encryptField(v));
+}

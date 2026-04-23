@@ -28,6 +28,18 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+/** GET /api/rooms/:id/messages — fetch room messages */
+router.get('/:id/messages', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const limit = parseInt(String(req.query.limit ?? '50'));
+    const cursor = req.query.cursor as string | undefined;
+    const messages = await RoomService.getMessages(req.params.id, req.user!.userId, limit, cursor);
+    res.json({ data: messages });
+  } catch (err: any) {
+    res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
 /** POST /api/rooms — member creates room (gym auto-detected from membership) */
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {

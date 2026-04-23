@@ -172,3 +172,33 @@ class MyRoomsData {
         gymId: j['gymId'] as String?,
       );
 }
+
+class RoomMessage {
+  final String id;
+  final String roomId;
+  final String userId;
+  final String body;
+  final String? imageUrl;
+  final DateTime createdAt;
+  final RoomCreator user;
+
+  const RoomMessage({
+    required this.id,
+    required this.roomId,
+    required this.userId,
+    required this.body,
+    this.imageUrl,
+    required this.createdAt,
+    required this.user,
+  });
+
+  factory RoomMessage.fromJson(Map<String, dynamic> j) => RoomMessage(
+        id: j['id']?.toString() ?? '',
+        roomId: j['roomId']?.toString() ?? '',
+        userId: j['userId']?.toString() ?? '',
+        body: j['body']?.toString() ?? '',
+        imageUrl: j['imageUrl'] as String?,
+        createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? '') ?? DateTime.now(),
+        user: RoomCreator.fromJson(j['user'] as Map<String, dynamic>? ?? {}),
+      );
+}

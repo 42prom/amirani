@@ -1,8 +1,6 @@
 import crypto from 'crypto';
 import prisma from '../../lib/prisma';
-import { Role } from '@prisma/client';
-
-const prismaAny = prisma as any;
+import { Role, ProgressRoom, RoomMembership, RoomMessage } from '@prisma/client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -38,7 +36,7 @@ function generateInviteCode(): string {
   ).join('');
 }
 
-function getPeriodRange(room: any): { start: Date; end: Date } {
+function getPeriodRange(room: ProgressRoom): { start: Date; end: Date } {
   const now = new Date();
   const roomStart = new Date(room.startDate);
   const roomEnd = room.endDate ? new Date(room.endDate) : null;
@@ -64,7 +62,7 @@ function getPeriodRange(room: any): { start: Date; end: Date } {
 }
 
 async function computeLeaderboard(
-  room: any,
+  room: ProgressRoom,
   memberIds: string[],
   requesterId: string
 ): Promise<LeaderboardEntry[]> {
@@ -82,22 +80,22 @@ async function computeLeaderboard(
   let scoreMap: Map<string, number>;
 
   if (room.metric === 'CHECKINS') {
-    const counts = await prismaAny.attendance.groupBy({
+    const counts = await prisma.attendance.groupBy({
       by: ['userId'],
       where: { userId: { in: memberIds }, gymId: room.gymId, checkIn: { gte: start, lte: end } },
       _count: { id: true },
     });
-    scoreMap = new Map(counts.map((c: any) => [c.userId, c._count.id]));
+    scoreMap = new Map(counts.map((c) => [c.userId, c._count.id]));
 
   } else if (room.metric === 'SESSIONS') {
     // groupBy doesn't support relation filters — pre-fetch matching session IDs first
-    const matchingSessions = await prismaAny.trainingSession.findMany({
+    const matchingSessions = await prisma.trainingSession.findMany({
       where: { gymId: room.gymId, startTime: { gte: start, lte: end } },
       select: { id: true },
     });
-    const sessionIds = matchingSessions.map((s: any) => s.id);
+    const sessionIds = matchingSessions.map((s) => s.id);
 
-    const counts = await prismaAny.sessionBooking.groupBy({
+    const counts = await prisma.sessionBooking.groupBy({
       by: ['userId'],
       where: {
         userId: { in: memberIds },
@@ -106,11 +104,11 @@ async function computeLeaderboard(
       },
       _count: { id: true },
     });
-    scoreMap = new Map(counts.map((c: any) => [c.userId, c._count.id]));
+    scoreMap = new Map(counts.map((c) => [c.userId, c._count.id]));
 
   } else {
     // STREAK — consecutive days with attendance, counting backwards from today
-    const attendances = await prismaAny.attendance.findMany({
+    const attendances = await prisma.attendance.findMany({
       where: { userId: { in: memberIds }, gymId: room.gymId, checkIn: { gte: start, lte: end } },
       select: { userId: true, checkIn: true },
     });
@@ -170,7 +168,7 @@ export class RoomService {
     const gymId = membership.gymId;
 
     // Rooms I've joined
-    const myMemberships = await prismaAny.roomMembership.findMany({
+    const myMemberships = await prisma.roomMembership.findMany({
       where: { userId },
       include: {
         room: {
@@ -182,12 +180,12 @@ export class RoomService {
       },
     });
 
-    const myRoomIds = new Set(myMemberships.map((m: any) => m.room.id));
-    const myRooms = myMemberships.map((m: any) => m.room);
+    const myRoomIds = new Set(myMemberships.map((m) => m.room.id));
+    const myRooms = myMemberships.map((m) => m.room);
 
     // Gym-owner-created rooms: visible to all active members regardless of isPublic
     const gym = await prisma.gym.findUnique({ where: { id: gymId }, select: { ownerId: true } });
-    const gymRooms = await prismaAny.progressRoom.findMany({
+    const gymRooms = await prisma.progressRoom.findMany({
       where: {
         gymId,
         isActive: true,
@@ -201,10 +199,10 @@ export class RoomService {
       orderBy: { createdAt: 'desc' },
     });
 
-    const gymRoomIds = new Set(gymRooms.map((r: any) => r.id));
+    const gymRoomIds = new Set(gymRooms.map((r) => r.id));
 
     // Public member-created rooms at gym I haven't joined
-    const availableRooms = await prismaAny.progressRoom.findMany({
+    const availableRooms = await prisma.progressRoom.findMany({
       where: {
         gymId,
         isPublic: true,
@@ -225,7 +223,7 @@ export class RoomService {
   // ─── Get room detail with leaderboard ─────────────────────────────────────
 
   static async getRoom(roomId: string, requesterId: string) {
-    const room = await prismaAny.progressRoom.findUnique({
+    const room = await prisma.progressRoom.findUnique({
       where: { id: roomId },
       include: {
         creator: { select: { id: true, fullName: true, avatarUrl: true } },
@@ -234,11 +232,11 @@ export class RoomService {
     });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
 
-    const memberships = await prismaAny.roomMembership.findMany({
+    const memberships = await prisma.roomMembership.findMany({
       where: { roomId },
       select: { userId: true, joinedAt: true },
     });
-    const memberIds = memberships.map((m: any) => m.userId);
+    const memberIds = memberships.map((m) => m.userId);
 
     const leaderboard = await computeLeaderboard(room, memberIds, requesterId);
     const isMember = memberIds.includes(requesterId);
@@ -281,12 +279,12 @@ export class RoomService {
     let attempt = 0;
     do {
       inviteCode = generateInviteCode();
-      const exists = await prismaAny.progressRoom.findUnique({ where: { inviteCode } });
+      const exists = await prisma.progressRoom.findUnique({ where: { inviteCode } });
       if (!exists) break;
       attempt++;
     } while (attempt < 5);
 
-    const room = await prismaAny.progressRoom.create({
+    const room = await prisma.progressRoom.create({
       data: {
         gymId,
         creatorId,
@@ -308,7 +306,7 @@ export class RoomService {
     });
 
     // Auto-join creator
-    await prismaAny.roomMembership.create({ data: { roomId: room.id, userId: creatorId } });
+    await prisma.roomMembership.create({ data: { roomId: room.id, userId: creatorId } });
 
     return room;
   }
@@ -316,7 +314,7 @@ export class RoomService {
   // ─── Join ─────────────────────────────────────────────────────────────────
 
   static async join(roomId: string, userId: string) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { id: roomId } });
+    const room = await prisma.progressRoom.findUnique({ where: { id: roomId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
     if (!room.isActive) throw Object.assign(new Error('Room is no longer active'), { status: 400 });
 
@@ -332,52 +330,52 @@ export class RoomService {
       if (!activeMembership) throw Object.assign(new Error('Active gym membership required'), { status: 403 });
     }
 
-    const memberCount = await prismaAny.roomMembership.count({ where: { roomId } });
+    const memberCount = await prisma.roomMembership.count({ where: { roomId } });
     if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
 
-    const existing = await prismaAny.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId } } });
+    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId } } });
     if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
 
-    return prismaAny.roomMembership.create({ data: { roomId, userId } });
+    return prisma.roomMembership.create({ data: { roomId, userId } });
   }
 
   static async joinByCode(code: string, userId: string) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { inviteCode: code.toUpperCase() } });
+    const room = await prisma.progressRoom.findUnique({ where: { inviteCode: code.toUpperCase() } });
     if (!room) throw Object.assign(new Error('Invalid invite code'), { status: 404 });
     if (!room.isActive) throw Object.assign(new Error('Room is no longer active'), { status: 400 });
 
-    const memberCount = await prismaAny.roomMembership.count({ where: { roomId: room.id } });
+    const memberCount = await prisma.roomMembership.count({ where: { roomId: room.id } });
     if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
 
-    const existing = await prismaAny.roomMembership.findUnique({ where: { roomId_userId: { roomId: room.id, userId } } });
+    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId: room.id, userId } } });
     if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
 
-    await prismaAny.roomMembership.create({ data: { roomId: room.id, userId } });
+    await prisma.roomMembership.create({ data: { roomId: room.id, userId } });
     return room;
   }
 
   // ─── Leave ────────────────────────────────────────────────────────────────
 
   static async leave(roomId: string, userId: string) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { id: roomId } });
+    const room = await prisma.progressRoom.findUnique({ where: { id: roomId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
     if (room.creatorId === userId) throw Object.assign(new Error('Creator cannot leave — delete the room instead'), { status: 400 });
 
-    const existing = await prismaAny.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId } } });
+    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId } } });
     if (!existing) throw Object.assign(new Error('Not a member'), { status: 400 });
 
-    await prismaAny.roomMembership.delete({ where: { roomId_userId: { roomId, userId } } });
+    await prisma.roomMembership.delete({ where: { roomId_userId: { roomId, userId } } });
     return { left: true };
   }
 
   // ─── Delete ───────────────────────────────────────────────────────────────
 
   static async deleteRoom(roomId: string, userId: string) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { id: roomId } });
+    const room = await prisma.progressRoom.findUnique({ where: { id: roomId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
     if (room.creatorId !== userId) throw Object.assign(new Error('Only the creator can delete this room'), { status: 403 });
 
-    await prismaAny.progressRoom.delete({ where: { id: roomId } });
+    await prisma.progressRoom.delete({ where: { id: roomId } });
     return { deleted: true };
   }
 
@@ -391,9 +389,9 @@ export class RoomService {
     managedGymId: string | null | undefined
   ) {
     await this.assertAdminAccess(gymId, adminId, role, managedGymId);
-    const room = await prismaAny.progressRoom.findFirst({ where: { id: roomId, gymId } });
+    const room = await prisma.progressRoom.findFirst({ where: { id: roomId, gymId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
-    await prismaAny.progressRoom.delete({ where: { id: roomId } });
+    await prisma.progressRoom.delete({ where: { id: roomId } });
     return { deleted: true };
   }
 
@@ -404,7 +402,7 @@ export class RoomService {
     userId: string,
     data: Partial<Pick<CreateRoomData, 'name' | 'description' | 'isPublic' | 'maxMembers' | 'endDate'>>
   ) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { id: roomId } });
+    const room = await prisma.progressRoom.findUnique({ where: { id: roomId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
     if (room.creatorId !== userId) throw Object.assign(new Error('Only the creator can edit this room'), { status: 403 });
 
@@ -415,22 +413,63 @@ export class RoomService {
     if (data.maxMembers !== undefined)  updateData.maxMembers = data.maxMembers;
     if (data.endDate !== undefined)     updateData.endDate = data.endDate ? new Date(data.endDate) : null;
 
-    return prismaAny.progressRoom.update({ where: { id: roomId }, data: updateData });
+    return prisma.progressRoom.update({ where: { id: roomId }, data: updateData });
   }
 
   // ─── Kick member (creator only) ───────────────────────────────────────────
 
   static async kickMember(roomId: string, targetUserId: string, requesterId: string) {
-    const room = await prismaAny.progressRoom.findUnique({ where: { id: roomId } });
+    const room = await prisma.progressRoom.findUnique({ where: { id: roomId } });
     if (!room) throw Object.assign(new Error('Room not found'), { status: 404 });
     if (room.creatorId !== requesterId) throw Object.assign(new Error('Only the creator can remove members'), { status: 403 });
     if (targetUserId === requesterId) throw Object.assign(new Error('Cannot kick yourself'), { status: 400 });
 
-    const existing = await prismaAny.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId: targetUserId } } });
+    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId: targetUserId } } });
     if (!existing) throw Object.assign(new Error('Not a member'), { status: 404 });
 
-    await prismaAny.roomMembership.delete({ where: { roomId_userId: { roomId, userId: targetUserId } } });
+    await prisma.roomMembership.delete({ where: { roomId_userId: { roomId, userId: targetUserId } } });
     return { kicked: true };
+  }
+
+  // ─── Messaging ────────────────────────────────────────────────────────────
+
+  static async sendMessage(roomId: string, userId: string, body: string, imageUrl?: string) {
+    // Check if user is a member
+    const membership = await prisma.roomMembership.findUnique({
+      where: { roomId_userId: { roomId, userId } },
+    });
+    if (!membership) throw Object.assign(new Error('Not a member of this room'), { status: 403 });
+
+    return prisma.roomMessage.create({
+      data: {
+        roomId,
+        userId,
+        body,
+        imageUrl,
+      },
+      include: {
+        user: { select: { id: true, fullName: true, avatarUrl: true } },
+      },
+    });
+  }
+
+  static async getMessages(roomId: string, userId: string, limit: number = 50, cursor?: string) {
+    // Check if user is a member
+    const membership = await prisma.roomMembership.findUnique({
+      where: { roomId_userId: { roomId, userId } },
+    });
+    if (!membership) throw Object.assign(new Error('Not a member of this room'), { status: 403 });
+
+    return prisma.roomMessage.findMany({
+      where: { roomId },
+      take: limit,
+      skip: cursor ? 1 : 0,
+      cursor: cursor ? { id: cursor } : undefined,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, fullName: true, avatarUrl: true } },
+      },
+    });
   }
 
   // ─── Admin: list all rooms for gym ────────────────────────────────────────
@@ -442,7 +481,7 @@ export class RoomService {
     managedGymId: string | null | undefined
   ) {
     await this.assertAdminAccess(gymId, adminId, role, managedGymId);
-    return prismaAny.progressRoom.findMany({
+    return prisma.progressRoom.findMany({
       where: { gymId },
       orderBy: { createdAt: 'desc' },
       include: {

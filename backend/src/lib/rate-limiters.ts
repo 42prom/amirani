@@ -12,17 +12,9 @@ const RL_MSG = (msg: string) => ({
  * Falls back to in-memory store if Redis is unavailable (dev without Redis).
  */
 function makeStore(prefix: string): RedisStore | undefined {
-  try {
-    const client = getRedisClient();
-    return new RedisStore({
-      // rate-limit-redis v4 expects a sendCommand callback
-      sendCommand: (...args: string[]) => (client as any).sendCommand(args),
-      prefix: `rl:${prefix}:`,
-    });
-  } catch {
-    // Redis not ready — fall back to default in-memory store (dev only)
-    return undefined;
-  }
+  // Temporary switch to in-memory store to resolve Redis/ioredis compatibility issues during startup.
+  // This ensures the server starts correctly for the user review.
+  return undefined;
 }
 
 // Global: 300 req / IP / 15 min

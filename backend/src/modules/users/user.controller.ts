@@ -130,4 +130,71 @@ router.get('/dashboard/metrics', async (req: AuthenticatedRequest, res: Response
   }
 });
 
+/**
+ * POST /api/users/me/export
+ * GDPR Requirement: Export all user data in machine-readable format.
+ */
+router.post('/me/export', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    const data = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        timezone: true,
+        phoneNumber: true,
+        avatarUrl: true,
+        isVerified: true,
+        isActive: true,
+        address: true,
+        dob: true,
+        gender: true,
+        fitnessLevel: true,
+        fitnessGoal: true,
+        heightCm: true,
+        targetWeightKg: true,
+        unitPreference: true,
+        languagePreference: true,
+        totalPoints: true,
+        streakDays: true,
+        createdAt: true,
+        workoutHistory: { include: { completedSets: true } },
+        dietPlans: { include: { meals: { include: { ingredients: true } } } },
+        dailyProgress: true,
+        challenges: true,
+        weightHistory: true,
+        memberships: { include: { gym: true, plan: true } },
+      }
+    });
+
+    res.setHeader('Content-Disposition', `attachment; filename=amirani-data-${userId}.json`);
+    res.json(data);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to export data' });
+  }
+});
+
+/**
+ * DELETE /api/users/me
+ * GDPR Requirement: Right to be forgotten.
+ * Permanently deletes user account and all associated data.
+ */
+router.delete('/me', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = req.user!.userId;
+    
+    // Prisma onDelete: Cascade will handle related entities
+    await prisma.user.delete({
+      where: { id: userId }
+    });
+
+    res.json({ success: true, message: 'Account permanently deleted' });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to delete account' });
+  }
+});
+
 export default router;

@@ -1,3 +1,5 @@
+import Stripe from 'stripe';
+import config from '../../config/env';
 import prisma from '../../lib/prisma';
 import { PaymentStatus, PaymentMethod, SubscriptionStatus } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
@@ -5,8 +7,9 @@ import { NotificationType } from '@prisma/client';
 import { calcMembershipEndDate } from '../memberships/membership-utils';
 import logger from '../../lib/logger';
 
-// In production, import Stripe: import Stripe from 'stripe';
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(config.stripe.secretKey || 'sk_test_placeholder', {
+  apiVersion: '2024-04-10' as any,
+});
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
 
@@ -62,25 +65,27 @@ export class PaymentService {
     }
 
     if (user.stripeCustomerId) {
-      return user.stripeCustomerId;
+      // Basic verification: does customer exist in Stripe?
+      try {
+        await stripe.customers.retrieve(user.stripeCustomerId);
+        return user.stripeCustomerId;
+      } catch (err) {
+        logger.warn('[Stripe] Customer ID in DB not found in Stripe, creating new one', { userId, customerId: user.stripeCustomerId });
+      }
     }
 
-    // In production, create Stripe customer:
-    // const customer = await stripe.customers.create({
-    //   email: user.email,
-    //   name: user.fullName,
-    //   metadata: { userId: user.id },
-    // });
-
-    // Simulate customer ID for development
-    const customerId = `cus_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const customer = await stripe.customers.create({
+      email: user.email,
+      name: user.fullName,
+      metadata: { userId: user.id },
+    });
 
     await prisma.user.update({
       where: { id: userId },
-      data: { stripeCustomerId: customerId },
+      data: { stripeCustomerId: customer.id },
     });
 
-    return customerId;
+    return customer.id;
   }
 
   /**
@@ -99,17 +104,19 @@ export class PaymentService {
 
     const customerId = await this.getOrCreateStripeCustomer(userId);
 
-    // In production, create Stripe PaymentIntent:
-    // const paymentIntent = await stripe.paymentIntents.create({
-    //   amount: Math.round(amount * 100), // Convert to cents
-    //   currency,
-    //   customer: customerId,
-    //   payment_method_types: this.getPaymentMethodTypes(method),
-    //   metadata: { userId, membershipId, gymId },
-    // });
-
-    // Simulate payment intent for development
-    const stripePaymentId = `pi_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    // Create Stripe PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency,
+      customer: customerId,
+      payment_method_types: this.getPaymentMethodTypes(method),
+      metadata: { 
+        userId, 
+        membershipId: membershipId || '', 
+        gymId: gymId || '' 
+      },
+      description,
+    });
 
     const payment = await prisma.payment.create({
       data: {
@@ -119,17 +126,17 @@ export class PaymentService {
         status: PaymentStatus.PENDING,
         method,
         description,
-        stripePaymentId,
+        stripePaymentId: paymentIntent.id,
         membershipId,
         gymId,
-        metadata: { customerId },
+        metadata: { customerId, clientSecret: paymentIntent.client_secret },
       },
     });
 
     return {
       paymentId: payment.id,
-      clientSecret: `${stripePaymentId}_secret_${Math.random().toString(36).substring(7)}`,
-      stripePaymentId,
+      clientSecret: paymentIntent.client_secret,
+      stripePaymentId: paymentIntent.id,
     };
   }
 
@@ -165,11 +172,24 @@ export class PaymentService {
     const customerId = await this.getOrCreateStripeCustomer(userId);
     const amount = Number(plan.price);
 
-    // In production, create Stripe subscription or one-time payment
-    // For subscription: stripe.subscriptions.create(...)
-    // For one-time: stripe.paymentIntents.create(...)
+    // Create Stripe subscription with a payment intent attached (Setup Intent or first Payment Intent)
+    // We'll use Payment Intent for immediate collection
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customerId },
+      { apiVersion: '2024-04-10' as any }
+    );
 
-    const stripePaymentId = `pi_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ plan: plan.id }], // This assumes plan.id is a Stripe Price ID
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+      metadata: { userId, planId, gymId },
+    });
+
+    const invoice = subscription.latest_invoice as any;
+    const paymentIntent = invoice?.payment_intent as any;
 
     // Create payment record
     const payment = await prisma.payment.create({
@@ -178,9 +198,9 @@ export class PaymentService {
         amount,
         currency: 'usd',
         status: PaymentStatus.PROCESSING,
-        method: PaymentMethod.CARD, // Will be updated based on actual method
+        method: PaymentMethod.CARD,
         description: `${plan.name} subscription at ${plan.gym.name}`,
-        stripePaymentId,
+        stripePaymentId: paymentIntent?.id || subscription.id,
         membershipId: existingMembership?.id,
         gymId,
       },
@@ -190,7 +210,7 @@ export class PaymentService {
     const startDate = new Date();
     const endDate = calcMembershipEndDate(startDate, plan.durationValue, plan.durationUnit);
 
-    // Create or update membership
+    // Create or update membership in PENDING state until webhook confirms
     let membership;
     if (existingMembership) {
       membership = await prisma.gymMembership.update({
@@ -199,8 +219,8 @@ export class PaymentService {
           planId,
           startDate,
           endDate,
-          status: SubscriptionStatus.ACTIVE,
-          stripeSubId: stripePaymentId,
+          status: SubscriptionStatus.PENDING,
+          stripeSubId: subscription.id,
           autoRenew,
         },
       });
@@ -212,26 +232,20 @@ export class PaymentService {
           planId,
           startDate,
           endDate,
-          status: SubscriptionStatus.ACTIVE,
-          stripeSubId: stripePaymentId,
+          status: SubscriptionStatus.PENDING,
+          stripeSubId: subscription.id,
           autoRenew,
         },
       });
     }
 
-    // Update payment with membership ID
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: PaymentStatus.SUCCEEDED,
-        membershipId: membership.id,
-      },
-    });
-
     return {
-      payment,
+      subscriptionId: subscription.id,
+      clientSecret: paymentIntent?.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customerId,
+      paymentId: payment.id,
       membership,
-      plan,
     };
   }
 
@@ -378,10 +392,10 @@ export class PaymentService {
       throw new PaymentNotFoundError('Membership');
     }
 
-    // In production, cancel Stripe subscription:
-    // if (membership.stripeSubId) {
-    //   await stripe.subscriptions.cancel(membership.stripeSubId);
-    // }
+    // Cancel Stripe subscription
+    if (membership.stripeSubId && membership.stripeSubId.startsWith('sub_')) {
+      await stripe.subscriptions.cancel(membership.stripeSubId);
+    }
 
     return prisma.gymMembership.update({
       where: { id: membershipId },

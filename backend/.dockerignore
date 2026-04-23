@@ -1,0 +1,9 @@
+node_modules
+dist
+npm-debug.log
+.env
+.git
+prisma/migrations
+*.md
+Dockerfile
+.dockerignore

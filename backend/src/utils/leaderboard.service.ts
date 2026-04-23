@@ -26,6 +26,7 @@ export const POINTS = {
   CHECKIN:          5,
   STREAK_BONUS:     15,
   CHALLENGE_DONE:   20,
+  PERFECT_DAY:      50,
 } as const;
 
 /**
@@ -36,7 +37,7 @@ export const POINTS = {
 export async function awardPoints(params: {
   userId: string;
   sourceId: string;
-  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL';
+  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL' | 'PERFECT_DAY';
   delta: number;
   reason: string;
 }) {
@@ -178,11 +179,13 @@ export async function recalculateUserStats(userId: string) {
   const totalPoints = pointSum._sum.delta ?? 0;
 
   // 2. Streak Calculation (Consecutive days with activity)
-  // We look for DailyProgress records where at least something was achieved (score > 0)
-  // or a WorkoutHistory exists.
+  // CRITICAL PHASE 1: Streak now requires 100% Task Completion (Perfect Day)
   const activities = await prisma.dailyProgress.findMany({
-    where: { userId, OR: [{ score: { gt: 0 } }, { stepsTaken: { gt: 5000 } }] },
-    select: { date: true },
+    where: { 
+      userId, 
+      tasksCompleted: { gt: 0 },
+    },
+    select: { date: true, tasksCompleted: true, tasksTotal: true },
     orderBy: { date: 'desc' },
   });
 
@@ -191,30 +194,40 @@ export async function recalculateUserStats(userId: string) {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
     
-    const activityDates = activities.map((a: { date: Date | string }) => {
+    // Sort and unique by date
+    const activityMap = new Map<number, { completed: number, total: number }>();
+    activities.forEach(a => {
       const d = new Date(a.date);
       d.setUTCHours(0, 0, 0, 0);
-      return d.getTime();
+      const ts = d.getTime();
+      if (!activityMap.has(ts)) {
+        activityMap.set(ts, { completed: a.tasksCompleted, total: a.tasksTotal });
+      }
     });
 
-    // Remove duplicates
-    const uniqueDates = [...new Set(activityDates)];
+    const uniqueSortedTimestamps = Array.from(activityMap.keys()).sort((a, b) => b - a);
     
     let currentCheck = today;
-    // If no activity today, check if streak is still alive from yesterday
-    if ((uniqueDates[0] as number) < today.getTime()) {
+    // If the latest activity is before today, check if it was yesterday (streak still alive)
+    if (uniqueSortedTimestamps[0] < today.getTime()) {
       const yesterday = new Date(today);
       yesterday.setUTCDate(today.getUTCDate() - 1);
       currentCheck = yesterday;
     }
 
-    for (const dateTs of uniqueDates) {
-      if ((dateTs as number) === currentCheck.getTime()) {
+    for (const ts of uniqueSortedTimestamps) {
+      if (ts === currentCheck.getTime()) {
+        const act = activityMap.get(ts);
+        // Requirement: Streak continues only if day was "Perfect" (100% completion)
+        // OR if there were no tasks scheduled (rest day with some activity)
+        if (act && act.total > 0 && act.completed < act.total) {
+          break; // Streak broken by incomplete day
+        }
+        
         streak++;
         currentCheck.setUTCDate(currentCheck.getUTCDate() - 1);
-      } else if ((dateTs as number) < currentCheck.getTime()) {
-        // Gap found
-        break;
+      } else if (ts < currentCheck.getTime()) {
+        break; // Gap found
       }
     }
   }

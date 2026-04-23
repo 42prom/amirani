@@ -9,4 +9,6 @@ abstract class GymRepository {
   Future<Either<Failure, CheckInEntity>> checkInNfc(String gymId);
   Future<Either<Failure, QrCheckInEntity>> checkInQr(String gymId, String token);
   Future<Either<Failure, String>> getGymQrToken(String gymId);
+  Future<Either<Failure, String>> enrollPhoneKey(String gymId, String userId, String credentialHex);
+  Future<Either<Failure, void>> revokePhoneKey(String gymId, String userId, String credentialHex);
 }

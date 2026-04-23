@@ -1,0 +1,68 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: amirani-backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://amirani:amirani_password@postgres:5432/amirani?schema=public
+      - REDIS_URL=redis://redis:6379
+      - PORT=3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - amirani-network
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: amirani-admin
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:3000/api
+      - PORT=3001
+    depends_on:
+      - backend
+    ports:
+      - "3001:3001"
+    networks:
+      - amirani-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: amirani-db-prod
+    restart: always
+    environment:
+      POSTGRES_USER: amirani
+      POSTGRES_PASSWORD: amirani_password
+      POSTGRES_DB: amirani
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amirani"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - amirani-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: amirani-redis-prod
+    restart: always
+    networks:
+      - amirani-network
+
+networks:
+  amirani-network:
+    driver: bridge
+
+volumes:
+  postgres_prod_data:

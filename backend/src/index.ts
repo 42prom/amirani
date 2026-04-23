@@ -48,9 +48,9 @@ import foodRoutes from './modules/food/food.controller';
 import nutritionStatsRoutes from './modules/food/nutrition-stats.controller';
 import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
-import taskRoutes from './modules/tasks/tasks.controller';
+
 import { initSocket } from './lib/socket';
-import { startAiWorkers } from './jobs/queue';
+import { startAiWorkers } from './jobs/worker';
 import config from './config/env';
 
 const app = express();
@@ -196,8 +196,7 @@ app.use('/api/workouts', workoutRoutes);
 // AI plan generation (workout + diet) — triggers BullMQ workers
 app.use('/api/ai', aiRoutes);
 
-// Task management — daily task list + completion endpoint
-app.use('/api/tasks', taskRoutes);
+
 
 
 // Health check

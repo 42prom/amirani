@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs/queue';
+import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs';
 import { success, badRequest, internalError, rateLimited } from '../../utils/response';
 import prisma from '../../lib/prisma';
 import logger from '../../lib/logger';
@@ -15,7 +15,7 @@ router.use(authenticate);
 
 async function checkAiRateLimit(userId: string): Promise<boolean> {
   try {
-    const { redisConnection } = await import('../../jobs/queue');
+    const { redisConnection } = await import('../../jobs');
     const Redis = (await import('ioredis')).default;
     const redis = new Redis(redisConnection as any);
 

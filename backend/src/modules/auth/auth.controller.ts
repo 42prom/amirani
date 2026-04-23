@@ -261,6 +261,68 @@ router.post('/change-password', authenticate, passwordLimiter, async (req: Authe
   }
 });
 
+/**
+ * POST /auth/2fa/setup
+ * Generate 2FA secret and QR code.
+ */
+router.post('/2fa/setup', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const result = await AuthService.setup2FA(req.user!.userId);
+    success(res, result);
+  } catch (err) {
+    logger.error('2FA setup error', { err });
+    internalError(res);
+  }
+});
+
+/**
+ * POST /auth/2fa/enable
+ * Verify first token and enable 2FA on account.
+ */
+router.post('/2fa/enable', authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { token } = req.body;
+    if (!token) return validationError(res, [{ field: 'token', message: 'token is required' }]);
+    
+    const result = await AuthService.enable2FA(req.user!.userId, token);
+    success(res, result);
+  } catch (err) {
+    if (err instanceof AuthenticationError) return unauthorized(res, err.message);
+    logger.error('2FA enable error', { err });
+    internalError(res);
+  }
+});
+
+/**
+ * POST /auth/2fa/verify
+ * Final verification during login flow.
+ */
+router.post('/2fa/verify', loginLimiter, async (req: Request, res: Response) => {
+  try {
+    const { email, token } = req.body;
+    if (!email || !token) {
+      return validationError(res, [
+        { field: 'email', message: 'email is required' },
+        { field: 'token', message: 'token is required' }
+      ]);
+    }
+    
+    const result = await AuthService.verify2FA(email, token);
+    success(res, {
+      ...result,
+      user: {
+        ...result.user,
+        avatarUrl: getFullUrl(req, result.user.avatarUrl),
+        idPhotoUrl: getFullUrl(req, result.user.idPhotoUrl),
+      }
+    });
+  } catch (err) {
+    if (err instanceof AuthenticationError) return unauthorized(res, err.message);
+    logger.error('2FA verify error', { err });
+    internalError(res);
+  }
+});
+
 // ─── Development Token Generator ─────────────────────────────────────────────
 // Only available when NODE_ENV=development.
 // Returns real JWTs signed with the actual JWT_SECRET — identical format to

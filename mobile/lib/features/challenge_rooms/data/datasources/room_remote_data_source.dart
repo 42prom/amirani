@@ -60,4 +60,14 @@ class RoomRemoteDataSource {
   Future<void> updateDisplayName(String fullName) async {
     await dio.patch('/users/me', data: {'fullName': fullName});
   }
+
+  Future<List<RoomMessage>> getRoomMessages(String roomId, {int limit = 50, String? cursor}) async {
+    final res = await dio.get('/rooms/$roomId/messages', queryParameters: {
+      'limit': limit,
+      if (cursor != null) 'cursor': cursor,
+    });
+    return ((res.data['data'] as List?) ?? [])
+        .map((e) => RoomMessage.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
 }

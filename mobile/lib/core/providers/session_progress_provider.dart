@@ -556,6 +556,8 @@ class SessionProgressNotifier extends StateNotifier<SessionProgressState> {
           isDietPlanActive: true // Flag stays true because the monthly plan exists
       );
     }
+    
+    triggerCloudSync();
   }
 
   /// Sync from local storage (Hive) - used for fresh app starts or Challenge page updates.

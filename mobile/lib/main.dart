@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'core/config/service_availability.dart';
 import 'core/data/local_db_service.dart';
 import 'core/providers/storage_providers.dart';
+import 'core/services/payment/stripe_service.dart';
 import 'app.dart';
 
 void main() {
@@ -49,6 +50,9 @@ void main() {
 
       // Initialize Hive/SecureStorage
       await LocalDBService.init();
+
+      // Initialize Stripe
+      StripeService.init();
 
       // Initialize SharedPreferences
       final prefs = await SharedPreferences.getInstance();

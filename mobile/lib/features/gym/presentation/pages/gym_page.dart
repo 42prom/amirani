@@ -34,6 +34,8 @@ import '../providers/sessions_provider.dart';
 import '../widgets/session_booking_sheet.dart';
 import 'package:intl/intl.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
+import '../widgets/trainer_dashboard.dart';
+import '../widgets/plan_selection_sheet.dart';
 
 class GymPage extends ConsumerStatefulWidget {
   const GymPage({super.key});
@@ -112,8 +114,8 @@ class _GymPageState extends ConsumerState<GymPage> {
     });
 
     // Determine role — backend sends uppercase enum strings (GYM_MEMBER, GYM_OWNER, …)
-    final String? role =
-        authState is AuthAuthenticated ? authState.user.role : null;
+    // Determine role — backend sends uppercase enum strings (GYM_MEMBER, GYM_OWNER, …)
+    final String? role = authState is AuthAuthenticated ? authState.user.role : null;
     const staffRoles = {'BRANCH_ADMIN', 'GYM_OWNER', 'TRAINER', 'SUPER_ADMIN'};
     final bool isStaff = staffRoles.contains(role);
     final bool isMember = !isStaff;
@@ -126,7 +128,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     // Load gym details from active or pending membership when not yet checked in
     ref.listen<MembershipState>(membershipProvider, (_, next) {
       if (next is MembershipLoaded) {
-        GymMembershipInfo? current;
+         GymMembershipInfo? current;
         for (final m in next.memberships) {
           if (m.isActive || m.isPending) { current = m; break; }
         }
@@ -151,46 +153,47 @@ class _GymPageState extends ConsumerState<GymPage> {
               children: [
                 _buildHeader(profileSync),
                 Expanded(
-                  // Handle loading state with a premium shimmer
-                  child: RefreshIndicator(
-                    onRefresh: () async {
-                      final mFuture = ref.read(membershipProvider.notifier).fetch();
-                      final gymState = ref.read(gymNotifierProvider);
-                      String? gymId;
-                      if (gymState is GymLoaded) {
-                        gymId = gymState.gym.id;
-                      } else {
-                        final membershipState = ref.read(membershipProvider);
-                        if (membershipState is MembershipLoaded) {
-                          gymId = membershipState.memberships
-                              .where((m) => m.isActive || m.isPending)
-                              .firstOrNull
-                              ?.gymId;
-                        }
-                      }
+                  child: role == 'TRAINER'
+                      ? const TrainerDashboard()
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                            final mFuture = ref.read(membershipProvider.notifier).fetch();
+                            final gymState = ref.read(gymNotifierProvider);
+                            String? gymId;
+                            if (gymState is GymLoaded) {
+                              gymId = gymState.gym.id;
+                            } else {
+                              final membershipState = ref.read(membershipProvider);
+                              if (membershipState is MembershipLoaded) {
+                                gymId = membershipState.memberships
+                                    .where((m) => m.isActive || m.isPending)
+                                    .firstOrNull
+                                    ?.gymId;
+                              }
+                            }
 
-                      if (gymId != null) {
-                        ref.invalidate(announcementsProvider(gymId));
-                        await Future.wait<void>([
-                          mFuture,
-                          ref.read(gymNotifierProvider.notifier).fetchGymDetails(gymId),
-                          ref.read(sessionsProvider.notifier).fetchSessions(gymId),
-                          ref.read(trainerAssignmentProvider.notifier).refreshStatus(gymId),
-                          ref.read(announcementsProvider(gymId).future),
-                        ]);
-                      } else {
-                        await mFuture;
-                      }
-                    },
-                    backgroundColor: AppTheme.surfaceDark,
-                    color: AppTheme.primaryBrand,
-                    child: membershipState is MembershipInitial || membershipState is MembershipLoading
-                        ? _buildLoadingShimmer()
-                        : (isMember && (membershipState is MembershipLoaded && 
-                            !membershipState.memberships.any((m) => m.isActive || m.isPending)))
-                            ? _buildNoMembershipView()
-                            : _buildMainContent(accessState, isAdmitted),
-                  ),
+                            if (gymId != null) {
+                              ref.invalidate(announcementsProvider(gymId));
+                              await Future.wait<void>([
+                                mFuture,
+                                ref.read(gymNotifierProvider.notifier).fetchGymDetails(gymId),
+                                ref.read(sessionsProvider.notifier).fetchSessions(gymId),
+                                ref.read(trainerAssignmentProvider.notifier).refreshStatus(gymId),
+                                ref.read(announcementsProvider(gymId).future),
+                              ]);
+                            } else {
+                              await mFuture;
+                            }
+                          },
+                          backgroundColor: AppTheme.surfaceDark,
+                          color: AppTheme.primaryBrand,
+                          child: membershipState is MembershipInitial || membershipState is MembershipLoading
+                              ? _buildLoadingShimmer()
+                              : (isMember && (membershipState is MembershipLoaded && 
+                                  !membershipState.memberships.any((m) => m.isActive || m.isPending)))
+                                  ? _buildNoMembershipView()
+                                  : _buildMainContent(accessState, isAdmitted),
+                        ),
                 ),
               ],
             ),
@@ -556,7 +559,7 @@ class _GymPageState extends ConsumerState<GymPage> {
 
           _buildActionButtons(accessState, isAdmitted, currentMembership != null),
           const SizedBox(height: 24),
-          _buildMembershipCard(accessState, currentMembership),
+          _buildMembershipCard(accessState, currentMembership, gymId),
           const SizedBox(height: 24),
           if (currentMembership != null && currentMembership.isActive)
             _buildAssignedTrainerCard(currentMembership, gymId),
@@ -569,7 +572,7 @@ class _GymPageState extends ConsumerState<GymPage> {
           const SizedBox(height: 32),
           _buildTrainersSection(),
           const SizedBox(height: 32),
-          _buildGymUtilities(gymId),
+          _buildGymUtilities(gymId, gymName),
           if (gymId != null && gymName != null) ...[
             const SizedBox(height: 12),
             _buildLeaveGymButton(gymId, gymName),
@@ -955,7 +958,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     return const Color(0xFFE74C3C);
   }
 
-  Widget _buildMembershipCard(GymAccessState accessState, GymMembershipInfo? activeMembership) {
+  Widget _buildMembershipCard(GymAccessState accessState, GymMembershipInfo? activeMembership, String? gymId) {
     final admitted = accessState is GymAccessAdmitted ? accessState : null;
 
     // ── Admitted: show live check-in details ─────────────────────────────────
@@ -1094,7 +1097,9 @@ class _GymPageState extends ConsumerState<GymPage> {
             const SizedBox(height: 12),
             // Renew button
             GestureDetector(
-              onTap: () => AppNotifications.showInfo(context, 'Contact gym staff to renew your plan'),
+              onTap: (activeMembership?.gymId ?? gymId) != null
+                  ? () => _showPlanSelection(activeMembership?.gymId ?? gymId!, activeMembership?.gymName ?? 'Gym')
+                  : () => AppNotifications.showInfo(context, 'Contact gym staff to renew your plan'),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1969,7 +1974,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     AppNotifications.showInfo(context, '$feature — coming soon');
   }
 
-  Widget _buildGymUtilities(String? gymId) {
+  Widget _buildGymUtilities(String? gymId, String? gymName) {
     return Column(
       children: [
         Row(
@@ -1993,7 +1998,9 @@ class _GymPageState extends ConsumerState<GymPage> {
             onTap: () => _comingSoon('Available Offers')),
         _buildUtilityRow(Icons.card_membership, "Subscription Plans",
             "Upgrade or manage plan",
-            onTap: () => _comingSoon('Subscription Plans')),
+            onTap: gymId != null
+                ? () => _showPlanSelection(gymId, gymName ?? 'Gym')
+                : () => AppNotifications.showError(context, 'No active gym context found')),
         _buildUtilityRow(Icons.map, "Equipment Map",
             "Locate machines & zones",
             onTap: () => _comingSoon('Equipment Map')),
@@ -2012,6 +2019,16 @@ class _GymPageState extends ConsumerState<GymPage> {
               : () => AppNotifications.showError(context, 'No active gym membership found'),
         ),
       ],
+    );
+  }
+
+  void _showPlanSelection(String gymId, String gymName) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useRootNavigator: true,
+      builder: (_) => PlanSelectionSheet(gymId: gymId, gymName: gymName),
     );
   }
 

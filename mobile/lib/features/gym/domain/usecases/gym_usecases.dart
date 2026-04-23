@@ -70,3 +70,38 @@ class GetGymQrTokenUseCase implements UseCase<String, GetGymQrTokenParams> {
     return await repository.getGymQrToken(params.gymId);
   }
 }
+
+class EnrollPhoneKeyParams {
+  final String gymId;
+  final String userId;
+  final String credentialHex;
+  EnrollPhoneKeyParams(this.gymId, this.userId, this.credentialHex);
+}
+
+class EnrollPhoneKeyUseCase implements UseCase<String, EnrollPhoneKeyParams> {
+  final GymRepository repository;
+  EnrollPhoneKeyUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, String>> call(EnrollPhoneKeyParams params) async {
+    return await repository.enrollPhoneKey(params.gymId, params.userId, params.credentialHex);
+  }
+}
+
+class RevokePhoneKeyParams {
+  final String gymId;
+  final String userId;
+  final String credentialHex;
+  RevokePhoneKeyParams(this.gymId, this.userId, this.credentialHex);
+}
+
+class RevokePhoneKeyUseCase implements UseCase<void, RevokePhoneKeyParams> {
+  final GymRepository repository;
+  RevokePhoneKeyUseCase(this.repository);
+
+  @override
+  Future<Either<Failure, void>> call(RevokePhoneKeyParams params) async {
+    return await repository.revokePhoneKey(params.gymId, params.userId, params.credentialHex);
+  }
+}
+

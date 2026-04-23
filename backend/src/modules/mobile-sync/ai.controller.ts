@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { AuthenticatedRequest } from '../../middleware/auth.middleware';
 import prisma from '../../lib/prisma';
 import { z } from 'zod';
-import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs/queue';
+import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import { UserTier } from '@prisma/client';
 import { serverError } from '../../utils/response';

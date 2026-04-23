@@ -144,6 +144,51 @@ export const initSocket = (server: HttpServer) => {
     });
   });
 
+  // ── CHALLENGE ROOMS Namespace: /challenge-rooms ───────────────────────────
+  const roomsNs = io.of('/challenge-rooms');
+
+  roomsNs.use((socket, next) => {
+    const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
+    if (!token) return next(new Error('Authentication error'));
+    try {
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
+      socket.data.user = { userId: decoded.userId };
+      next();
+    } catch {
+      next(new Error('Authentication error'));
+    }
+  });
+
+  roomsNs.on('connection', (socket) => {
+    const userId = socket.data.user.userId;
+
+    socket.on('join_room', (roomId: string) => {
+      socket.join(`room:${roomId}`);
+      logger.info(`[WS/rooms] User ${userId} joined room ${roomId}`);
+    });
+
+    socket.on('leave_room', (roomId: string) => {
+      socket.leave(`room:${roomId}`);
+      logger.info(`[WS/rooms] User ${userId} left room ${roomId}`);
+    });
+
+    socket.on('send_message', async (data: { roomId: string, body: string, imageUrl?: string }) => {
+      try {
+        const { RoomService } = require('../modules/rooms/room.service');
+        const message = await RoomService.sendMessage(data.roomId, userId, data.body, data.imageUrl);
+        
+        // Broadcast to all in room
+        roomsNs.to(`room:${data.roomId}`).emit('new_message', message);
+      } catch (err) {
+        socket.emit('error', { message: (err as Error).message });
+      }
+    });
+
+    socket.on('disconnect', () => {
+      logger.info(`[WS/rooms] User ${userId} disconnected`);
+    });
+  });
+
   return io;
 };
 

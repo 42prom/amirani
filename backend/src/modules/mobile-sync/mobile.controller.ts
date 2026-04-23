@@ -10,7 +10,7 @@ import { UserTier } from '@prisma/client';
 /**
  * Identify "Hero Ingredient" (largest by protein or first)
  */
-const getDayOfWeekEnum = (date: Date): string => {
+export const getDayOfWeekEnum = (date: Date): string => {
   const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
   return days[date.getUTCDay()]; // Use UTC for absolute stability
 };

@@ -62,4 +62,36 @@ class GymRepositoryImpl implements GymRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> enrollPhoneKey(String gymId, String userId, String credentialHex) async {
+    try {
+      final id = await remoteDataSource.enrollPhoneKey(
+        gymId: gymId,
+        userId: userId,
+        credentialHex: credentialHex,
+      );
+      return Right(id);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> revokePhoneKey(String gymId, String userId, String credentialHex) async {
+    try {
+      await remoteDataSource.revokePhoneKey(
+        gymId: gymId,
+        userId: userId,
+        credentialHex: credentialHex,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

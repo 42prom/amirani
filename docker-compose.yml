@@ -2,24 +2,98 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: amirani-db
+    restart: always
     environment:
       POSTGRES_USER: amirani
       POSTGRES_PASSWORD: amirani_password
       POSTGRES_DB: amirani
     ports:
       - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amirani"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
   redis:
     image: redis:7-alpine
     container_name: amirani-redis
+    restart: always
     ports:
       - "6375:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: amirani-backend-dev
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql://amirani:amirani_password@postgres:5432/amirani?schema=public
+      - REDIS_URL=redis://redis:6379
+      - NODE_ENV=development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "3085:3085"
+    networks:
+      - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_ENABLE_QUICK_LOGIN=true
+    container_name: amirani-admin-dev
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=/api
+      - INTERNAL_API_URL=http://backend:3085
+      - NEXT_PUBLIC_ENABLE_QUICK_LOGIN=true
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3002:3002"
+    networks:
+      - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
 
 networks:
   amirani-network:

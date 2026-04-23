@@ -4,6 +4,8 @@ import prisma from '../../lib/prisma';
 import { Role } from '@prisma/client';
 import config from '../../config/env';
 import logger from '../../lib/logger';
+import { generateSecret, generateURI, verify } from 'otplib';
+import QRCode from 'qrcode';
 import {
   validateEmail,
   validatePassword,
@@ -12,6 +14,7 @@ import {
   combineValidations,
   sanitize,
 } from '../../utils/validation';
+import { encryptField, decryptField } from '../../lib/db-crypto';
 
 // ─── DTOs ────────────────────────────────────────────────────────────────────
 
@@ -58,6 +61,7 @@ export interface AuthResult {
   };
   token: string;
   refreshToken: string;
+  requires2FA?: boolean;
 }
 
 // ─── Custom Errors ───────────────────────────────────────────────────────────
@@ -208,6 +212,16 @@ export class AuthService {
     // Check account status
     if (!user.isActive) {
       throw new AuthenticationError('Account is deactivated');
+    }
+
+    // Check 2FA
+    if ((user as any).twoFactorEnabled) {
+      return {
+        user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role } as any,
+        token: '',
+        refreshToken: '',
+        requires2FA: true,
+      };
     }
 
     const token = this.generateToken(user.id, user.role, user.managedGymId);
@@ -499,5 +513,93 @@ export class AuthService {
       where: { id: userId },
       data: { password: hashed, mustChangePassword: false },
     });
+  }
+
+  /**
+   * Setup 2FA — generates secret and QR code for user to scan.
+   */
+  static async setup2FA(userId: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new Error('User not found');
+
+    const secret = generateSecret();
+    const otpauth = generateURI({ issuer: 'Amirani', label: user.email, secret });
+    const qrCode = await QRCode.toDataURL(otpauth);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorSecret: encryptField(secret) } as any,
+    });
+
+    return { secret, qrCode };
+  }
+
+  /**
+   * Enable 2FA — verifies token and activates 2FA on account.
+   */
+  static async enable2FA(userId: string, token: string) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !(user as any).twoFactorSecret) throw new Error('2FA not setup');
+
+    const secret = decryptField((user as any).twoFactorSecret);
+    if (!secret) throw new Error('Failed to decrypt 2FA secret');
+
+    const isValidResult = await verify({ token, secret });
+    const isValid = isValidResult.valid;
+    if (!isValid) throw new AuthenticationError('Invalid 2FA token');
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled: true } as any,
+    });
+
+    return { success: true };
+  }
+
+  /**
+   * Verify 2FA — used during login flow if requires2FA is true.
+   */
+  static async verify2FA(email: string, token: string): Promise<AuthResult> {
+    const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    if (!user || !(user as any).twoFactorSecret || !(user as any).twoFactorEnabled) {
+      throw new AuthenticationError('2FA not enabled');
+    }
+
+    const secret = decryptField((user as any).twoFactorSecret);
+    if (!secret) throw new Error('Failed to decrypt 2FA secret');
+
+    const isValidResult = await verify({ token, secret });
+    const isValid = isValidResult.valid;
+    if (!isValid) throw new AuthenticationError('Invalid 2FA token');
+
+    const jwtToken = this.generateToken(user.id, user.role, user.managedGymId);
+    const refreshToken = await this.issueRefreshToken(user.id);
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isVerified: user.isVerified,
+        managedGymId: user.managedGymId,
+        avatarUrl: user.avatarUrl,
+        phoneNumber: user.phoneNumber,
+        gender: user.gender,
+        dob: user.dob,
+        weight: user.weight ? user.weight.toString() : null,
+        height: user.height ? user.height.toString() : null,
+        medicalConditions: user.medicalConditions,
+        noMedicalConditions: user.noMedicalConditions,
+        personalNumber: user.personalNumber,
+        address: user.address,
+        idPhotoUrl: user.idPhotoUrl,
+        totalPoints: (user as any).totalPoints ?? 0,
+        streakDays: (user as any).streakDays ?? 0,
+        mustChangePassword: (user as any).mustChangePassword ?? false,
+      },
+      token: jwtToken,
+      refreshToken,
+    };
   }
 }

@@ -37,6 +37,8 @@ class GymAccessExpired extends GymAccessState {}
 
 class GymAccessNotifier extends StateNotifier<GymAccessState> {
   final QrCheckInUseCase _qrCheckInUseCase;
+  final EnrollPhoneKeyUseCase _enrollUseCase;
+  final RevokePhoneKeyUseCase _revokeUseCase;
   final FlutterSecureStorage _storage;
   final DailySnapshotService _snapshotService;
 
@@ -48,8 +50,13 @@ class GymAccessNotifier extends StateNotifier<GymAccessState> {
   static const _keyPlanName = 'qr_check_in_plan_name';
   static const _keyDaysRemaining = 'qr_check_in_days_remaining';
 
-  GymAccessNotifier(this._qrCheckInUseCase, this._storage, this._snapshotService)
-      : super(GymAccessIdle()) {
+  GymAccessNotifier(
+    this._qrCheckInUseCase,
+    this._enrollUseCase,
+    this._revokeUseCase,
+    this._storage,
+    this._snapshotService,
+  ) : super(GymAccessIdle()) {
     _restoreSession();
   }
 
@@ -65,6 +72,24 @@ class GymAccessNotifier extends StateNotifier<GymAccessState> {
         await _persistSession(checkIn);
         state = GymAccessAdmitted(checkIn);
       },
+    );
+  }
+
+  /// Enroll a virtual NFC key with the backend
+  Future<bool> enrollNfcKey(String gymId, String userId, String credentialHex) async {
+    final result = await _enrollUseCase(EnrollPhoneKeyParams(gymId, userId, credentialHex));
+    return result.fold(
+      (failure) => throw Exception(failure.message),
+      (id) => true,
+    );
+  }
+
+  /// Revoke a virtual NFC key with the backend
+  Future<bool> revokeNfcKey(String gymId, String userId, String credentialHex) async {
+    final result = await _revokeUseCase(RevokePhoneKeyParams(gymId, userId, credentialHex));
+    return result.fold(
+      (failure) => throw Exception(failure.message),
+      (_) => true,
     );
   }
 
@@ -176,10 +201,20 @@ final getGymQrTokenUseCaseProvider = Provider<GetGymQrTokenUseCase>((ref) {
   return GetGymQrTokenUseCase(ref.watch(gymRepositoryProvider));
 });
 
+final enrollPhoneKeyUseCaseProvider = Provider<EnrollPhoneKeyUseCase>((ref) {
+  return EnrollPhoneKeyUseCase(ref.watch(gymRepositoryProvider));
+});
+
+final revokePhoneKeyUseCaseProvider = Provider<RevokePhoneKeyUseCase>((ref) {
+  return RevokePhoneKeyUseCase(ref.watch(gymRepositoryProvider));
+});
+
 final gymAccessProvider =
     StateNotifierProvider<GymAccessNotifier, GymAccessState>((ref) {
   return GymAccessNotifier(
     ref.watch(qrCheckInUseCaseProvider),
+    ref.watch(enrollPhoneKeyUseCaseProvider),
+    ref.watch(revokePhoneKeyUseCaseProvider),
     const FlutterSecureStorage(),
     ref.read(dailySnapshotServiceProvider),
   );

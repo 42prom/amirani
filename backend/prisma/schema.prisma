@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -19,6 +20,8 @@ model User {
   isVerified               Boolean                    @default(false)
   isActive                 Boolean                    @default(true)
   mustChangePassword       Boolean                    @default(false)
+  twoFactorSecret          String?
+  twoFactorEnabled         Boolean                    @default(false)
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
   stripeCustomerId         String?                    @unique
@@ -85,10 +88,11 @@ model User {
   auditLogs                AuditLog[]                 @relation("AuditActor")
   createdRooms             ProgressRoom[]             @relation("RoomCreator")
   roomMemberships          RoomMembership[]
+  roomMessages             RoomMessage[]
   dailyRecoveries          DailyRecovery[]
   foodLogs                 FoodLog[]
   mealLogs                 MealLog[]
-  userTasks                UserTask[]
+
 
   @@map("users")
 }
@@ -159,6 +163,7 @@ model Gym {
   assignmentRequests       TrainerAssignmentRequest[]
   branches                 Branch[]
   deletedAt                DateTime?
+  workoutHistory           WorkoutHistory[]
 
   @@map("gyms")
 }
@@ -871,13 +876,16 @@ model WorkoutHistory {
   idempotencyKey  String?
   userId          String
   routineId       String?
+  gymId           String?
   completedSets   CompletedSet[]
   routine         WorkoutRoutine? @relation(fields: [routineId], references: [id])
   user            User            @relation("UserWorkoutHistory", fields: [userId], references: [id], onDelete: Cascade)
+  gym             Gym?            @relation(fields: [gymId], references: [id])
 
   @@unique([userId, idempotencyKey], name: "workoutHistory_userIdempotency")
   @@index([userId, completedAt(sort: Desc)])
   @@index([routineId])
+  @@index([gymId])
   @@map("workout_history")
 }
 
@@ -976,38 +984,6 @@ model DailyProgress {
   @@map("daily_progress")
 }
 
-enum UserTaskType {
-  WORKOUT_SESSION
-  MEAL
-  CUSTOM
-}
-
-// Tasks auto-created from AI plan generation and trainer plan assignments.
-// Members mark them done; no trainer verification required (trust-based).
-model UserTask {
-  id          String    @id @default(uuid())
-  userId      String
-  title       String
-  description String?
-  taskType    UserTaskType  @default(CUSTOM)
-  points      Int       @default(10)
-  dueDate     DateTime  @db.Date
-  isCompleted Boolean   @default(false)
-  completedAt DateTime?
-
-  // Optional link to the source plan
-  workoutPlanId String?
-  dietPlanId    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, dueDate(sort: Desc)])
-  @@index([userId, isCompleted])
-  @@map("user_tasks")
-}
 
 
 
@@ -1266,6 +1242,7 @@ enum PointSourceType {
   CHECKIN
   STREAK_BONUS
   MANUAL
+  PERFECT_DAY
 }
 
 enum ExerciseMechanics {
@@ -1547,9 +1524,25 @@ model ProgressRoom {
   gym     Gym              @relation(fields: [gymId], references: [id], onDelete: Cascade)
   creator User             @relation("RoomCreator", fields: [creatorId], references: [id])
   members RoomMembership[]
+  messages RoomMessage[]
 
   @@index([gymId, isActive])
   @@map("progress_rooms")
+}
+
+model RoomMessage {
+  id        String   @id @default(uuid())
+  roomId    String
+  userId    String
+  body      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  room ProgressRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt])
+  @@map("room_messages")
 }
 
 model RoomMembership {
@@ -1818,6 +1811,7 @@ model UserDevice {
   @@index([userId])
   @@map("user_devices")
 }
+
 
 // ─── NEW ENUMS ──────────────────────────────────────────────────────────────
 
