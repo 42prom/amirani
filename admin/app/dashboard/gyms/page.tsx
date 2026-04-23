@@ -327,9 +327,10 @@ export default function GymsPage() {
                     </button>
                     <button
                       onClick={(e) => handleDelete(e, gym)}
+                      title="Delete Gym"
                       className="p-2 bg-white/5 text-zinc-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all border border-white/5"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

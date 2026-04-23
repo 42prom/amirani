@@ -26,6 +26,34 @@ class AppTokens {
   static const Color colorBorderSubtle = Color(0x14FFFFFF); // 8% white
   static const Color colorBorderMedium = Color(0x26FFFFFF); // 15% white
 
+  // ─── Glassmorphism ───────────────────────────────────────────────────────
+  static const double blurStandard = 20.0;
+  static const double blurHigh = 40.0;
+  static const double glassOpacity = 0.15;
+  static const double glassBorderOpacity = 0.25;
+
+  // ─── Premium Gradients ───────────────────────────────────────────────────
+  static LinearGradient get gradientBrand => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFFF1C40F), Color(0xFFD4AC0D)],
+      );
+
+  static LinearGradient get gradientGlass => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withValues(alpha: 0.15),
+          Colors.white.withValues(alpha: 0.05),
+        ],
+      );
+
+  static LinearGradient get gradientBackground => const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFF1A2035), Color(0xFF121721)],
+      );
+
   // Score ring colors (match directive 04)
   static const Color colorScoreWorkout = Color(0xFFF1C40F); // Yellow
   static const Color colorScoreDiet = Color(0xFF10B981);    // Green

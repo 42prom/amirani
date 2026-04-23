@@ -43,10 +43,8 @@ export class AttendanceService {
     }
 
     // Check if user has active membership at this gym
-    const membership = await prisma.gymMembership.findUnique({
-      where: {
-        userId_gymId: { userId, gymId },
-      },
+    const membership = await prisma.gymMembership.findFirst({
+      where: { userId, gymId, status: 'ACTIVE' },
     });
 
     if (!membership) {
@@ -336,8 +334,9 @@ export class AttendanceService {
    * Get missed days for a user (days with no attendance in active membership period)
    */
   static async getMissedDays(userId: string, gymId: string, days: number = 30) {
-    const membership = await prisma.gymMembership.findUnique({
-      where: { userId_gymId: { userId, gymId } },
+    const membership = await prisma.gymMembership.findFirst({
+      where: { userId, gymId, status: { not: { in: ['EXPIRED', 'CANCELLED'] } } },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!membership) {

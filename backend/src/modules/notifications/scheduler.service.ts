@@ -6,28 +6,8 @@ import logger from '../../lib/logger';
 const DAY_ENUMS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
 export class SchedulerService {
-  private static interval: NodeJS.Timeout | null = null;
-  private static isRunning = false;
-
-  static start() {
-    if (this.interval) return;
-    logger.info('[Scheduler] Proactive Reminder Engine started');
-    this.checkUpcomingTasks();
-    this.interval = setInterval(() => {
-      this.checkUpcomingTasks();
-    }, 15 * 60 * 1000);
-  }
-
-  static stop() {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
-    }
-  }
-
-  private static async checkUpcomingTasks() {
-    if (this.isRunning) return;
-    this.isRunning = true;
+  /** Called by the BullMQ reminder-scan worker (every 15 min). */
+  static async runOnce() {
     const now = new Date();
     try {
       await Promise.all([
@@ -36,10 +16,16 @@ export class SchedulerService {
       ]);
     } catch (error) {
       logger.error('[Scheduler] Scan failed', { error });
-    } finally {
-      this.isRunning = false;
     }
   }
+
+  /** @deprecated Use BullMQ reminder-scan worker instead. */
+  static start() {
+    logger.warn('[Scheduler] start() is a no-op — driven by BullMQ worker');
+  }
+
+  /** @deprecated */
+  static stop() { /* no-op — BullMQ worker lifecycle managed by worker.ts */ }
 
   // ── Meal reminders ───────────────────────────────────────────────────────────
 

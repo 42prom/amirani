@@ -90,7 +90,9 @@ export class ProgressService {
           dietTasks = masterMeals.filter((mm: any) => mm.dayOfWeek === currentDayEnum).length;
         } else {
           const sortedMeals = [...masterMeals].sort((a: any, b: any) => (a.orderIndex ?? 0) - (b.orderIndex ?? 0));
-          const mealsPerDay = sortedMeals.filter((mm: any) => (mm.orderIndex ?? 0) === 0).length || 1;
+          // Derive meals-per-day from plan.numWeeks rather than the broken orderIndex===0 heuristic.
+          const planDays = Math.max(1, (activeDietPlan.numWeeks ?? 1) * 7);
+          const mealsPerDay = Math.max(1, Math.round(sortedMeals.length / planDays));
           const dayCount = Math.ceil(sortedMeals.length / mealsPerDay);
           
           if (dayCount > 0) {

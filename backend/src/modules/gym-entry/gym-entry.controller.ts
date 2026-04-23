@@ -231,6 +231,12 @@ router.post('/check-in/qr', authenticate, async (req: AuthenticatedRequest, res:
       data: { userId, gymId },
     });
 
+    // ── Incremental Occupancy Update ─────────────────────────────────────────
+    await prisma.gym.update({
+      where: { id: gymId },
+      data: { currentOccupancy: { increment: 1 } },
+    }).catch(err => logger.error('[GymEntry] occupancy increment (QR) error', { err }));
+
     // Award check-in points across all active rooms (fire-and-forget)
     awardPoints({
       userId,
@@ -317,6 +323,12 @@ router.post('/check-in/nfc', authenticate, async (req: AuthenticatedRequest, res
     const attendance = await prisma.attendance.create({
       data: { userId, gymId },
     });
+
+    // ── Incremental Occupancy Update ─────────────────────────────────────────
+    await prisma.gym.update({
+      where: { id: gymId },
+      data: { currentOccupancy: { increment: 1 } },
+    }).catch(err => logger.error('[GymEntry] occupancy increment (NFC) error', { err }));
 
     // Award check-in points across all active rooms (fire-and-forget)
     awardPoints({
@@ -448,6 +460,12 @@ router.post('/check-out', authenticate, async (req: AuthenticatedRequest, res: R
       where: { id: session.id },
       data: { checkOut: checkOutTime, duration },
     });
+
+    // ── Incremental Occupancy Update ─────────────────────────────────────────
+    await prisma.gym.update({
+      where: { id: gymId },
+      data: { currentOccupancy: { decrement: 1 } },
+    }).catch(err => logger.error('[GymEntry] occupancy decrement error', { err }));
 
     return success(res, { checkedOut: true, duration, checkOut: checkOutTime.toISOString() });
   } catch (err) {

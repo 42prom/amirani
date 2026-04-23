@@ -9,9 +9,9 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomSelect } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import {
-  Dumbbell, Plus, Search, RefreshCw, X, Edit2,
-  Download, Upload, Check, ChevronDown, ChevronUp,
-  ChevronLeft, ChevronRight, AlertTriangle,
+  Dumbbell, Plus, Search, RefreshCw, X, Edit2, Trash2,
+  Download, Upload, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight, AlertTriangle, Zap, ZapOff,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ interface ImportError { row: number; name: string; reason: string; }
 const PAGE_SIZE = 50;
 
 const MUSCLES = ["CHEST","BACK","SHOULDERS","BICEPS","TRICEPS","FOREARMS","LEGS","QUADS","HAMSTRINGS","GLUTES","CALVES","ABS","FULL_BODY","CARDIO"];
-const EQUIPMENT_OPTIONS = ["BODYWEIGHT","BARBELL","DUMBBELL","MACHINE","CABLE","KETTLEBELL","RESISTANCE_BAND","PULL_UP_BAR","BENCH","RACK","EZ_BAR","MEDICINE_BALL"];
+
 const DIFFICULTIES: Difficulty[] = ["BEGINNER", "INTERMEDIATE", "ADVANCED"];
 const MECHANICS_OPTIONS: Mechanics[] = ["COMPOUND", "ISOLATION"];
 const FORCE_OPTIONS: Force[] = ["PUSH", "PULL", "HINGE", "SQUAT", "CARRY", "STATIC"];
@@ -446,12 +446,14 @@ export default function ExerciseDatabasePage() {
                       <Edit2 size={14} />
                     </button>
                     <button onClick={() => updateMutation.mutate({ id: ex.id, data: { isActive: !ex.isActive } })}
-                      className={`p-1.5 rounded-lg transition-colors ${ex.isActive ? "hover:bg-red-500/10 text-zinc-500 hover:text-red-400" : "hover:bg-green-500/10 text-zinc-500 hover:text-green-400"}`}>
-                      {ex.isActive ? <X size={14} /> : <Check size={14} />}
+                      title={ex.isActive ? "Deactivate Exercise" : "Activate Exercise"}
+                      className={`p-1.5 rounded-lg transition-colors ${ex.isActive ? "hover:bg-emerald-500/10 text-emerald-400" : "hover:bg-zinc-500/10 text-zinc-600"}`}>
+                      {ex.isActive ? <Zap size={16} /> : <ZapOff size={16} />}
                     </button>
                     <button onClick={() => { if (confirm(`Delete "${ex.name}"?`)) deleteMutation.mutate(ex.id); }}
-                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-700 hover:text-red-400 transition-colors">
-                      <X size={12} />
+                      title="Delete"
+                      className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-500 hover:text-red-400 transition-colors">
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>

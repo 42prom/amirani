@@ -115,7 +115,7 @@ export class ChurnService {
     const results: MemberChurnScore[] = memberships.map((m) => {
       const lastCheckIn = lastCheckInMap.get(m.userId) ?? null;
       const daysSince = lastCheckIn
-        ? Math.floor((now.getTime() - lastCheckIn.getTime()) / (1000 * 60 * 60 * 24))
+        ? Math.floor((now.getTime() - (lastCheckIn as any).getTime()) / (1000 * 60 * 60 * 24))
         : null;
       const recentCount = recentMap.get(m.userId) ?? 0;
       const prevCount = prevMap.get(m.userId) ?? 0;
@@ -123,7 +123,7 @@ export class ChurnService {
 
       // Weighted composite score
       const s1 = scoreFromDaysSinceCheckIn(daysSince) * 0.50;
-      const s2 = scoreFromFrequencyTrend(recentCount, prevCount) * 0.30;
+      const s2 = scoreFromFrequencyTrend(recentCount as any, prevCount as any) * 0.30;
       const s3 = scoreFromExpiry(daysUntilExpiry) * 0.20;
 
       const rawScore = Math.round(s1 + s2 + s3);
@@ -152,17 +152,19 @@ export class ChurnService {
 
   /**
    * Get only at-risk members (score >= 35) for a gym.
+   * Accepts pre-computed scores to avoid a double DB hit when combined with getSummary.
    */
-  static async getAtRisk(gymId: string): Promise<MemberChurnScore[]> {
-    const all = await this.computeForGym(gymId);
+  static async getAtRisk(gymId: string, precomputed?: MemberChurnScore[]): Promise<MemberChurnScore[]> {
+    const all = precomputed ?? await this.computeForGym(gymId);
     return all.filter((m) => m.score >= 35);
   }
 
   /**
    * Summary stats for a gym's churn state.
+   * Accepts pre-computed scores to avoid a double DB hit when combined with getAtRisk.
    */
-  static async getSummary(gymId: string) {
-    const all = await this.computeForGym(gymId);
+  static async getSummary(gymId: string, precomputed?: MemberChurnScore[]) {
+    const all = precomputed ?? await this.computeForGym(gymId);
     return {
       total: all.length,
       safe:      all.filter((m) => m.riskLevel === 'SAFE').length,

@@ -408,38 +408,122 @@ def feedback_denied(reason: str):
 
 # ─── Door Unlock ──────────────────────────────────────────────────────────────
 
-unlock_lock = threading.Lock()
+unlock_lock   = threading.Lock()
+_is_unlocking = False  # guards against concurrent unlock commands
 
 def trigger_unlock(duration_ms: int = None):
+    """
+    Energise the relay for duration_ms milliseconds.
+    The lock is held only during the relay state change — NOT during the sleep —
+    so a second UNLOCK command received while the door is already open is
+    discarded immediately instead of blocking for the full unlock duration.
+    """
+    global _is_unlocking
     if duration_ms is None:
         duration_ms = UNLOCK_MS
     with unlock_lock:
-        log.info(f"[RELAY] Unlocking for {duration_ms}ms")
+        if _is_unlocking:
+            log.info("[RELAY] Already unlocking — ignoring duplicate command")
+            return
+        _is_unlocking = True
         set_relay(True)
+    log.info(f"[RELAY] Unlocking for {duration_ms}ms")
+    try:
         time.sleep(duration_ms / 1000)
+    finally:
         set_relay(False)
+        with unlock_lock:
+            _is_unlocking = False
         log.info("[RELAY] Locked")
+
+# ─── Offline Credential Cache ─────────────────────────────────────────────────
+# On each successful backend validation the card UID is saved to a local JSON
+# file.  When the backend is unreachable (timeout / network loss) the gateway
+# falls back to this cache so the door is not bricked during connectivity gaps.
+
+CACHE_FILE  = os.path.join(os.path.dirname(__file__), "credential_cache.json")
+CACHE_TTL_S = cfg.get("cache_ttl_s", 43200)  # 12-hour default
+
+_cache: dict = {}
+_cache_lock  = threading.Lock()
+
+def load_cache():
+    global _cache
+    if not os.path.exists(CACHE_FILE):
+        return
+    try:
+        with open(CACHE_FILE) as f:
+            raw = json.load(f)
+        now = time.time()
+        _cache = {uid: v for uid, v in raw.items() if v.get("expiry", 0) > now}
+        log.info(f"[Cache] Loaded {len(_cache)} cached credential(s)")
+    except Exception as e:
+        log.warning(f"[Cache] Load failed: {e}")
+        _cache = {}
+
+def _persist_cache():
+    try:
+        with open(CACHE_FILE, "w") as f:
+            json.dump(_cache, f)
+    except Exception as e:
+        log.warning(f"[Cache] Save failed: {e}")
+
+def cache_credential(uid: str, result: dict):
+    """Persist a granted credential so the door works during backend outages."""
+    with _cache_lock:
+        _cache[uid] = {
+            "memberName": result.get("memberName", "Member"),
+            "planName":   result.get("planName", ""),
+            "expiry":     time.time() + CACHE_TTL_S,
+        }
+        _persist_cache()
+
+def lookup_cache(uid: str):
+    """Return cached entry if present and not expired, else None."""
+    with _cache_lock:
+        entry = _cache.get(uid)
+    if entry and entry.get("expiry", 0) > time.time():
+        log.info(f"[Cache] Offline HIT for UID {uid}")
+        return {"granted": True, **entry}
+    return None
 
 # ─── Backend API ──────────────────────────────────────────────────────────────
 
 SESSION = requests.Session()
 SESSION.headers.update({"X-Gateway-Key": API_KEY, "Content-Type": "application/json"})
 
+_VALIDATE_MAX_RETRIES = 2
+_VALIDATE_RETRY_DELAY = 0.5  # seconds between retries
+
 def validate_card(card_uid: str) -> dict:
-    """Call backend to validate a card/PIN scan."""
-    try:
-        resp = SESSION.post(
-            f"{BACKEND_URL}/api/hardware/gw/validate",
-            json={"cardUid": card_uid},
-            timeout=5
-        )
-        return resp.json().get("data", resp.json())
-    except requests.exceptions.Timeout:
-        log.error("[API] Timeout on validate")
-        return {"granted": False, "reason": "Backend timeout"}
-    except Exception as e:
-        log.error(f"[API] Validate error: {e}")
-        return {"granted": False, "reason": "Connection error"}
+    """
+    Call backend to validate a card/PIN scan.
+    Retries up to _VALIDATE_MAX_RETRIES times before falling back to the
+    offline credential cache so the door is not bricked during outages.
+    """
+    for attempt in range(_VALIDATE_MAX_RETRIES + 1):
+        try:
+            resp = SESSION.post(
+                f"{BACKEND_URL}/api/hardware/gw/validate",
+                json={"cardUid": card_uid},
+                timeout=5
+            )
+            result = resp.json().get("data", resp.json())
+            if result.get("granted"):
+                cache_credential(card_uid, result)
+            return result
+        except requests.exceptions.Timeout:
+            log.warning(f"[API] Timeout on validate (attempt {attempt + 1}/{_VALIDATE_MAX_RETRIES + 1})")
+        except Exception as e:
+            log.error(f"[API] Validate error: {e}")
+        if attempt < _VALIDATE_MAX_RETRIES:
+            time.sleep(_VALIDATE_RETRY_DELAY)
+
+    # All retries exhausted — consult offline cache before denying
+    cached = lookup_cache(card_uid)
+    if cached:
+        return cached
+    return {"granted": False, "reason": "Backend unreachable"}
 
 def send_heartbeat():
     """POST /hardware/gw/heartbeat every 30 seconds."""
@@ -544,6 +628,7 @@ def main():
     log.info(f"  Display: {USE_DISPLAY}")
     log.info("=" * 50)
 
+    load_cache()
     init_nfc()
     init_keypad()
     init_display()

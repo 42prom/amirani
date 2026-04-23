@@ -261,6 +261,12 @@ export async function validateCardScan(params: {
     // Create attendance record
     const attendance = await prisma.attendance.create({ data: { userId, gymId } });
 
+    // ── Incremental Occupancy Update ─────────────────────────────────────────
+    await prisma.gym.update({
+      where: { id: gymId },
+      data: { currentOccupancy: { increment: 1 } },
+    }).catch((err: any) => logger.error('[HW] occupancy increment error', { err }));
+
     // Award leaderboard points (fire-and-forget)
     awardPoints({
       userId,

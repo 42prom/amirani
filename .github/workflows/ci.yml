@@ -12,36 +12,68 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
+
       - name: Install dependencies
         run: cd backend && npm ci
+
       - name: Prisma Generate
         run: cd backend && npx prisma generate
+
       - name: Type Check
         run: cd backend && npm run build
-      # - name: Run Tests
-      #   run: cd backend && npm test
+
+      - name: Run Tests
+        run: cd backend && npm test
+        continue-on-error: true  # remove once test suite is established
 
   admin-ci:
     name: Admin CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
           cache-dependency-path: admin/package-lock.json
+
       - name: Install dependencies
         run: cd admin && npm ci
+
       - name: Build
         run: cd admin && npm run build
+
+  mobile-ci:
+    name: Mobile CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          cache: true
+
+      - name: Flutter pub get
+        run: cd mobile && flutter pub get
+
+      - name: Flutter analyze
+        run: cd mobile && flutter analyze --no-fatal-infos
+
+      - name: Flutter build check (no-codesign)
+        run: cd mobile && flutter build apk --debug --no-pub
+        continue-on-error: true  # requires SDK licenses on runner
 
   docker-build:
     name: Docker Build Test
@@ -49,15 +81,22 @@ jobs:
     needs: [backend-ci, admin-ci]
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Build Backend Image
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: false
+          cache-from: type=gha,scope=backend
+          cache-to:   type=gha,scope=backend,mode=max
+
       - name: Build Admin Image
         uses: docker/build-push-action@v5
         with:
           context: ./admin
           push: false
+          cache-from: type=gha,scope=admin
+          cache-to:   type=gha,scope=admin,mode=max

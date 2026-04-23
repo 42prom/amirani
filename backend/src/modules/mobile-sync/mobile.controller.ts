@@ -552,16 +552,36 @@ export class MobileController {
       const { date, logged } = parsed.data;
       const dateObj = new Date(date + 'T00:00:00.000Z');
 
+      // Check current log state before mutation (transition guard for tasksCompleted)
+      const existing = await (prisma as any).mealLog.findUnique({
+        where: { userId_refId_date: { userId, refId, date: dateObj } },
+        select: { id: true },
+      });
+
       if (logged) {
         await (prisma as any).mealLog.upsert({
           where: { userId_refId_date: { userId, refId, date: dateObj } },
           create: { id: require('crypto').randomUUID(), userId, refId, date: dateObj },
           update: { loggedAt: new Date() },
         });
+        // Increment only on new log (not re-mark)
+        if (!existing) {
+          await prisma.dailyProgress.updateMany({
+            where: { userId, date: dateObj },
+            data:  { tasksCompleted: { increment: 1 } },
+          });
+        }
       } else {
-        await (prisma as any).mealLog.deleteMany({
+        const deleted = await (prisma as any).mealLog.deleteMany({
           where: { userId, refId, date: dateObj },
         });
+        // Decrement only if a row was actually removed
+        if (deleted.count > 0) {
+          await prisma.dailyProgress.updateMany({
+            where: { userId, date: dateObj, tasksCompleted: { gt: 0 } },
+            data:  { tasksCompleted: { decrement: 1 } },
+          });
+        }
       }
 
       logger.info('[MEAL_LOG] Meal log updated', { userId, refId, date, logged });
@@ -803,7 +823,7 @@ export class MobileController {
       }
 
       // ── Wrap the entire session log in a single transaction ──
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx: any) => {
         let finalRoutineId: string | null = routineId ?? null;
 
         // ── SNAP-TO-LITERAL: Convert virtual template IDs to real DB rows ──
@@ -836,7 +856,7 @@ export class MobileController {
                 estimatedMinutes: templateRoutine.estimatedMinutes,
                 isDraft: false,
                 exercises: {
-                  create: templateRoutine.exercises.map((ex) => ({
+                  create: templateRoutine.exercises.map((ex: any) => ({
                     exerciseName: ex.exerciseName,
                     exerciseLibraryId: ex.exerciseLibraryId,
                     targetSets: ex.targetSets,
@@ -870,7 +890,7 @@ export class MobileController {
 
         // ── Create all CompletedSet rows atomically ──
         const libraryCache = new Map<string, string | null>();
-        const setRecords = [];
+        const setRecords: any[] = [];
 
         for (const ex of exercises) {
           let libId = (ex as any).libraryId ?? null;
@@ -975,18 +995,18 @@ export class MobileController {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayRow = dailyRows.find(
-        (r) => new Date(r.date).toDateString() === today.toDateString()
+        (r: any) => new Date(r.date).toDateString() === today.toDateString()
       );
 
       // ── Activity (last 7 days) ─────────────────────────────────────────────
-      const last7 = dailyRows.filter((r) => new Date(r.date) >= weekStart);
+      const last7 = dailyRows.filter((r: any) => new Date(r.date) >= weekStart);
 
       const workoutsThisWeek = workoutRows.length;
       const activeMinutesThisWeek = last7.reduce((s, r) => s + r.activeMinutes, 0);
 
       // ── TELEMETRY: High-resolution Caloric Burn Data ───────────────────────
       const caloriesBurnedThisWeek = workoutRows.length > 0
-        ? workoutRows.reduce((s, w) => s + Number(w.caloriesBurned || (w.durationMinutes * 5)), 0)
+        ? workoutRows.reduce((s: number, w: any) => s + Number(w.caloriesBurned || (w.durationMinutes * 5)), 0)
         : activeMinutesThisWeek * 4;
 
       // Daily calories burned for chart — 7 day array (index 0 = 6 days ago)
@@ -994,12 +1014,12 @@ export class MobileController {
         const d = new Date(weekStart);
         d.setDate(d.getDate() + i);
         
-        const dayWorkouts = workoutRows.filter(w => new Date(w.completedAt).toDateString() === d.toDateString());
+        const dayWorkouts = workoutRows.filter((w: any) => new Date(w.completedAt).toDateString() === d.toDateString());
         if (dayWorkouts.length > 0) {
-           return dayWorkouts.reduce((s, w) => s + Number(w.caloriesBurned || (w.durationMinutes * 5)), 0);
+           return dayWorkouts.reduce((s: number, w: any) => s + Number(w.caloriesBurned || (w.durationMinutes * 5)), 0);
         }
 
-        const row = last7.find((r) => new Date(r.date).toDateString() === d.toDateString());
+        const row = (last7 as any[]).find((r: any) => new Date(r.date).toDateString() === d.toDateString());
         return row ? row.activeMinutes * 4 : 0;
       });
 
@@ -1014,15 +1034,15 @@ export class MobileController {
       const dietScore = Math.round((dietDays / 7) * 100) / 100;
 
       const hydrationDays = last7.filter(
-        (r) => parseFloat(r.waterConsumed.toString()) >= targetWater * 0.8
+        (r: any) => parseFloat(r.waterConsumed.toString()) >= targetWater * 0.8
       ).length;
       const hydrationScore = Math.round((hydrationDays / 7) * 100) / 100;
 
-      const sleepEntries = recoveryRows.filter((r) => {
+      const sleepEntries = recoveryRows.filter((r: any) => {
         return r.sleepHours != null && new Date(r.date) >= weekStart;
       });
       const avgSleepHours = sleepEntries.length > 0
-        ? sleepEntries.reduce((s, r) => s + (r.sleepHours ?? 0), 0) / sleepEntries.length
+        ? sleepEntries.reduce((s: number, r: any) => s + (r.sleepHours ?? 0), 0) / sleepEntries.length
         : 0;
       const sleepScore = Math.round(Math.min(avgSleepHours / 8, 1) * 100) / 100;
 
@@ -1038,7 +1058,7 @@ export class MobileController {
           workout: r.activeMinutes >= 20 ? 1 : r.activeMinutes >= 10 ? 0.5 : 0,
           diet: Math.min(r.caloriesConsumed / (targetCal || 1), 1),
           hydration: Math.min(parseFloat(r.waterConsumed.toString()) / (targetWater || 1), 1),
-          sleep: rec?.sleepHours != null ? Math.min(rec.sleepHours / 8, 1) : 0,
+          sleep: (rec as any)?.sleepHours != null ? Math.min((rec as any).sleepHours / 8, 1) : 0,
         };
       });
 

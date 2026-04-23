@@ -3,6 +3,7 @@ import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { seedExerciseLibrary } from './exercise-seed';
 import { seedAIConfig } from './ai-config-seed';
+import { seedPlatformConfig } from './platform-config-seed';
 
 const prisma = new PrismaClient();
 
@@ -349,8 +350,37 @@ async function main() {
   // 10. Seed Exercise Library
   await seedExerciseLibrary();
 
-  // 11. Seed AI Config (reads DEEPSEEK_API_KEY from .env — skips gracefully if not set)
+  // 11. Seed AI Config (reads DEEPSEEK_API_KEY from .env — now creates placeholder if missing)
   await seedAIConfig();
+
+  // 12. Seed Platform Config
+  await seedPlatformConfig();
+
+  // 13. Seed Badge Definitions
+  console.log('🏅 Seeding badge definitions...');
+  const badgeDefs = [
+    { key: 'first_checkin',  name: 'First Steps',        description: 'Check into a gym for the first time',           tier: 'BRONZE',   sortOrder: 1  },
+    { key: 'streak_3',       name: 'On a Roll',           description: 'Maintain a 3-day activity streak',              tier: 'BRONZE',   sortOrder: 2  },
+    { key: 'streak_7',       name: 'Week Warrior',        description: 'Maintain a 7-day activity streak',              tier: 'SILVER',   sortOrder: 3  },
+    { key: 'streak_30',      name: 'Iron Consistency',    description: 'Maintain a 30-day activity streak',             tier: 'GOLD',     sortOrder: 4  },
+    { key: 'workout_5',      name: 'Getting Started',     description: 'Complete 5 workout sessions',                   tier: 'BRONZE',   sortOrder: 5  },
+    { key: 'workout_25',     name: 'Dedicated',           description: 'Complete 25 workout sessions',                  tier: 'SILVER',   sortOrder: 6  },
+    { key: 'workout_100',    name: 'Century Club',        description: 'Complete 100 workout sessions',                 tier: 'GOLD',     sortOrder: 7  },
+    { key: 'points_100',     name: 'Point Scorer',        description: 'Earn 100 total leaderboard points',             tier: 'BRONZE',   sortOrder: 8  },
+    { key: 'points_500',     name: 'High Achiever',       description: 'Earn 500 total leaderboard points',             tier: 'SILVER',   sortOrder: 9  },
+    { key: 'points_2000',    name: 'Champion',            description: 'Earn 2,000 total leaderboard points',           tier: 'GOLD',     sortOrder: 10 },
+    { key: 'perfect_day',    name: 'Perfect Day',         description: 'Complete 100% of your daily tasks',             tier: 'BRONZE',   sortOrder: 11 },
+    { key: 'perfect_week',   name: 'Perfect Week',        description: 'Seven consecutive days of full task completion', tier: 'PLATINUM', sortOrder: 12 },
+  ] as const;
+
+  for (const def of badgeDefs) {
+    await (prisma as any).badgeDefinition.upsert({
+      where: { key: def.key },
+      update: { name: def.name, description: def.description, tier: def.tier, sortOrder: def.sortOrder },
+      create: { ...def, isActive: true },
+    });
+  }
+  console.log(`   ✓ ${badgeDefs.length} badge definitions seeded`);
 
   // Summary
   console.log('\n═══════════════════════════════════════════════════════════');

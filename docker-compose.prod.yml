@@ -1,64 +1,103 @@
 services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: amirani-backend
-    restart: always
-    environment:
-      - DATABASE_URL=postgresql://amirani:amirani_password@postgres:5432/amirani?schema=public
-      - REDIS_URL=redis://redis:6379
-      - PORT=3000
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    ports:
-      - "3000:3000"
-    networks:
-      - amirani-network
-
-  admin:
-    build:
-      context: ./admin
-      dockerfile: Dockerfile
-    container_name: amirani-admin
-    restart: always
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:3000/api
-      - PORT=3001
-    depends_on:
-      - backend
-    ports:
-      - "3001:3001"
-    networks:
-      - amirani-network
-
   postgres:
     image: postgres:16-alpine
     container_name: amirani-db-prod
     restart: always
     environment:
-      POSTGRES_USER: amirani
-      POSTGRES_PASSWORD: amirani_password
-      POSTGRES_DB: amirani
+      POSTGRES_USER:     ${POSTGRES_USER:-amirani}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB:       ${POSTGRES_DB:-amirani}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U amirani"]
-      interval: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-amirani}"]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 15s
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
     networks:
       - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
   redis:
     image: redis:7-alpine
     container_name: amirani-redis-prod
     restart: always
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --appendfsync everysec
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis_prod_data:/data
     networks:
       - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: amirani-backend-prod
+    restart: always
+    env_file:
+      - ./backend/.env.prod
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-amirani}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-amirani}?schema=public
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379
+      - NODE_ENV=production
+      - PORT=3085
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${BACKEND_PORT:-3085}:3085"
+    networks:
+      - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    container_name: amirani-admin-prod
+    restart: always
+    environment:
+      - INTERNAL_API_URL=http://backend:3085
+      - PORT=3002
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${ADMIN_PORT:-3002}:3002"
+    networks:
+      - amirani-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
 
 networks:
   amirani-network:
@@ -66,3 +105,4 @@ networks:
 
 volumes:
   postgres_prod_data:
+  redis_prod_data:

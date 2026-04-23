@@ -1,6 +1,9 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import '../../../../design_system/tokens/app_tokens.dart';
+import '../../../../design_system/components/glass_card.dart';
+import '../../../../design_system/components/glass_onboarding_background.dart';
 
 class OnboardingWelcomePage extends StatelessWidget {
   final VoidCallback onReady;
@@ -14,147 +17,164 @@ class OnboardingWelcomePage extends StatelessWidget {
     final h = size.height;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: w * 0.08),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: h * 0.06),
-                  // Coach avatar with glow
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: w * 0.40,
-                        height: w * 0.40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              AppTheme.primaryBrand.withValues(alpha: 0.25),
-                              AppTheme.primaryBrand.withValues(alpha: 0.0),
+      backgroundColor: Colors.transparent,
+      body: GlassOnboardingBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: w * 0.08),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: h * 0.04),
+                    // Coach avatar with high-end glass effect
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: w * 0.45,
+                          height: w * 0.45,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                AppTokens.colorBrand.withValues(alpha: 0.3),
+                                AppTokens.colorBrand.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                        )
+                            .animate(onPlay: (c) => c.repeat(reverse: true))
+                            .scale(
+                              begin: const Offset(0.9, 0.9),
+                              end: const Offset(1.1, 1.1),
+                              duration: 3.seconds,
+                              curve: Curves.easeInOut,
+                            ),
+                        GlassCard(
+                          padding: const EdgeInsets.all(AppTokens.space24),
+                          borderRadius: BorderRadius.circular(w * 0.25),
+                          child: Image.asset(
+                            'assets/images/app_logo_transparent.png',
+                            width: w * 0.20,
+                            height: w * 0.20,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    )
+                        .animate()
+                        .fadeIn(duration: 800.ms)
+                        .scale(begin: const Offset(0.7, 0.7), duration: 800.ms, curve: Curves.easeOutBack),
+                    
+                    SizedBox(height: h * 0.05),
+                    
+                    // Welcome Content in Glass
+                    GlassCard(
+                      child: Column(
+                        children: [
+                          Text(
+                            'Amirani AI',
+                            style: AppTokens.textDisplayLg.copyWith(
+                              fontSize: 32,
+                              letterSpacing: -1,
+                            ),
+                          ),
+                          SizedBox(height: h * 0.01),
+                          Text(
+                            "I'm your personal AI coach. Let's build your perfect transformation plan together.",
+                            textAlign: TextAlign.center,
+                            style: AppTokens.textBodyLg.copyWith(
+                              color: AppTokens.colorTextSecondary,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                        .animate(delay: 300.ms)
+                        .fadeIn(duration: 600.ms)
+                        .slideY(begin: 0.2, end: 0, duration: 600.ms, curve: Curves.easeOutCubic),
+
+                    SizedBox(height: h * 0.04),
+                    
+                    // Time estimate with subtle blur
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(AppTokens.radiusFull),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppTokens.radiusFull),
+                            color: Colors.white.withValues(alpha: 0.05),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.bolt, size: 16, color: AppTokens.colorBrand),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Setup takes 60 seconds',
+                                style: AppTokens.textLabelSm.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .scale(
-                            begin: const Offset(0.95, 0.95),
-                            end: const Offset(1.05, 1.05),
-                            duration: 2000.ms,
-                            curve: Curves.easeInOut,
+                      ),
+                    )
+                        .animate(delay: 500.ms)
+                        .fadeIn(duration: 400.ms),
+
+                    SizedBox(height: h * 0.06),
+                    
+                    // Premium Action Button
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(AppTokens.radius16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTokens.colorBrand.withValues(alpha: 0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
                           ),
-                      Container(
-                        width: w * 0.30,
-                        height: w * 0.30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppTheme.surfaceDark,
-                          border: Border.all(
-                            color: AppTheme.primaryBrand.withValues(alpha: 0.3),
-                            width: 2,
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: onReady,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTokens.colorBrand,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppTokens.radius16),
                           ),
+                          elevation: 0,
                         ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Image.asset(
-                              'assets/images/app_logo_transparent.png',
-                              fit: BoxFit.contain,
-                            ),
+                        child: const Text(
+                          "START TRANSFORMATION",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
                           ),
                         ),
                       ),
-                    ],
-                  )
-                      .animate()
-                      .fadeIn(duration: 600.ms)
-                      .scale(begin: const Offset(0.8, 0.8), duration: 600.ms, curve: Curves.easeOutBack),
-                  SizedBox(height: h * 0.04),
-                  // Hello!
-                  Text(
-                    'Hello!',
-                    style: TextStyle(
-                      color: AppTheme.textPrimary,
-                      fontSize: (w * 0.098).clamp(28.0, 44.0),
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
-                    ),
-                  )
-                      .animate(delay: 200.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.3, end: 0, duration: 400.ms, curve: Curves.easeOut),
-                  SizedBox(height: h * 0.015),
-                  const Text(
-                    "I'm your personal AI coach.\nLet me ask a few questions to tailor\nyour personalized plan.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 16,
-                      height: 1.6,
-                    ),
-                  )
-                      .animate(delay: 350.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.2, end: 0, duration: 400.ms, curve: Curves.easeOut),
-                  SizedBox(height: h * 0.05),
-                  // Estimated time chip
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(50),
-                      color: AppTheme.surfaceDark,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.timer_outlined, size: 14, color: AppTheme.textSecondary),
-                        SizedBox(width: 6),
-                        Text(
-                          'Takes about 1 minute',
-                          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  )
-                      .animate(delay: 500.ms)
-                      .fadeIn(duration: 400.ms),
-                  SizedBox(height: h * 0.02),
-                  // CTA button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: onReady,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBrand,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        "I'm Ready",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                    ),
-                  )
-                      .animate(delay: 600.ms)
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.3, end: 0, duration: 400.ms, curve: Curves.easeOut),
-                  SizedBox(height: h * 0.04),
-                ],
+                    )
+                        .animate(delay: 800.ms)
+                        .fadeIn(duration: 600.ms)
+                        .slideY(begin: 0.5, end: 0, duration: 600.ms, curve: Curves.easeOutQuart),
+                    
+                    SizedBox(height: h * 0.04),
+                  ],
+                ),
               ),
             ),
           ),

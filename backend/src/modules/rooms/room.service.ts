@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import prisma from '../../lib/prisma';
 import { Role, ProgressRoom, RoomMembership, RoomMessage } from '@prisma/client';
+import { getIO } from '../../lib/socket';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -141,8 +142,8 @@ async function computeLeaderboard(
 
   const entries = memberIds.map((uid) => ({
     userId: uid,
-    fullName: profileMap.get(uid)?.fullName ?? 'Unknown',
-    avatarUrl: profileMap.get(uid)?.avatarUrl ?? null,
+    fullName: (profileMap.get(uid) as any)?.fullName ?? 'Unknown',
+    avatarUrl: (profileMap.get(uid) as any)?.avatarUrl ?? null,
     score: scoreMap.get(uid) ?? 0,
     isMe: uid === requesterId,
   }));
@@ -180,8 +181,8 @@ export class RoomService {
       },
     });
 
-    const myRoomIds = new Set(myMemberships.map((m) => m.room.id));
-    const myRooms = myMemberships.map((m) => m.room);
+    const myRoomIds = new Set(myMemberships.map((m: any) => m.room.id));
+    const myRooms = myMemberships.map((m: any) => m.room);
 
     // Gym-owner-created rooms: visible to all active members regardless of isPublic
     const gym = await prisma.gym.findUnique({ where: { id: gymId }, select: { ownerId: true } });
@@ -199,7 +200,7 @@ export class RoomService {
       orderBy: { createdAt: 'desc' },
     });
 
-    const gymRoomIds = new Set(gymRooms.map((r) => r.id));
+    const gymRoomIds = new Set(gymRooms.map((r: any) => r.id));
 
     // Public member-created rooms at gym I haven't joined
     const availableRooms = await prisma.progressRoom.findMany({
@@ -236,7 +237,7 @@ export class RoomService {
       where: { roomId },
       select: { userId: true, joinedAt: true },
     });
-    const memberIds = memberships.map((m) => m.userId);
+    const memberIds = memberships.map((m: any) => m.userId);
 
     const leaderboard = await computeLeaderboard(room, memberIds, requesterId);
     const isMember = memberIds.includes(requesterId);
@@ -440,7 +441,7 @@ export class RoomService {
     });
     if (!membership) throw Object.assign(new Error('Not a member of this room'), { status: 403 });
 
-    return prisma.roomMessage.create({
+    const message = await prisma.roomMessage.create({
       data: {
         roomId,
         userId,
@@ -451,6 +452,12 @@ export class RoomService {
         user: { select: { id: true, fullName: true, avatarUrl: true } },
       },
     });
+
+    try {
+      getIO().of('/challenge-rooms').to(`room:${roomId}`).emit('new_message', message);
+    } catch { /* Socket.IO not yet initialized */ }
+
+    return message;
   }
 
   static async getMessages(roomId: string, userId: string, limit: number = 50, cursor?: string) {

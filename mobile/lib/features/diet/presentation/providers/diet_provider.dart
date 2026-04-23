@@ -314,6 +314,40 @@ class DietNotifier extends StateNotifier<DietState> {
     );
   }
 
+  /// Toggle a planned meal's logged state and keep DailyProgress in sync.
+  /// Returns true on success, false on error.
+  Future<bool> markMealDone(String mealRefId, DateTime date) async {
+    final dateStr =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    try {
+      final ds = _ref.read(dietRemoteDataSourceProvider);
+      // Optimistic: assume currently not logged → mark as done.
+      // For undo flows the caller passes a second call with logged: false.
+      await ds.markMealDone(mealRefId, dateStr, logged: true);
+      // Refresh macro progress so the ring updates immediately.
+      unawaited(fetchDailyMacros(date));
+      return true;
+    } catch (e) {
+      debugPrint('[Diet] markMealDone error: $e');
+      return false;
+    }
+  }
+
+  /// Toggle a planned meal to un-logged state.
+  Future<bool> unmarkMealDone(String mealRefId, DateTime date) async {
+    final dateStr =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    try {
+      final ds = _ref.read(dietRemoteDataSourceProvider);
+      await ds.markMealDone(mealRefId, dateStr, logged: false);
+      unawaited(fetchDailyMacros(date));
+      return true;
+    } catch (e) {
+      debugPrint('[Diet] unmarkMealDone error: $e');
+      return false;
+    }
+  }
+
   /// Enqueues an AI diet plan generation job and begins polling for completion.
   /// Loads the full [DietPreferencesEntity] saved during onboarding so the
   /// regenerate path sends the same rich payload as the initial generation.

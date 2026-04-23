@@ -65,6 +65,23 @@ router.get('/gyms/:gymId/churn/summary', async (req: AuthenticatedRequest, res: 
 });
 
 /**
+ * GET /api/analytics/gyms/:gymId/churn/dashboard
+ * Single-query response combining all, at-risk, and summary — use this instead of
+ * calling the 3 separate endpoints from a dashboard to avoid triple DB hits.
+ */
+router.get('/gyms/:gymId/churn/dashboard', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    await assertGymAccess(req.params.gymId, req.user!.userId, req.user!.role, req.user!.managedGymId);
+    const all     = await ChurnService.computeForGym(req.params.gymId);
+    const atRisk  = await ChurnService.getAtRisk(req.params.gymId, all);
+    const summary = await ChurnService.getSummary(req.params.gymId, all);
+    res.json({ data: { members: all, atRisk, summary } });
+  } catch (err: any) {
+    res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
  * GET /api/analytics/gyms/:gymId/revenue
  * Full revenue intelligence: KPIs, monthly trend, plan breakdown, peak hours, recent payments
  */

@@ -2,6 +2,7 @@ import IORedis from 'ioredis';
 import config from '../config/env';
 import prisma from '../lib/prisma';
 import { getIO } from '../lib/socket';
+import { checkAndAwardBadges } from '../modules/gamification/badge.service';
 
 // ─── Redis client (singleton) ─────────────────────────────────────────────────
 
@@ -27,6 +28,7 @@ export const POINTS = {
   STREAK_BONUS:     15,
   CHALLENGE_DONE:   20,
   PERFECT_DAY:      50,
+  TASK_COMPLETE:    2,
 } as const;
 
 /**
@@ -37,7 +39,7 @@ export const POINTS = {
 export async function awardPoints(params: {
   userId: string;
   sourceId: string;
-  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL' | 'PERFECT_DAY';
+  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL' | 'PERFECT_DAY' | 'TASK';
   delta: number;
   reason: string;
 }) {
@@ -49,21 +51,12 @@ export async function awardPoints(params: {
     include: { room: { select: { id: true, isActive: true } } },
   });
 
-  const activeMemberships = memberships.filter((m) => (m.room as any).isActive);
+  const activeMemberships = memberships.filter((m: any) => (m.room as any).isActive);
   if (activeMemberships.length === 0) return;
 
-  const redis = getRedis();
-  const io = (() => { try { return getIO(); } catch { return null; } })();
-
   await Promise.all(
-    activeMemberships.map(async (membership) => {
+    activeMemberships.map(async (membership: any) => {
       const roomId = membership.roomId;
-
-      // ── Redis sorted set increment ──────────────────────────────────────────
-      await Promise.all([
-        redis.zincrby(roomKey(roomId), delta, userId),
-        redis.zincrby(weekKey(roomId), delta, userId),
-      ]);
 
       // ── Prisma persistent update ────────────────────────────────────────────
       await prisma.$transaction([
@@ -86,14 +79,21 @@ export async function awardPoints(params: {
           },
         }),
       ]);
-
-      // ── Broadcast to room ────────────────────────────────────────────────────
-      if (io) {
-        const top10 = await getRoomLeaderboard(roomId, 10);
-        io.to(`room:${roomId}`).emit('leaderboard:update', { roomId, leaderboard: top10 });
-      }
     })
   );
+
+  // ── Recalculate & Sync Redis (Weighted Score) ───────────────────────────────
+  const { competitiveScore } = await recalculateUserStats(userId);
+
+  // ── Broadcast to rooms ────────────────────────────────────────────────────
+  const io = (() => { try { return getIO(); } catch { return null; } })();
+  if (io) {
+    for (const membership of activeMemberships) {
+      const roomId = membership.roomId;
+      const top10 = await getRoomLeaderboard(roomId, 10);
+      io.to(`room:${roomId}`).emit('leaderboard:update', { roomId, leaderboard: top10 });
+    }
+  }
 }
 
 // ─── Read leaderboard ─────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ export async function getRoomLeaderboard(
       select: { id: true, fullName: true, avatarUrl: true },
     });
     const userMap = new Map<string, { fullName: string; avatarUrl: string | null }>(
-      users.map((u) => [u.id, { fullName: u.fullName || 'Unknown', avatarUrl: u.avatarUrl }])
+      users.map((u: any) => [u.id, { fullName: u.fullName || 'Unknown', avatarUrl: u.avatarUrl }])
     );
 
     return entries.map((e, idx) => ({
@@ -147,7 +147,7 @@ export async function getRoomLeaderboard(
     include: { user: { select: { id: true, fullName: true, avatarUrl: true } } },
   });
 
-  return memberships.map((m, idx) => ({
+  return memberships.map((m: any, idx: number) => ({
     rank:        idx + 1,
     userId:      m.userId,
     fullName:    (m.user as any).fullName || 'Unknown',
@@ -180,11 +180,11 @@ export async function recalculateUserStats(userId: string) {
 
   // 2. Streak Calculation (Consecutive days with activity)
   // CRITICAL PHASE 1: Streak now requires 100% Task Completion (Perfect Day)
+  // Fetch ALL daily progress rows — including rest days (tasksTotal=0).
+  // Filtering by tasksCompleted > 0 excluded rest-day rows, causing false
+  // streak gaps when the user legitimately had no tasks scheduled.
   const activities = await prisma.dailyProgress.findMany({
-    where: { 
-      userId, 
-      tasksCompleted: { gt: 0 },
-    },
+    where: { userId },
     select: { date: true, tasksCompleted: true, tasksTotal: true },
     orderBy: { date: 'desc' },
   });
@@ -196,7 +196,7 @@ export async function recalculateUserStats(userId: string) {
     
     // Sort and unique by date
     const activityMap = new Map<number, { completed: number, total: number }>();
-    activities.forEach(a => {
+    activities.forEach((a: any) => {
       const d = new Date(a.date);
       d.setUTCHours(0, 0, 0, 0);
       const ts = d.getTime();
@@ -242,5 +242,26 @@ export async function recalculateUserStats(userId: string) {
     } as any,
   });
 
-  return { totalPoints, streak };
+  // 4. Update Leaderboard Weights (Consistency Bonus)
+  // Competitive Score = Total Points + (Streak * 10)
+  // This ensures consistent users outrank those with high points but no streak.
+  const competitiveScore = totalPoints + (streak * 10);
+  
+  const redis = getRedis();
+  const memberships = await prisma.roomMembership.findMany({
+    where: { userId },
+    select: { roomId: true }
+  });
+
+  await Promise.all(memberships.map(async (m: any) => {
+    await Promise.all([
+      redis.zadd(roomKey(m.roomId), competitiveScore, userId),
+      redis.zadd(weekKey(m.roomId), competitiveScore, userId),
+    ]);
+  }));
+
+  // Check badge milestones after stats are up-to-date (fire-and-forget)
+  checkAndAwardBadges(userId).catch(() => {});
+
+  return { totalPoints, streak, competitiveScore };
 }

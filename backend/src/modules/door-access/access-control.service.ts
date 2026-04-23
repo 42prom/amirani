@@ -274,7 +274,7 @@ export class AccessControlService {
 
     if (!schedule.accessSchedule.hasTimeRestriction) {
       // Full access - return all days
-      const windows = [];
+      const windows: any[] = [];
       const startDate = new Date();
 
       for (let i = 0; i < days; i++) {
@@ -293,7 +293,7 @@ export class AccessControlService {
     }
 
     // Time-restricted access
-    const windows = [];
+    const windows: any[] = [];
     const startDate = new Date();
     const dayMapping: Record<number, DayOfWeek> = {
       0: 'SUNDAY',

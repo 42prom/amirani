@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../tokens/app_tokens.dart';
 
@@ -22,6 +23,7 @@ class GlassCard extends StatelessWidget {
     this.onTap,
     this.width,
     this.height,
+    this.gradientGlass,
   });
 
   final Widget child;
@@ -34,27 +36,37 @@ class GlassCard extends StatelessWidget {
   final VoidCallback? onTap;
   final double? width;
   final double? height;
+  final Gradient? gradientGlass;
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      width: width,
-      height: height,
-      margin: margin,
-      decoration: BoxDecoration(
-        color: backgroundColor ??
-            AppTokens.colorBgSurface.withValues(alpha: 0.95),
-        borderRadius:
-            borderRadius ?? BorderRadius.circular(AppTokens.radius20),
-        border: Border.all(
-          color: borderColor ?? AppTokens.colorBorderSubtle,
+    final card = ClipRRect(
+      borderRadius: borderRadius ?? BorderRadius.circular(AppTokens.radius24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: AppTokens.blurStandard,
+          sigmaY: AppTokens.blurStandard,
         ),
-        boxShadow: shadows ?? AppTokens.shadowCard,
-      ),
-      child: Padding(
-        padding: padding ??
-            const EdgeInsets.all(AppTokens.space20),
-        child: child,
+        child: Container(
+          width: width,
+          height: height,
+          margin: margin,
+          decoration: BoxDecoration(
+            gradient: gradientGlass ?? AppTokens.gradientGlass,
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(AppTokens.radius24),
+            border: Border.all(
+              color: borderColor ??
+                  Colors.white.withValues(alpha: AppTokens.glassBorderOpacity),
+              width: 1.5,
+            ),
+            boxShadow: shadows ?? AppTokens.shadowCard,
+          ),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(AppTokens.space24),
+            child: child,
+          ),
+        ),
       ),
     );
 

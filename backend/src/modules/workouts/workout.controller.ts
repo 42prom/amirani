@@ -91,7 +91,7 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
     let totalCaloriesBurned = 0;
     const libraryIds = exercises.map(ex => ex.exerciseLibraryId).filter(Boolean) as string[];
     const libraries = await prisma.exerciseLibrary.findMany({ where: { id: { in: libraryIds } } });
-    const libraryMap = new Map(libraries.map(l => [l.id, l]));
+    const libraryMap = new Map(libraries.map((l: any) => [l.id, l]));
 
     for (const ex of exercises) {
       const lib = ex.exerciseLibraryId ? libraryMap.get(ex.exerciseLibraryId) : null;
@@ -163,16 +163,20 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
 
         if (!exerciseSet) continue;
 
-        // Check last 2 sessions for this exercise to avoid over-progressing
-        const recentSessions = await prisma.completedSet.count({
+        // Only progress if the user has done this exercise at least once BEFORE today this week.
+        // Exclude the session we just saved so the first-ever session never triggers overload.
+        const previousSessions = await prisma.completedSet.count({
           where: {
             exerciseName: { equals: ex.exerciseName, mode: 'insensitive' },
-            history: { userId, completedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
+            history: {
+              userId,
+              id:          { not: history.id },
+              completedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+            },
           },
         });
 
-        // Only progress if at least 1 previous session this week
-        if (recentSessions < ex.targetSets) {
+        if (previousSessions >= 1) {
           const newWeight = Number((avgWeight + 2.5).toFixed(1));
 
           await prisma.exerciseSet.update({
@@ -193,6 +197,13 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
       delta:      POINTS.WORKOUT_COMPLETE,
       reason:     `Completed workout: ${routineName}`,
     }).catch((err) => logger.warn('awardPoints failed', { err }));
+
+    // ── Increment DailyProgress.tasksCompleted (fire-and-forget) ──────────────
+    const todayDateObj = new Date(`${todayStr}T00:00:00.000Z`);
+    prisma.dailyProgress.updateMany({
+      where: { userId, date: todayDateObj },
+      data:  { tasksCompleted: { increment: 1 } },
+    }).catch((err) => logger.warn('DailyProgress increment failed', { err }));
 
     return success(res, {
       historyId: history.id,

@@ -28,6 +28,7 @@ services:
     image: redis:7-alpine
     container_name: amirani-redis
     restart: always
+    command: redis-server --appendonly yes --appendfsync everysec
     ports:
       - "6375:6379"
     healthcheck:
@@ -35,6 +36,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    volumes:
+      - redis_data:/data
     networks:
       - amirani-network
     deploy:
@@ -101,3 +104,4 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:

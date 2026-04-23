@@ -426,7 +426,7 @@ router.post('/gyms/:gymId/subscription-plans/templates', validateBranchOwnership
       },
     };
 
-    const createdPlans = [];
+    const createdPlans: any[] = [];
 
     for (const template of templates) {
       const config = templateConfigs[template];
@@ -664,10 +664,10 @@ router.get('/gyms/:gymId/equipment/stats', validateBranchOwnership(), async (req
     });
 
     const result = {
-      total: stats.reduce((acc, s) => acc + (s._sum.quantity || 0), 0),
-      available: stats.find(s => s.status === 'AVAILABLE')?._sum.quantity || 0,
-      maintenance: stats.find(s => s.status === 'MAINTENANCE')?._sum.quantity || 0,
-      outOfOrder: stats.find(s => s.status === 'OUT_OF_ORDER')?._sum.quantity || 0,
+      total: stats.reduce((acc: number, s: any) => acc + (s._sum.quantity || 0), 0),
+      available: stats.find((s: any) => s.status === 'AVAILABLE')?._sum.quantity || 0,
+      maintenance: stats.find((s: any) => s.status === 'MAINTENANCE')?._sum.quantity || 0,
+      outOfOrder: stats.find((s: any) => s.status === 'OUT_OF_ORDER')?._sum.quantity || 0,
     };
 
     return success(res, result);

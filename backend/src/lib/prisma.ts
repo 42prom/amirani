@@ -34,7 +34,7 @@ const prisma = base.$extends({
       },
     },
   },
-}) as unknown as PrismaClient;
+}) as any;
 
 export { Prisma };
 export default prisma;

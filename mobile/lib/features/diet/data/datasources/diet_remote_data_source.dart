@@ -13,6 +13,11 @@ abstract class DietRemoteDataSource {
   /// Log a meal to the backend food log.
   Future<void> logMeal(MealEntity meal);
 
+  /// Mark a planned meal as done (or undo it). Calls PATCH /sync/diet/meals/:refId/log.
+  /// [refId] is the MealId or virtual meal id (v_{masterMealId}_{dayOffset}).
+  /// [date] is YYYY-MM-DD string matching the plan day.
+  Future<void> markMealDone(String refId, String date, {required bool logged});
+
   /// Enqueue an AI diet plan generation job on the backend.
   /// Sends the full [DietPreferencesEntity] so the AI receives every user
   /// preference collected during onboarding (allergies, dietary style, budget,
@@ -164,6 +169,21 @@ class DietRemoteDataSourceImpl implements DietRemoteDataSource {
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> markMealDone(String refId, String date, {required bool logged}) async {
+    try {
+      await dio.patch('/sync/diet/meals/$refId/log', data: {
+        'date': date,
+        'logged': logged,
+      });
+    } on DioException catch (e) {
+      throw ServerException(
+          e.response?.data?['error']?['message'] ?? 'Failed to mark meal');
+    } catch (e) {
+      throw ServerException('Failed to mark meal: $e');
     }
   }
 

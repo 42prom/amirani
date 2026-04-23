@@ -5,7 +5,7 @@ import prisma from '../../lib/prisma';
 
 const TTL_MS = {
   GYM_JOIN:      60 * 60 * 1000,  // 1 hour
-  DAILY_CHECKIN: 24 * 60 * 60 * 1000, // 24 hours
+  DAILY_CHECKIN: 60 * 1000,       // 60 seconds (Hardened)
 } as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────

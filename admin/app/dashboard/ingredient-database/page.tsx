@@ -9,7 +9,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomSelect } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import {
-  Salad, Plus, Search, RefreshCw, X, Edit2,
+  Salad, Plus, Search, RefreshCw, X, Edit2, Trash2,
   Download, Upload, Check, ShieldCheck, ChevronLeft, ChevronRight, AlertTriangle,
 } from "lucide-react";
 
@@ -544,8 +544,9 @@ export default function IngredientDatabasePage() {
                     <Edit2 size={13}/>
                   </button>
                   <button onClick={() => { if (confirm(`Delete "${ing.name}"?`)) deleteMutation.mutate(ing.id); }}
+                    title="Delete"
                     className="p-1.5 rounded-lg hover:bg-red-500/10 text-zinc-700 hover:text-red-400 transition-colors">
-                    <X size={12}/>
+                    <Trash2 size={16}/>
                   </button>
                 </div>
               </div>

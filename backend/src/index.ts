@@ -27,16 +27,11 @@ import depositRoutes from './modules/deposits/deposit.routes';
 import marketingRoutes from './modules/marketing/marketing.controller';
 import analyticsRoutes from './modules/analytics/analytics.controller';
 import automationRoutes from './modules/automations/automation.controller';
-import { AutomationService } from './modules/automations/automation.service';
-import { PaymentService } from './modules/payments/payment.service';
-import { NotificationService } from './modules/notifications/notification.service';
 import announcementRoutes from './modules/announcements/announcement.controller';
 import sessionRoutes from './modules/sessions/session.controller';
 import supportRoutes from './modules/support/support.controller';
 import assignmentRoutes from './modules/assignment/assignment.controller';
-import { FreezeService } from './modules/memberships/freeze.service';
 import auditRoutes from './modules/audit/audit.controller';
-import { SchedulerService } from './modules/notifications/scheduler.service';
 import webhookRoutes from './modules/webhooks/webhook.controller';
 import stripeWebhookRoutes from './modules/payments/stripe-webhook.controller';
 import roomRoutes from './modules/rooms/room.controller';
@@ -48,6 +43,8 @@ import foodRoutes from './modules/food/food.controller';
 import nutritionStatsRoutes from './modules/food/nutrition-stats.controller';
 import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
+import languageRoutes from './modules/gyms/language.controller';
+import gamificationRoutes from './modules/gamification/gamification.controller';
 
 import { initSocket } from './lib/socket';
 import { startAiWorkers } from './jobs/worker';
@@ -147,6 +144,9 @@ app.use('/api/sync', syncRoutes);
 // Gym Entry Routes (QR check-in, check-out, live occupancy)
 app.use('/api/gym-entry', gymEntryRoutes);
 
+// Dynamic i18n Language Packs
+app.use('/api/gyms', languageRoutes);
+
 // Hardware Gateway Routes (card scan validation, command queue, gateway management)
 app.use('/api/hardware', hardwareRoutes);
 
@@ -196,6 +196,9 @@ app.use('/api/workouts', workoutRoutes);
 // AI plan generation (workout + diet) — triggers BullMQ workers
 app.use('/api/ai', aiRoutes);
 
+// Gamification: profile, level, badges
+app.use('/api/gamification', gamificationRoutes);
+
 
 
 
@@ -228,39 +231,8 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   logger.error('Unhandled error', { message: err.message, stack: err.stack });
   return internalError(res);
 });
-// ─── Hourly Automation Processing ────────────────────────────────────────────
-const AUTOMATION_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
-const automationInterval = setInterval(() => {
-  AutomationService.processAll().catch((err) =>
-    logger.error('[Automations] Hourly processing error', { err })
-  );
-  FreezeService.processAutoUnfreeze().catch((err) =>
-    logger.error('[Freeze] Auto-unfreeze error', { err })
-  );
-  PaymentService.processExpiringSubscriptions().catch((err) =>
-    logger.error('[Memberships] Auto-expiry processing error', { err })
-  );
-}, AUTOMATION_INTERVAL_MS);
-
-// ─── Scheduled Notification Processing ──────────────────────────────────────
-const NOTIFICATION_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
-const notificationInterval = setInterval(() => {
-  NotificationService.processScheduledNotifications().catch((err) =>
-    logger.error('[Notifications] Scheduled processing error', { err })
-  );
-}, NOTIFICATION_INTERVAL_MS);
-
-// ─── QR Nonce Cleanup Cron (daily at 3am) ────────────────────────────────────
-const QR_CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
-const qrCleanupInterval = setInterval(async () => {
-  const { GymQrService } = await import('./modules/gym-entry/gym-qr.service');
-  const deleted = await GymQrService.cleanupExpiredNonces().catch(() => 0);
-  if (deleted > 0) logger.info(`[QR] Cleaned up ${deleted} expired nonces`);
-}, QR_CLEANUP_INTERVAL_MS);
-
-// ─── Start Queue Workers ──────────────────────────────────────────────────────
+// ─── Start Queue Workers (includes all BullMQ cron jobs) ─────────────────────
 const workers = startAiWorkers();
-SchedulerService.start();
 
 // ─── Graceful Shutdown ────────────────────────────────────────────────────────
 const shutdown = async (signal: string) => {
@@ -273,19 +245,11 @@ const shutdown = async (signal: string) => {
   }, 10000); // 10s safety margin
 
   try {
-    // 0. Stop all background intervals and timers
-    clearInterval(automationInterval);
-    clearInterval(notificationInterval);
-    clearInterval(qrCleanupInterval);
-    SchedulerService.stop();
-
-    // 1. Stop AI Workers (BullMQ) gracefully
+    // 0. Stop all BullMQ workers gracefully
     if (workers) {
-      await Promise.all([
-        workers.workoutWorker.close(),
-        workers.dietWorker.close(),
-        workers.pushWorker.close()
-      ]).catch(err => logger.error('Error closing AI workers', { err }));
+      await Promise.all(
+        Object.values(workers).map((w: any) => w.close())
+      ).catch(err => logger.error('Error closing workers', { err }));
       logger.info('BullMQ workers stopped');
     }
 

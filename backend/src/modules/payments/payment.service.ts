@@ -160,9 +160,10 @@ export class PaymentService {
       throw new PaymentError('Plan does not belong to this gym');
     }
 
-    // Check for existing membership
-    const existingMembership = await prisma.gymMembership.findUnique({
-      where: { userId_gymId: { userId, gymId } },
+    // Check for existing membership (most recent — status check below decides if it blocks)
+    const existingMembership = await prisma.gymMembership.findFirst({
+      where: { userId, gymId },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (existingMembership && existingMembership.status === 'ACTIVE') {

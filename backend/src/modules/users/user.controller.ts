@@ -100,7 +100,7 @@ router.get('/dashboard/metrics', async (req: AuthenticatedRequest, res: Response
 
     // Map weekly sparks (filling in zeros for missing days)
     const sparksMap = new Map<string, number>();
-    weeklyProgress.forEach(p => {
+    weeklyProgress.forEach((p: any) => {
       const d = p.date.toISOString().split('T')[0];
       sparksMap.set(d, Number(p.caloriesConsumed || 0));
     });

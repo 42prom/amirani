@@ -12,6 +12,15 @@ class DoorAccessRemoteDataSource {
     return DoorAccessResult.fromJson(res.data['data'] as Map<String, dynamic>);
   }
 
+  /// Secure QR check-in — sends the raw base64url token for backend verification.
+  Future<DoorAccessResult> checkInQr(String gymId, String token) async {
+    final res = await _dio.post('/gym-entry/check-in/qr', data: {
+      'gymId': gymId,
+      'token': token,
+    });
+    return DoorAccessResult.fromJson(res.data['data'] as Map<String, dynamic>);
+  }
+
   /// Fetch check-in history for the logged-in member.
   Future<List<DoorAccessModel>> getHistory() async {
     final res  = await _dio.get('/gym-entry/history');

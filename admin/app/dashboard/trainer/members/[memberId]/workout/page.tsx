@@ -247,7 +247,7 @@ function ExerciseEditor({
              )}
 
              <button onClick={() => remove(row.id)} className="p-2.5 text-zinc-700 hover:text-red-500 transition-colors">
-                <X size={16} />
+                <Trash2 size={16} />
              </button>
           </div>
 
@@ -598,7 +598,7 @@ function ExerciseDisplayCard({
         <div className="flex items-center gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity">
            <button onClick={() => onEdit?.(routine)} title="Edit session" className="p-2.5 text-zinc-600 hover:text-white rounded-xl hover:bg-white/5 transition-all"><Pencil size={14} /></button>
            {onSaveToLibrary && <button onClick={() => onSaveToLibrary(routine)} className="p-2.5 text-zinc-600 hover:text-violet-400 rounded-xl hover:bg-violet-400/5 transition-all"><Star size={14} /></button>}
-           <button onClick={() => deleteRoutine.mutate()} disabled={deleteRoutine.isPending} className="p-2.5 text-zinc-600 hover:text-red-500 rounded-xl hover:bg-red-500/5 transition-all"><Trash2 size={14} /></button>
+           <button onClick={() => deleteRoutine.mutate()} disabled={deleteRoutine.isPending} className="p-2.5 text-zinc-600 hover:text-red-500 rounded-xl hover:bg-red-500/5 transition-all"><Trash2 size={16} /></button>
         </div>
       </div>
     </div>
@@ -934,7 +934,7 @@ function WorkoutBuilderContent({
                 {p.name} {p.isActive && <span className="ml-1.5 text-emerald-400">●</span>}
               </button>
               <button onClick={() => deletePlan.mutate(p.id)} disabled={deletePlan.isPending} className={`px-2.5 h-9 border-y border-r rounded-r-lg flex items-center transition-colors text-zinc-700 hover:text-red-500 ${currentPlan?.id === p.id ? "border-[#F1C40F]/40" : "bg-zinc-900 border-zinc-700"}`}>
-                <Trash2 size={13} />
+                <Trash2 size={16} />
               </button>
             </div>
           ))}

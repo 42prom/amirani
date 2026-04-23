@@ -2199,6 +2199,7 @@ export interface TrainerDietPlan {
 export interface TrainerFoodItem {
   id?: string;
   name: string;
+  nameEn?: string;
   brand?: string;
   calories: number;
   protein: number;

@@ -162,9 +162,22 @@ export const initSocket = (server: HttpServer) => {
   roomsNs.on('connection', (socket) => {
     const userId = socket.data.user.userId;
 
-    socket.on('join_room', (roomId: string) => {
-      socket.join(`room:${roomId}`);
-      logger.info(`[WS/rooms] User ${userId} joined room ${roomId}`);
+    // Verify DB membership before joining the socket room — prevents eavesdropping.
+    socket.on('join_room', async (roomId: string) => {
+      try {
+        const member = await prisma.roomMembership.findUnique({
+          where: { roomId_userId: { roomId, userId } },
+          select: { id: true },
+        });
+        if (!member) {
+          socket.emit('error', { message: 'Not a member of this room' });
+          return;
+        }
+        socket.join(`room:${roomId}`);
+        logger.info(`[WS/rooms] User ${userId} joined room ${roomId}`);
+      } catch (err) {
+        socket.emit('error', { message: 'Failed to join room' });
+      }
     });
 
     socket.on('leave_room', (roomId: string) => {
@@ -175,10 +188,8 @@ export const initSocket = (server: HttpServer) => {
     socket.on('send_message', async (data: { roomId: string, body: string, imageUrl?: string }) => {
       try {
         const { RoomService } = require('../modules/rooms/room.service');
-        const message = await RoomService.sendMessage(data.roomId, userId, data.body, data.imageUrl);
-        
-        // Broadcast to all in room
-        roomsNs.to(`room:${data.roomId}`).emit('new_message', message);
+        // RoomService.sendMessage already emits 'new_message' via Socket.IO — do not re-emit.
+        await RoomService.sendMessage(data.roomId, userId, data.body, data.imageUrl);
       } catch (err) {
         socket.emit('error', { message: (err as Error).message });
       }

@@ -103,6 +103,22 @@ export class SyncController {
               }
             });
 
+            // ─── TASK COMPLETION POINTS ─────────────────────────────────────────────
+            // Award points for EACH individual task increment
+            const prevCompleted = existingProgress?.tasksCompleted ?? 0;
+            const nowCompleted = dp.tasksCompleted ?? 0;
+            const taskIncrement = nowCompleted - prevCompleted;
+
+            if (taskIncrement > 0) {
+              await awardPoints({
+                userId,
+                sourceId: newProgress.id,
+                sourceType: 'TASK',
+                delta: POINTS.TASK_COMPLETE * taskIncrement,
+                reason: `Completed ${taskIncrement} task(s)`
+              });
+            }
+
             // ─── PERFECT DAY BONUS ──────────────────────────────────────────────────
             // Award points if 100% completion is reached for the first time.
             const wasAlreadyPerfect = existingProgress && existingProgress.tasksTotal > 0 && existingProgress.tasksCompleted >= existingProgress.tasksTotal;
@@ -260,13 +276,16 @@ export class SyncController {
     try {
       const userId = (req as any).user.userId;
       const sinceTimestamp = req.query.since as string;
+      const isFullSync = req.query.fullSync === 'true';
 
       // ── LOOKBACK CAP: Protect against corrupted/missing since timestamps ──
       // Never look back further than 30 days to prevent unbounded payloads.
       const MAX_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000;
       const earliestAllowed = new Date(Date.now() - MAX_LOOKBACK_MS);
       let sinceDate = sinceTimestamp ? new Date(sinceTimestamp) : new Date(0);
-      if (isNaN(sinceDate.getTime()) || sinceDate < earliestAllowed) {
+      if (isFullSync) {
+        sinceDate = new Date(0);
+      } else if (isNaN(sinceDate.getTime()) || sinceDate < earliestAllowed) {
         sinceDate = earliestAllowed;
       }
 
@@ -348,7 +367,8 @@ export class SyncController {
                 estimatedMinutes: mr.estimatedMinutes,
                 orderIndex:     mr.orderIndex,
                 scheduledDate:  targetDate,
-                exercises:      mr.exercises.map((ex: any) => ({ ...ex, routineId: mr.id })),
+                masterId:       mr.id, // Docker-Pattern Link
+                exercises:      mr.exercises.map((ex: any) => ({ ...ex, routineId: mr.id, masterId: ex.id })),
               });
             }
             // No match + hasExplicitDayOfWeek → intentional rest day → skip (no entry)
@@ -437,6 +457,7 @@ export class SyncController {
                 isDraft:      false,
                 mediaUrl:     mm.mediaUrl,
                 dayOfWeek:    mm.dayOfWeek,
+                masterId:     mm.id, // Docker-Pattern Link
               });
             }
           }

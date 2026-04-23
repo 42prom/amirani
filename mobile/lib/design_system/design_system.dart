@@ -8,3 +8,4 @@ export 'components/primary_button.dart';
 export 'components/score_ring.dart';
 export 'components/shimmer_loader.dart';
 export 'components/app_icon_badge.dart';
+export 'components/glass_onboarding_background.dart';

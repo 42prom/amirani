@@ -200,10 +200,8 @@ export class DoorAccessService {
 
     if (!isSuperAdmin && !isGymOwner && !isBranchAdmin) {
       // Standard membership check for GYM_MEMBER or other roles
-      const membership = await prisma.gymMembership.findUnique({
-        where: {
-          userId_gymId: { userId, gymId: doorSystem.gymId },
-        },
+      const membership = await prisma.gymMembership.findFirst({
+        where: { userId, gymId: doorSystem.gymId, status: 'ACTIVE' },
       });
 
       assertMembershipAccess(membership, DoorAccessDeniedError);

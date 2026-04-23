@@ -74,8 +74,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       // ── 2. Handle Authenticated Users ──────────────────────────────────────
       if (authState is AuthAuthenticated) {
-        // If logged in, skip login and onboarding
-        if (loc == '/' || loc == '/login' || loc == '/onboarding') return '/challenge';
+        // If logged in, skip login and onboarding — land on dashboard first
+        if (loc == '/' || loc == '/login' || loc == '/onboarding') return '/dashboard';
         return null;
       }
 
@@ -290,6 +290,8 @@ class _AmiraniAppState extends ConsumerState<AmiraniApp> {
       ],
       supportedLocales: const [
         Locale('en', ''),
+        Locale('ka', ''),
+        Locale('ru', ''),
       ],
       routerConfig: router,
       debugShowCheckedModeBanner: false,

@@ -149,7 +149,7 @@ export class TrainerService {
       ]);
 
     const attendedDays = new Set(
-      recentAttendance.map((a) => a.checkIn.toISOString().split('T')[0])
+      recentAttendance.map((a: any) => a.checkIn.toISOString().split('T')[0])
     ).size;
 
     // BMI = weight(kg) / height(m)^2 — requires both fields in SI units
@@ -171,7 +171,7 @@ export class TrainerService {
         avgSessionMinutes: Math.round(avgDuration._avg.duration || 0),
         bmi,
       },
-      recentAttendance: recentAttendance.map((a) => ({
+      recentAttendance: recentAttendance.map((a: any) => ({
         date: a.checkIn,
         duration: a.duration,
       })),
@@ -196,14 +196,14 @@ export class TrainerService {
       }),
     ]);
 
-    const memberUserIds = memberIds.map((m) => m.userId);
+    const memberUserIds = memberIds.map((m: any) => m.userId);
 
     const todayCheckIns = await prisma.attendance.count({
       where: { userId: { in: memberUserIds }, gymId: profile.gymId, checkIn: { gte: today } },
     });
 
     const inactiveMembers = await Promise.all(
-      memberUserIds.map(async (memberId) => {
+      memberUserIds.map(async (memberId: string) => {
         const lastVisit = await prisma.attendance.findFirst({
           where: { userId: memberId, gymId: profile.gymId },
           orderBy: { checkIn: 'desc' },
@@ -241,7 +241,7 @@ export class TrainerService {
       select: { userId: true },
     });
 
-    const memberIds = memberships.map((m) => m.userId);
+    const memberIds = memberships.map((m: any) => m.userId);
     const where: any = { userId: { in: memberIds }, gymId: profile.gymId };
 
     if (options?.startDate || options?.endDate) {
@@ -745,7 +745,7 @@ export class TrainerService {
       orderBy: { name: 'asc' },
     });
 
-    return rows.map(r => ({
+    return rows.map((r: any) => ({
       id:             r.id,
       name:           (lang === 'KA' && r.nameKa) ? r.nameKa
                     : (lang === 'RU' && r.nameRu) ? r.nameRu

@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import '../../../../design_system/design_system.dart';
 import '../../data/models/door_access_model.dart';
 import '../providers/door_access_provider.dart';
 
@@ -14,20 +16,23 @@ class DoorAccessPage extends ConsumerWidget {
     final notifier = ref.read(doorAccessProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 100,
-            backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+            backgroundColor: AppTokens.colorBgPrimary,
             flexibleSpace: const FlexibleSpaceBar(
               titlePadding: EdgeInsets.only(left: 20, bottom: 16),
-              title: Text('Door Access',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white)),
+              title: Text(
+                'Door Access',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppTokens.colorTextPrimary,
+                ),
+              ),
             ),
           ),
 
@@ -43,11 +48,14 @@ class DoorAccessPage extends ConsumerWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(20, 28, 20, 8),
-              child: Text('Check-in History',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700)),
+              child: Text(
+                'Check-in History',
+                style: TextStyle(
+                  color: AppTokens.colorTextPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
 
@@ -59,7 +67,7 @@ class DoorAccessPage extends ConsumerWidget {
                   hasScrollBody: false,
                   child: Center(
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: AppTheme.primaryBrand),
+                        strokeWidth: 2, color: AppTokens.colorBrand),
                   ),
                 ),
                 error: (e, _) => SliverToBoxAdapter(
@@ -67,7 +75,7 @@ class DoorAccessPage extends ConsumerWidget {
                     padding: const EdgeInsets.all(20),
                     child: Text('Could not load history: $e',
                         style: const TextStyle(
-                            color: Colors.redAccent, fontSize: 13)),
+                            color: AppTokens.colorError, fontSize: 13)),
                   ),
                 ),
                 data: (history) {
@@ -142,18 +150,23 @@ class _CheckInCard extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          Text(_headline,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center),
+          Text(
+            _headline,
+            style: const TextStyle(
+                color: AppTokens.colorTextPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
 
           const SizedBox(height: 6),
-          Text(_subtitle,
-              style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.55), fontSize: 13),
-              textAlign: TextAlign.center),
+          Text(
+            _subtitle,
+            style: TextStyle(
+                color: AppTokens.colorTextPrimary.withValues(alpha: 0.55),
+                fontSize: 13),
+            textAlign: TextAlign.center,
+          ),
 
           // Granted detail
           if (state is DoorAccessGranted) ...[
@@ -166,8 +179,8 @@ class _CheckInCard extends StatelessWidget {
               child: OutlinedButton(
                 onPressed: notifier.reset,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white70,
-                  side: const BorderSide(color: Colors.white24),
+                  foregroundColor: AppTokens.colorTextSecondary,
+                  side: const BorderSide(color: AppTokens.colorBorderMedium),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
@@ -189,7 +202,8 @@ class _CheckInCard extends StatelessWidget {
                     style:
                         TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
                 ),
@@ -200,7 +214,8 @@ class _CheckInCard extends StatelessWidget {
           if (state is DoorAccessLoading) ...[
             const SizedBox(height: 24),
             const CircularProgressIndicator(
-                strokeWidth: 2.5, color: Colors.white70),
+                strokeWidth: 2.5,
+                color: AppTokens.colorTextSecondary),
           ],
         ],
       ),
@@ -208,33 +223,46 @@ class _CheckInCard extends StatelessWidget {
   }
 
   void _triggerCheckIn(BuildContext context) {
-    // In a real app, show a QR scanner and extract gymId from QR payload.
-    // For now, we use a mock gym lookup from auth state.
-    // TODO: integrate mobile_scanner package for QR reading.
-    notifier.checkIn('default');
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _QRScannerView(
+        onScan: (gymId, token) {
+          Navigator.pop(ctx);
+          notifier.checkInQr(gymId, token);
+        },
+      ),
+    );
   }
 
   List<Color> get _gradientColors {
     if (state is DoorAccessGranted) {
-      return [const Color(0xFF064E3B), const Color(0xFF065F46)];
+      return [
+        AppTokens.colorSuccess.withValues(alpha: 0.25),
+        AppTokens.colorSuccess.withValues(alpha: 0.12),
+      ];
     }
     if (state is DoorAccessDenied) {
-      return [const Color(0xFF7F1D1D), const Color(0xFF991B1B)];
+      return [
+        AppTokens.colorError.withValues(alpha: 0.3),
+        AppTokens.colorError.withValues(alpha: 0.15),
+      ];
     }
     return [
-      AppTheme.primaryBrand.withValues(alpha: 0.2),
-      Colors.white.withValues(alpha: 0.04),
+      AppTokens.colorBrand.withValues(alpha: 0.2),
+      AppTokens.colorBgSurface.withValues(alpha: 0.6),
     ];
   }
 
   Color get _borderColor {
     if (state is DoorAccessGranted) {
-      return Colors.greenAccent.withValues(alpha: 0.4);
+      return AppTokens.colorSuccess.withValues(alpha: 0.4);
     }
     if (state is DoorAccessDenied) {
-      return Colors.redAccent.withValues(alpha: 0.4);
+      return AppTokens.colorError.withValues(alpha: 0.4);
     }
-    return AppTheme.primaryBrand.withValues(alpha: 0.3);
+    return AppTokens.colorBrand.withValues(alpha: 0.3);
   }
 
   IconData get _icon {
@@ -245,16 +273,14 @@ class _CheckInCard extends StatelessWidget {
   }
 
   Color get _iconColor {
-    if (state is DoorAccessGranted) return Colors.greenAccent;
-    if (state is DoorAccessDenied) return Colors.redAccent;
-    return Colors.white54;
+    if (state is DoorAccessGranted) return AppTokens.colorSuccess;
+    if (state is DoorAccessDenied) return AppTokens.colorError;
+    return AppTokens.colorTextSecondary;
   }
 
   String get _headline {
-    if (state is DoorAccessGranted) return 'Access Granted! 🎉';
-    if (state is DoorAccessDenied) {
-      return 'Access Denied';
-    }
+    if (state is DoorAccessGranted) return 'Access Granted!';
+    if (state is DoorAccessDenied) return 'Access Denied';
     if (state is DoorAccessLoading) return 'Verifying...';
     return 'Gym Door Access';
   }
@@ -281,16 +307,16 @@ class _GrantedDetails extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withValues(alpha: 0.08),
+        color: AppTokens.colorBorderSubtle,
       ),
       child: Column(
         children: [
           _Row(label: 'Member', value: result.memberName),
-          const Divider(color: Colors.white12, height: 16),
+          const Divider(color: AppTokens.colorBorderSubtle, height: 16),
           _Row(label: 'Plan', value: result.planName),
-          const Divider(color: Colors.white12, height: 16),
+          const Divider(color: AppTokens.colorBorderSubtle, height: 16),
           _Row(label: 'Days Left', value: '${result.daysRemaining} days'),
-          const Divider(color: Colors.white12, height: 16),
+          const Divider(color: AppTokens.colorBorderSubtle, height: 16),
           _Row(label: 'Expires', value: _formatDate(result.membershipEndsAt)),
         ],
       ),
@@ -315,11 +341,11 @@ class _Row extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(label,
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.5), fontSize: 13)),
+            style: const TextStyle(
+                color: AppTokens.colorTextSecondary, fontSize: 13)),
         Text(value,
             style: const TextStyle(
-                color: Colors.white,
+                color: AppTokens.colorTextPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w600)),
       ],
@@ -340,17 +366,16 @@ class _HistoryTile extends StatelessWidget {
         ? '${dt.day}/${dt.month}/${dt.year}  ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
         : entry.checkInTime;
 
+    final statusColor =
+        entry.success ? AppTokens.colorSuccess : AppTokens.colorError;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        color: Colors.white.withValues(alpha: 0.05),
-        border: Border.all(
-          color: entry.success
-              ? Colors.greenAccent.withValues(alpha: 0.2)
-              : Colors.redAccent.withValues(alpha: 0.2),
-        ),
+        color: AppTokens.colorBorderSubtle,
+        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -358,7 +383,7 @@ class _HistoryTile extends StatelessWidget {
             entry.success
                 ? Icons.check_circle_outline_rounded
                 : Icons.cancel_outlined,
-            color: entry.success ? Colors.greenAccent : Colors.redAccent,
+            color: statusColor,
             size: 20,
           ),
           const SizedBox(width: 12),
@@ -368,22 +393,23 @@ class _HistoryTile extends StatelessWidget {
               children: [
                 Text(entry.gymName,
                     style: const TextStyle(
-                        color: Colors.white,
+                        color: AppTokens.colorTextPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 13)),
                 const SizedBox(height: 2),
                 Text(time,
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 11)),
+                    style: const TextStyle(
+                        color: AppTokens.colorTextMuted, fontSize: 11)),
               ],
             ),
           ),
-          Text(entry.success ? 'Granted' : 'Denied',
-              style: TextStyle(
-                  color: entry.success ? Colors.greenAccent : Colors.redAccent,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600)),
+          Text(
+            entry.success ? 'Granted' : 'Denied',
+            style: TextStyle(
+                color: statusColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -400,13 +426,165 @@ class _EmptyHistory extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.history_rounded,
-              size: 48, color: Colors.white.withValues(alpha: 0.15)),
+              size: 48,
+              color: AppTokens.colorTextPrimary.withValues(alpha: 0.15)),
           const SizedBox(height: 12),
-          Text('No check-ins yet.',
+          const Text('No check-ins yet.',
               style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.4), fontSize: 14)),
+                  color: AppTokens.colorTextMuted, fontSize: 14)),
         ],
       ),
     ).animate().fadeIn(duration: 500.ms);
+  }
+}
+
+// ── QR Scanner View ───────────────────────────────────────────────────────────
+
+class _QRScannerView extends StatefulWidget {
+  final Function(String gymId, String token) onScan;
+  const _QRScannerView({required this.onScan});
+
+  @override
+  State<_QRScannerView> createState() => _QRScannerViewState();
+}
+
+class _QRScannerViewState extends State<_QRScannerView> {
+  final MobileScannerController controller = MobileScannerController();
+  bool _isScanned = false;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: BoxDecoration(
+        color: AppTokens.colorBgPrimary,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppTokens.colorBorderMedium,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Scan Gym QR',
+            style: TextStyle(
+                color: AppTokens.colorTextPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Point your camera at the entrance QR code',
+            style: TextStyle(
+                color: AppTokens.colorTextSecondary, fontSize: 13),
+          ),
+          const Spacer(),
+
+          // Scanner area
+          Container(
+            width: 280,
+            height: 280,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: AppTokens.colorBrand, width: 2),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Stack(
+                children: [
+                  MobileScanner(
+                    controller: controller,
+                    onDetect: (capture) {
+                      if (_isScanned) return;
+                      final List<Barcode> barcodes = capture.barcodes;
+                      for (final barcode in barcodes) {
+                        final rawValue = barcode.rawValue;
+                        if (rawValue != null) {
+                          _handleScan(rawValue);
+                        }
+                      }
+                    },
+                  ),
+                  // Scanning animation
+                  const _ScannerOverlay(),
+                ],
+              ),
+            ),
+          ),
+
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.all(32),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTokens.colorTextPrimary,
+                  side: const BorderSide(color: AppTokens.colorBorderMedium),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text('Cancel'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleScan(String raw) {
+    try {
+      // QR payload is base64url-encoded JSON — decode to extract gymId
+      final decoded = utf8.decode(base64Url.decode(base64Url.normalize(raw)));
+      final data = jsonDecode(decoded) as Map<String, dynamic>;
+      final gymId = data['gymId'] as String?;
+      if (gymId != null && gymId.isNotEmpty) {
+        setState(() => _isScanned = true);
+        widget.onScan(gymId, raw);
+      }
+    } catch (_) {
+      // Invalid format
+    }
+  }
+}
+
+class _ScannerOverlay extends StatelessWidget {
+  const _ScannerOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.2),
+      ),
+      child: Center(
+        child: Container(
+          width: 200,
+          height: 2,
+          color: AppTokens.colorBrand,
+        )
+            .animate(onPlay: (controller) => controller.repeat())
+            .moveY(begin: -80, end: 80, duration: 2000.ms, curve: Curves.easeInOut)
+            .fadeIn(duration: 300.ms)
+            .then()
+            .fadeOut(delay: 1400.ms),
+      ),
+    );
   }
 }

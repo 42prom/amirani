@@ -48,3 +48,25 @@ export const pushNotificationQueue = new Queue('push-notifications', {
     removeOnFail: { count: 100 },
   },
 });
+
+export const leaderboardResetQueue = new Queue('leaderboard-reset', {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 10_000 },
+    removeOnComplete: { count: 10 },
+    removeOnFail: { count: 20 },
+  },
+});
+
+const cronJobOptions = {
+  attempts: 2,
+  backoff: { type: 'fixed' as const, delay: 30_000 },
+  removeOnComplete: { count: 5 },
+  removeOnFail: { count: 10 },
+};
+
+export const automationCronQueue   = new Queue('automation-hourly',    { connection: redisConnection, defaultJobOptions: cronJobOptions });
+export const notificationCronQueue = new Queue('notification-cron',    { connection: redisConnection, defaultJobOptions: cronJobOptions });
+export const qrCleanupCronQueue    = new Queue('qr-cleanup',           { connection: redisConnection, defaultJobOptions: cronJobOptions });
+export const reminderScanCronQueue = new Queue('reminder-scan',        { connection: redisConnection, defaultJobOptions: cronJobOptions });

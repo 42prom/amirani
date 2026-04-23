@@ -92,6 +92,7 @@ model User {
   dailyRecoveries          DailyRecovery[]
   foodLogs                 FoodLog[]
   mealLogs                 MealLog[]
+  badges                   UserBadge[]
 
 
   @@map("users")
@@ -139,6 +140,8 @@ model Gym {
   themeColor               String? // hex e.g. #F1C40F
   welcomeMessage           String? // shown to members in mobile app
   qrSecret                 String? // HMAC secret for QR signing (auto-generated on gym create)
+  currentOccupancy         Int                        @default(0)
+  maxCapacity              Int                        @default(100)
   attendances              Attendance[]
   deposits                 Deposit[]                  @relation("GymDeposits")
   doorSystems              DoorSystem[]
@@ -164,8 +167,24 @@ model Gym {
   branches                 Branch[]
   deletedAt                DateTime?
   workoutHistory           WorkoutHistory[]
+  languagePacks            LanguagePack[]
 
   @@map("gyms")
+}
+
+model LanguagePack {
+  id              String   @id @default(uuid())
+  gymId           String?  // null = system default
+  language        String   // e.g. "KA", "RU", "ES"
+  data            Json     // { "key": "translation", ... }
+  version         Int      @default(1)
+  isSystemDefault Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  gym             Gym?     @relation(fields: [gymId], references: [id], onDelete: Cascade)
+
+  @@unique([gymId, language])
+  @@map("language_packs")
 }
 
 model TrainerProfile {
@@ -253,7 +272,6 @@ model GymMembership {
   trainer      TrainerProfile?    @relation(fields: [trainerId], references: [id])
   user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, gymId])
   @@index([userId, gymId, status])
   @@index([gymId, status])
   @@map("gym_memberships")
@@ -340,6 +358,8 @@ model DoorAccessLog {
   doorSystem    DoorSystem     @relation(fields: [doorSystemId], references: [id], onDelete: Cascade)
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, accessTime])
+  @@index([doorSystemId, accessTime])
   @@map("door_access_logs")
 }
 
@@ -535,7 +555,7 @@ model AIConfig {
   openaiModel         String     @default("gpt-4-turbo")
   openaiOrgId         String?
   anthropicApiKey     String?
-  anthropicModel      String     @default("claude-3-sonnet-20240229")
+  anthropicModel      String     @default("claude-sonnet-4-6")
   googleApiKey        String?
   googleModel         String     @default("gemini-pro")
   azureApiKey         String?
@@ -932,6 +952,7 @@ model DietPlan {
   masterTemplate MasterDietTemplate? @relation("DietContainerInstances", fields: [masterTemplateId], references: [id])
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   meals          Meal[]
+  versions       DietPlanVersion[]
 
   @@map("diet_plans")
 }
@@ -1033,6 +1054,25 @@ enum SubscriptionStatus {
   CANCELLED
   PENDING
   FROZEN
+}
+
+enum TrainingSessionType {
+  GROUP_CLASS
+  ONE_ON_ONE
+  WORKSHOP
+}
+
+enum TrainingSessionStatus {
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum SessionBookingStatus {
+  CONFIRMED
+  CANCELLED
+  ATTENDED
+  NO_SHOW
 }
 
 enum EquipmentStatus {
@@ -1243,6 +1283,7 @@ enum PointSourceType {
   STREAK_BONUS
   MANUAL
   PERFECT_DAY
+  TASK
 }
 
 enum ExerciseMechanics {
@@ -1338,12 +1379,12 @@ model TrainingSession {
   trainerId   String
   title       String
   description String?
-  type        String           @default("GROUP_CLASS") // GROUP_CLASS | ONE_ON_ONE | WORKSHOP
+  type        TrainingSessionType   @default(GROUP_CLASS)
   startTime   DateTime
   endTime     DateTime
   maxCapacity Int              @default(20)
   location    String?
-  status      String           @default("SCHEDULED") // SCHEDULED | CANCELLED | COMPLETED
+  status      TrainingSessionStatus @default(SCHEDULED)
   color       String? // hex color for calendar display
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -1360,7 +1401,7 @@ model SessionBooking {
   id        String          @id @default(uuid())
   sessionId String
   userId    String
-  status    String          @default("CONFIRMED") // CONFIRMED | CANCELLED | ATTENDED | NO_SHOW
+  status    SessionBookingStatus @default(CONFIRMED)
   bookedAt  DateTime        @default(now())
   updatedAt DateTime        @updatedAt
   session   TrainingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -1785,6 +1826,18 @@ model WorkoutPlanVersion {
   @@map("workout_plan_versions")
 }
 
+model DietPlanVersion {
+  id         String   @id @default(uuid())
+  dietPlanId String
+  version    Int
+  data       Json
+  createdAt  DateTime @default(now())
+  dietPlan   DietPlan @relation(fields: [dietPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([dietPlanId, version])
+  @@map("diet_plan_versions")
+}
+
 model RefreshToken {
   id        String   @id @default(uuid())
   token     String   @unique
@@ -1854,4 +1907,42 @@ enum LanguagePreference {
   EN
   KA
   RU
+}
+
+// ─── Gamification ─────────────────────────────────────────────────────────────
+
+enum BadgeTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+model BadgeDefinition {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  name        String
+  description String
+  iconUrl     String?
+  tier        BadgeTier
+  sortOrder   Int         @default(0)
+  isActive    Boolean     @default(true)
+
+  userBadges  UserBadge[]
+
+  @@map("badge_definitions")
+}
+
+model UserBadge {
+  id       String          @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime        @default(now())
+
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    BadgeDefinition @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
+  @@index([userId, earnedAt])
+  @@map("user_badges")
 }

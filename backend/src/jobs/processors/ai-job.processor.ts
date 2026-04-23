@@ -246,7 +246,7 @@ async function saveWorkoutPlan(userId: string, aiResult: any, payload: AiJobPayl
 
     for (let i = 0; i < rawDays.length; i++) {
       const day = rawDays[i] as any;
-      const masterRoutine = await (tx as any).masterWorkoutRoutine.create({
+      const masterRoutine = await tx.masterWorkoutRoutine.create({
         data: {
           templateId: masterTemplate.id,
           name: day.sessionType ?? day.dayName ?? `Day ${i + 1}`,
@@ -258,7 +258,7 @@ async function saveWorkoutPlan(userId: string, aiResult: any, payload: AiJobPayl
 
       const exercises = [...(day.mainWork ?? []).map((ex: any, idx: number) => ({ ...ex, _saveIdx: idx })), ...(day.warmup ?? []).map((ex: any, idx: number) => ({ ...ex, _saveIdx: idx + 1000 }))];
       for (const ex of exercises) {
-        await (tx as any).masterExerciseSet.create({
+        await tx.masterExerciseSet.create({
           data: {
             routineId: masterRoutine.id,
             exerciseName: ex.exerciseName ?? 'Unknown',
@@ -313,7 +313,7 @@ async function saveDietPlan(userId: string, aiResult: any, payload: AiJobPayload
       const day = rawDays[i] as any;
       for (let j = 0; j < (day.meals || []).length; j++) {
         const meal = day.meals[j];
-        const masterMeal = await (tx as any).masterMeal.create({
+        const masterMeal = await tx.masterMeal.create({
           data: {
             templateId: masterDiet.id,
             name: meal.type?.toUpperCase() || 'MEAL',
@@ -321,10 +321,14 @@ async function saveDietPlan(userId: string, aiResult: any, payload: AiJobPayload
             dayOfWeek: day.dayOfWeek?.toUpperCase(),
             orderIndex: j,
             instructions: meal.instructions,
+            dayTargetCalories: day.dailyTotal?.calories || meta.dailyCalories,
+            dayTargetProtein: day.dailyTotal?.protein || meta.macros?.protein,
+            dayTargetCarbs: day.dailyTotal?.carbs || meta.macros?.carbs,
+            dayTargetFats: day.dailyTotal?.fats || meta.macros?.fats,
           } as any,
         });
         for (const ing of (meal.ingredients || [])) {
-          await (tx as any).masterMealIngredient.create({
+          await tx.masterMealIngredient.create({
             data: {
               mealId: masterMeal.id,
               name: ing.name,
@@ -385,13 +389,51 @@ function collectDietErrors(plan: any, mealsPerDay: number, targetCal?: number): 
   return errors;
 }
 
-function buildWorkoutSystemPrompt() { return `You are an elite strength coach. Generate JSON.`; }
-function buildDietSystemPrompt(mpd: number, names: string[]) { return `You are an RD. Generate JSON for ${mpd} meals: ${names.join(', ')}.`; }
+function buildWorkoutSystemPrompt() {
+  return `You are an elite AI Strength & Conditioning Coach. Your mission is to generate professional, evidence-based workout plans in JSON format.
+  
+  CRITICAL RULES:
+  1. ADHERENCE: Strictly follow the requested days per week and target muscles.
+  2. STRUCTURE: Include a mix of compound and isolation movements.
+  3. SAFETY: Avoid high-risk movements if injuries are specified.
+  4. EQUIPMENT: Only suggest exercises matching the availableEquipment list.
+  5. OUTPUT: Return valid JSON matching the expected structure (planMeta, days).`;
+}
+
+function buildDietSystemPrompt(mpd: number, names: string[]) {
+  return `You are a world-class Registered Dietitian and Sports Nutritionist. Your mission is to generate high-fidelity, macro-accurate diet plans in JSON format.
+  
+  CRITICAL RULES:
+  1. METABOLIC PRECISION: Calculate daily totals based on user metrics and goals (Bulking/Cutting/Maintenance).
+  2. VARIETY: Ensure meals are diverse and palatable.
+  3. RESTRICTIONS: Strictly respect all allergies and dietary styles (Keto, Vegan, etc.).
+  4. STRUCTURE: Output ${mpd} meals: ${names.join(', ')}.
+  5. MACRO ALIGNMENT: Ensure the sum of meal macros matches the dailyTarget.
+  6. OUTPUT: Return valid JSON matching the expected structure (planMeta, days).`;
+}
+
 function getMealNameSet(count: number) {
   if (count === 3) return ['BREAKFAST', 'LUNCH', 'DINNER'];
   return Array.from({ length: count }, (_, i) => `MEAL ${i + 1}`);
 }
-function buildUserPrompt(payload: AiJobPayload, type: string) { return `Generate ${type} plan for ${payload.goals}.`; }
+
+function buildUserPrompt(payload: AiJobPayload, type: string) {
+  const metrics = payload.userMetrics;
+  const context = [
+    `User Goal: ${payload.goals}`,
+    `Fitness Level: ${payload.fitnessLevel}`,
+    metrics?.weightKg ? `Weight: ${metrics.weightKg}kg` : '',
+    metrics?.heightCm ? `Height: ${metrics.heightCm}cm` : '',
+    metrics?.age ? `Age: ${metrics.age}` : '',
+    metrics?.gender ? `Gender: ${metrics.gender}` : '',
+    metrics?.injuries?.length ? `Injuries/Restrictions: ${metrics.injuries.join(', ')}` : '',
+    payload.availableEquipment?.length ? `Available Equipment: ${payload.availableEquipment.join(', ')}` : '',
+    type === 'DIET' && payload.dietaryStyle ? `Dietary Style: ${payload.dietaryStyle}` : '',
+    type === 'DIET' && payload.allergies?.length ? `Allergies: ${payload.allergies.join(', ')}` : '',
+  ].filter(Boolean).join('\n');
+
+  return `Generate a personalized ${type.toLowerCase()} plan based on this profile:\n${context}\n\nDeliver the response as a valid JSON object.`;
+}
 
 function buildFallbackPlan(type: 'WORKOUT' | 'DIET', payload: AiJobPayload): any {
   if (type === 'WORKOUT') {

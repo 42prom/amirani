@@ -44,6 +44,18 @@ class DoorAccessNotifier extends StateNotifier<DoorAccessState> {
     }
   }
 
+  Future<void> checkInQr(String gymId, String token) async {
+    state = DoorAccessLoading();
+    try {
+      final result = await _ds.checkInQr(gymId, token);
+      state = result.success
+          ? DoorAccessGranted(result)
+          : DoorAccessDenied(result.message ?? 'Access denied');
+    } catch (e) {
+      state = DoorAccessDenied(e.toString());
+    }
+  }
+
   void reset() => state = DoorAccessIdle();
 }
 

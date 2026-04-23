@@ -466,13 +466,12 @@ export class MembershipService {
     });
 
     if (existingUser) {
-      // Check if already a member of this gym
-      const existingMembership = await prisma.gymMembership.findUnique({
+      // Check if already a member of this gym (ignore expired/cancelled — allow re-enrollment)
+      const existingMembership = await prisma.gymMembership.findFirst({
         where: {
-          userId_gymId: {
-            userId: existingUser.id,
-            gymId,
-          },
+          userId: existingUser.id,
+          gymId,
+          status: { not: { in: ['EXPIRED', 'CANCELLED'] } },
         },
       });
 
@@ -653,14 +652,14 @@ export class MembershipService {
       ]);
     }
 
-    // Check for existing membership
-    const existingMembership = await prisma.gymMembership.findUnique({
+    // Check for existing membership — prefer non-terminal record for renewal/reactivation
+    const existingMembership = await prisma.gymMembership.findFirst({
       where: {
-        userId_gymId: {
-          userId: data.memberId,
-          gymId,
-        },
+        userId: data.memberId,
+        gymId,
+        status: { not: 'CANCELLED' },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     // Calculate dates

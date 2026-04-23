@@ -17,22 +17,19 @@ const prisma = new PrismaClient();
  * To switch provider: update `activeProvider` and set the corresponding key.
  */
 export async function seedAIConfig() {
-  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  const deepseekKey = process.env.DEEPSEEK_API_KEY || 'MOCK_KEY_PLEASE_SET_IN_ENV';
 
-  if (!deepseekKey) {
-    console.log('   ⚠️  DEEPSEEK_API_KEY not set in .env — skipping AI config seed.');
-    console.log('   ⚠️  AI generation will be disabled until an AIConfig record exists.');
-    console.log('   💡  Set DEEPSEEK_API_KEY= in your .env and re-run: npx ts-node prisma/ai-config-seed.ts');
-    return;
+  if (!process.env.DEEPSEEK_API_KEY) {
+    console.log('   ⚠️  DEEPSEEK_API_KEY not set — using placeholder for record initialization.');
   }
 
   console.log('🤖 Seeding AIConfig (DeepSeek)...');
 
   // Upsert is safe — running seed multiple times won't duplicate the config
   const config = await (prisma as any).aIConfig.upsert({
-    where: { id: 'platform-ai-config' },
+    where: { id: 'singleton' },
     create: {
-      id: 'platform-ai-config',
+      id: 'singleton',
       isEnabled: true,
       activeProvider: 'DEEPSEEK',
 
@@ -41,17 +38,9 @@ export async function seedAIConfig() {
       deepseekBaseUrl: 'https://api.deepseek.com/v1',
       deepseekModel: 'deepseek-chat',
 
-      // OpenAI (placeholder — fill in to switch provider)
-      openaiApiKey: null,
-      openaiModel: 'gpt-4o',
-
-      // Anthropic (placeholder)
-      anthropicApiKey: null,
-      anthropicModel: 'claude-3-5-sonnet-20241022',
-
       // Safety limits
       maxTokensPerRequest: 8192,
-      maxRequestsPerUserPerDay: 5,
+      temperature: 0.7,
     },
     update: {
       // Sync key and enabled status on re-run
