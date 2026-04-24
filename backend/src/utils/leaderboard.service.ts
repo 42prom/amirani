@@ -52,37 +52,44 @@ export async function awardPoints(params: {
   });
 
   const activeMemberships = memberships.filter((m: any) => (m.room as any).isActive);
-  if (activeMemberships.length === 0) return;
 
-  await Promise.all(
-    activeMemberships.map(async (membership: any) => {
-      const roomId = membership.roomId;
-
-      // ── Prisma persistent update ────────────────────────────────────────────
-      await prisma.$transaction([
-        prisma.roomMembership.update({
-          where: { id: membership.id },
-          data: {
-            totalPoints:  { increment: delta },
-            weeklyPoints: { increment: delta },
-          },
-        }),
-        prisma.pointEvent.create({
-          data: {
-            userId,
-            roomId,
-            membershipId: membership.id,
-            sourceId,
-            sourceType,
-            delta,
-            reason,
-          },
-        }),
-      ]);
-    })
-  );
+  if (activeMemberships.length > 0) {
+    // ── Per-room updates: membership totals + room-scoped PointEvents ──────────
+    await Promise.all(
+      activeMemberships.map(async (membership: any) => {
+        await prisma.$transaction([
+          prisma.roomMembership.update({
+            where: { id: membership.id },
+            data: {
+              totalPoints:  { increment: delta },
+              weeklyPoints: { increment: delta },
+            },
+          }),
+          prisma.pointEvent.create({
+            data: {
+              userId,
+              roomId:      membership.roomId,
+              membershipId: membership.id,
+              sourceId,
+              sourceType,
+              delta,
+              reason,
+            },
+          }),
+        ]);
+      })
+    );
+  } else {
+    // ── No active rooms: create a global PointEvent (roomId/membershipId null) ─
+    // Ensures totalPoints and badges work for solo users and gym members
+    // who haven't joined any challenge room yet.
+    await prisma.pointEvent.create({
+      data: { userId, roomId: null, membershipId: null, sourceId, sourceType, delta, reason },
+    });
+  }
 
   // ── Recalculate & Sync Redis (Weighted Score) ───────────────────────────────
+  // Always runs — updates user.totalPoints, streakDays, Redis leaderboard, badges.
   const { competitiveScore } = await recalculateUserStats(userId);
 
   // ── Broadcast to rooms ────────────────────────────────────────────────────

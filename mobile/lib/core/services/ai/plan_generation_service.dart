@@ -62,9 +62,15 @@ class PlanGenerationService {
     final strategy = ApiGenerationStrategy(dio: dio, timeout: config.timeout);
     try {
       final data = await strategy.fetchPlanFromApi(prefs, odUserId, userMetrics: userMetrics, targetMuscleNames: targetMuscleNames, languageCode: languageCode);
-      if (data != null && data['data'] != null && data['data']['status'] == 'QUEUED' && pollCallback != null) {
-        final result = await pollCallback(strategy, data['data']['jobId'], 'WORKOUT');
-        if (result != null) return _parsePlanFromApiResponse(result, prefs, odUserId);
+      if (data != null && data['data'] != null) {
+        final status = data['data']['status'];
+        if (status == 'COMPLETED' && data['data']['plan'] != null) {
+          return _parsePlanFromApiResponse(data['data']['plan'], prefs, odUserId);
+        }
+        if (status == 'QUEUED' && pollCallback != null) {
+          final result = await pollCallback(strategy, data['data']['jobId'], 'WORKOUT');
+          if (result != null) return _parsePlanFromApiResponse(result, prefs, odUserId);
+        }
       }
     } catch (_) {}
     return _generateWorkoutPlanOffline(prefs, odUserId, userMetrics: userMetrics, targetMuscleNames: targetMuscleNames);
@@ -84,9 +90,15 @@ class PlanGenerationService {
     final strategy = ApiGenerationStrategy(dio: dio, timeout: config.timeout);
     try {
       final data = await strategy.fetchDietPlanFromApi(prefs, odUserId, userMetrics: userMetrics, languageCode: languageCode);
-      if (data != null && data['data'] != null && data['data']['status'] == 'QUEUED' && pollCallback != null) {
-        final result = await pollCallback(strategy, data['data']['jobId'], 'DIET');
-        if (result != null) return _parseDietPlanFromApiResponse(result, prefs, odUserId);
+      if (data != null && data['data'] != null) {
+        final status = data['data']['status'];
+        if (status == 'COMPLETED' && data['data']['plan'] != null) {
+          return _parseDietPlanFromApiResponse(data['data']['plan'], prefs, odUserId);
+        }
+        if (status == 'QUEUED' && pollCallback != null) {
+          final result = await pollCallback(strategy, data['data']['jobId'], 'DIET');
+          if (result != null) return _parseDietPlanFromApiResponse(result, prefs, odUserId);
+        }
       }
     } catch (_) {}
     return _generateDietPlanOffline(prefs, odUserId, userMetrics: userMetrics);

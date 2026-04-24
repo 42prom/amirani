@@ -1623,15 +1623,15 @@ model RoomMembership {
 model PointEvent {
   id           String          @id @default(uuid())
   userId       String
-  roomId       String
-  membershipId String // RoomMembership.id
-  sourceId     String // workoutHistoryId | challengeId | attendanceId
+  roomId       String? // null for global (non-room) events
+  membershipId String? // null for global events
+  sourceId     String  // workoutHistoryId | challengeId | attendanceId
   sourceType   PointSourceType
-  delta        Int // positive = award, negative = penalty
+  delta        Int     // positive = award, negative = penalty
   reason       String
   createdAt    DateTime        @default(now())
 
-  membership RoomMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  membership RoomMembership? @relation(fields: [membershipId], references: [id], onDelete: SetNull)
 
   @@index([userId, roomId])
   @@index([roomId, createdAt(sort: Desc)])

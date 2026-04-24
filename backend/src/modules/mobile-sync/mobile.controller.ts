@@ -6,6 +6,7 @@ import logger from '../../lib/logger';
 import { serverError } from '../../utils/response';
 import { PlatformConfigService } from '../platform/platform-config.service';
 import { UserTier } from '@prisma/client';
+import { awardPoints, POINTS } from '../../utils/leaderboard.service';
 
 /**
  * Identify "Hero Ingredient" (largest by protein or first)
@@ -570,6 +571,7 @@ export class MobileController {
             where: { userId, date: dateObj },
             data:  { tasksCompleted: { increment: 1 } },
           });
+          awardPoints({ userId, sourceId: refId, sourceType: 'TASK', delta: POINTS.TASK_COMPLETE, reason: 'Meal logged' }).catch(() => {});
         }
       } else {
         const deleted = await (prisma as any).mealLog.deleteMany({
@@ -928,6 +930,8 @@ export class MobileController {
 
         return { historyId: history.id, setsLogged: setRecords.length };
       });
+
+      awardPoints({ userId, sourceId: result.historyId, sourceType: 'WORKOUT', delta: POINTS.WORKOUT_COMPLETE, reason: 'Workout completed' }).catch(() => {});
 
       res.status(201).json({ data: result });
     } catch (error: any) {
