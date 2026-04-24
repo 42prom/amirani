@@ -954,7 +954,7 @@ export class MobileController {
       weekStart.setDate(weekStart.getDate() - 6);
       weekStart.setHours(0, 0, 0, 0);
 
-      const [user, activePlan, dailyRows, recoveryRows, workoutRows] = await Promise.all([
+      const [user, activePlan, dailyRows, recoveryRows, workoutRows, weightRows] = await Promise.all([
         prisma.user.findUnique({
           where: { id: userId },
           select: { weight: true, targetWeightKg: true, height: true },
@@ -983,6 +983,12 @@ export class MobileController {
           select: { completedAt: true, durationMinutes: true, caloriesBurned: true, totalVolume: true },
           orderBy: { completedAt: 'asc' },
         }),
+        prisma.userWeightHistory.findMany({
+          where: { userId, date: { gte: windowStart } },
+          select: { date: true, weight: true },
+          orderBy: { date: 'asc' },
+          take: 90,
+        }),
       ]);
 
       // ── Body ───────────────────────────────────────────────────────────────
@@ -990,10 +996,16 @@ export class MobileController {
       const targetWeightKg = user?.targetWeightKg ? parseFloat(user.targetWeightKg.toString()) : null;
       const heightCm = user?.height ? parseFloat(user.height.toString()) : null;
 
-      // Weight as single log point (no history table — just current snapshot)
-      const weightLogs = currentWeightKg != null
-        ? [{ date: now.toISOString().split('T')[0], weightKg: currentWeightKg }]
-        : [];
+      // Real weight history from UserWeightHistory table, most recent entry = current weight.
+      // Falls back to single-snapshot from User.weight when no history rows exist.
+      const weightLogs = weightRows.length > 0
+        ? weightRows.map((r) => ({
+            date:     new Date(r.date).toISOString().split('T')[0],
+            weightKg: parseFloat(r.weight.toString()),
+          }))
+        : currentWeightKg != null
+          ? [{ date: now.toISOString().split('T')[0], weightKg: currentWeightKg }]
+          : [];
 
       // ── Today's macros ─────────────────────────────────────────────────────
       const today = new Date();
@@ -1088,6 +1100,47 @@ export class MobileController {
           habits: { workoutScore, dietScore, hydrationScore, sleepScore, timeline },
         },
       });
+    } catch (error: any) {
+      serverError(res, error);
+    }
+  }
+
+  // POST /api/sync/weight — record a new weight entry
+  static async logWeightEntry(req: AuthenticatedRequest, res: Response) {
+    try {
+      const userId = req.user!.userId;
+
+      const schema = z.object({
+        weightKg: z.number().min(20).max(500),
+        date:     z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD').optional(),
+      });
+
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(422).json({ success: false, error: parsed.error.flatten() });
+      }
+
+      const { weightKg, date } = parsed.data;
+      const recordDate = date ? new Date(`${date}T00:00:00.000Z`) : new Date();
+      recordDate.setUTCHours(0, 0, 0, 0);
+
+      // One entry per day — re-weighing the same day updates existing row
+      const existing = await prisma.userWeightHistory.findFirst({
+        where: { userId, date: recordDate },
+        select: { id: true },
+      });
+
+      const entry = existing
+        ? await prisma.userWeightHistory.update({ where: { id: existing.id }, data: { weight: weightKg } })
+        : await prisma.userWeightHistory.create({ data: { userId, weight: weightKg, date: recordDate } });
+
+      // Keep User.weight in sync so profile and fallback snapshot stay current
+      await prisma.user.update({
+        where: { id: userId },
+        data:  { weight: weightKg },
+      });
+
+      res.status(200).json({ data: { id: entry.id, date: recordDate.toISOString().split('T')[0], weightKg } });
     } catch (error: any) {
       serverError(res, error);
     }

@@ -20,6 +20,7 @@ router.get('/tier-limits', MobileController.getTierLimits);
 router.post('/recovery', MobileController.logRecovery);
 router.get('/recovery/today', MobileController.getTodayRecovery);
 router.post('/workout-history', MobileController.logWorkoutHistory);
+router.post('/weight', MobileController.logWeightEntry);
 router.get('/progress', MobileController.getProgressSummary);
 
 // Offline State Delta Sync

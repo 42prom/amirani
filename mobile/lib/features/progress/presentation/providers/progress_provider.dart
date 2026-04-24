@@ -249,6 +249,25 @@ class ProgressNotifier extends StateNotifier<ProgressState> {
     }
   }
 
+  /// POST /api/sync/weight — records a weight entry and refreshes progress data.
+  Future<bool> logWeight(double weightKg, {DateTime? date}) async {
+    try {
+      final dio = _ref.read(dioProvider);
+      final body = <String, dynamic>{'weightKg': weightKg};
+      if (date != null) {
+        body['date'] = '${date.year.toString().padLeft(4, '0')}-'
+            '${date.month.toString().padLeft(2, '0')}-'
+            '${date.day.toString().padLeft(2, '0')}';
+      }
+      await dio.post('/sync/weight', data: body);
+      await load();
+      return true;
+    } catch (e) {
+      debugPrint('[ProgressProvider] logWeight error: $e');
+      return false;
+    }
+  }
+
   void reset() => state = const ProgressState();
 }
 
