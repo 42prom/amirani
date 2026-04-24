@@ -95,11 +95,11 @@ export default function SaaSManagementPage() {
         <div className="p-6 border-b border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-white">Owner Subscriptions</h2>
           <div className="relative w-full md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+            <Search className="absolute left-3 text-zinc-500" size={16} />
             <input
               type="text"
               placeholder="Search owners..."
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#F1C40F]"
+              className="amirani-input amirani-input-with-icon !bg-zinc-900 !border-zinc-800 !py-2 !text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -292,7 +292,7 @@ function ExtendSubscriptionModal({
                 value={days}
                 onChange={(e) => setDays(e.target.value)}
                 required
-                className="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-[#F1C40F] focus:bg-white/[0.05] transition-all font-mono"
+                className="amirani-input !bg-white/[0.03] !border-white/5 !font-mono"
                 placeholder="e.g. 14, 30, 365"
               />
             </div>
@@ -302,7 +302,7 @@ function ExtendSubscriptionModal({
                 Amount Paid (USD)
               </label>
               <div className="relative">
-                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">$</span>
+                <span className="absolute left-6 text-zinc-500 font-bold" style={{ top: '50%', transform: 'translateY(-50%)', zIndex: 20 }}>$</span>
                 <input
                   type="number"
                   min="0"
@@ -310,7 +310,7 @@ function ExtendSubscriptionModal({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   required
-                  className="w-full pl-10 pr-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white placeholder-zinc-600 focus:outline-none focus:border-[#F1C40F] focus:bg-white/[0.05] transition-all font-mono"
+                  className="amirani-input !bg-white/[0.03] !border-white/5 !pl-10 !font-mono"
                   placeholder="0.00"
                 />
               </div>

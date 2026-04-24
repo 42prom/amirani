@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/room_provider.dart';
 
 class CreateRoomSheet extends ConsumerStatefulWidget {
@@ -32,9 +32,10 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
   String? _error;
 
   static const _metrics = [
-    {'value': 'CHECKINS', 'label': 'Check-ins',      'sub': 'Gym visits in period',  'icon': Icons.bolt},
-    {'value': 'SESSIONS', 'label': 'Classes',         'sub': 'Attended sessions',     'icon': Icons.fitness_center},
-    {'value': 'STREAK',   'label': 'Streak',          'sub': 'Consecutive days',      'icon': Icons.local_fire_department},
+    {'value': 'CHECKINS',  'label': 'Check-ins',  'sub': 'Gym visits in period',                        'icon': Icons.bolt},
+    {'value': 'SESSIONS',  'label': 'Classes',    'sub': 'Attended sessions',                            'icon': Icons.fitness_center},
+    {'value': 'STREAK',    'label': 'Streak',     'sub': 'Consecutive days',                             'icon': Icons.local_fire_department},
+    {'value': 'COMPOSITE', 'label': 'All-Around', 'sub': 'Check-ins + sessions + streak + challenges',   'icon': Icons.workspace_premium},
   ];
 
   static const _periods = [
@@ -80,7 +81,7 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
       maxChildSize: 0.9,
       builder: (context, scrollController) => Container(
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDark,
+          color: AppTokens.colorBgPrimary,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -101,9 +102,9 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                     width: 40, height: 40,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.15),
                     ),
-                    child: const Icon(Icons.emoji_events, color: AppTheme.primaryBrand, size: 20),
+                    child: const Icon(Icons.emoji_events, color: AppTokens.colorBrand, size: 20),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -167,26 +168,26 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                         margin: const EdgeInsets.only(bottom: 8),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                         decoration: BoxDecoration(
-                          color: selected ? AppTheme.primaryBrand.withValues(alpha: 0.1) : AppTheme.surfaceDark,
+                          color: selected ? AppTokens.colorBrand.withValues(alpha: 0.1) : AppTokens.colorBgSurface,
                           border: Border.all(
-                            color: selected ? AppTheme.primaryBrand.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.06),
+                            color: selected ? AppTokens.colorBrand.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.06),
                           ),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Row(
                           children: [
-                            Icon(m['icon'] as IconData, color: selected ? AppTheme.primaryBrand : Colors.white38, size: 22),
+                            Icon(m['icon'] as IconData, color: selected ? AppTokens.colorBrand : Colors.white38, size: 22),
                             const SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(m['label'] as String, style: TextStyle(color: selected ? AppTheme.primaryBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                                  Text(m['label'] as String, style: TextStyle(color: selected ? AppTokens.colorBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                                   Text(m['sub'] as String, style: const TextStyle(color: Colors.white38, fontSize: 12)),
                                 ],
                               ),
                             ),
-                            if (selected) const Icon(Icons.check_circle, color: AppTheme.primaryBrand, size: 18),
+                            if (selected) const Icon(Icons.check_circle, color: AppTokens.colorBrand, size: 18),
                           ],
                         ),
                       ),
@@ -208,13 +209,13 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                             margin: EdgeInsets.only(right: p['value'] == 'ONGOING' ? 0 : 8),
                             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                             decoration: BoxDecoration(
-                              color: selected ? AppTheme.primaryBrand.withValues(alpha: 0.1) : AppTheme.surfaceDark,
-                              border: Border.all(color: selected ? AppTheme.primaryBrand.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.06)),
+                              color: selected ? AppTokens.colorBrand.withValues(alpha: 0.1) : AppTokens.colorBgSurface,
+                              border: Border.all(color: selected ? AppTokens.colorBrand.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.06)),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
                               children: [
-                                Text(p['label'] as String, style: TextStyle(color: selected ? AppTheme.primaryBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                                Text(p['label'] as String, style: TextStyle(color: selected ? AppTokens.colorBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
                                 const SizedBox(height: 3),
                                 Text(p['sub'] as String, style: const TextStyle(color: Colors.white38, fontSize: 9), textAlign: TextAlign.center),
                               ],
@@ -241,7 +242,7 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.surfaceDark,
+                                  color: AppTokens.colorBgSurface,
                                   border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -270,7 +271,7 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppTheme.surfaceDark,
+                                color: AppTokens.colorBgSurface,
                                 border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -323,7 +324,7 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
                 child: ElevatedButton(
                   onPressed: _loading ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -353,10 +354,10 @@ class _CreateRoomSheetState extends ConsumerState<CreateRoomSheet> {
         hintText: hint,
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.25), fontSize: 14),
         filled: true,
-        fillColor: AppTheme.surfaceDark,
+        fillColor: AppTokens.colorBgSurface,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTheme.primaryBrand)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppTokens.colorBrand)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       );
 }

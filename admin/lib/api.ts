@@ -393,6 +393,7 @@ export const uploadApi = {
   getFullUrl: (url: string | undefined | null): string => {
     if (!url) return "";
     if (url.startsWith("http")) return url;
+    if (url.startsWith("/assets")) return url;
     
     // Static files in /uploads are served from the root, not under /api
     if (url.startsWith("/uploads")) {
@@ -1152,6 +1153,8 @@ export const equipmentCatalogApi = {
     api<Array<{ category: EquipmentCategory; _count: { id: number } }>>("/equipment-catalog/categories", { token }),
   getBrands: (token: string) =>
     api<string[]>("/equipment-catalog/brands", { token }),
+  import: (records: Record<string, unknown>[], token: string) =>
+    api<{ imported: number }>("/equipment-catalog/import", { method: "POST", body: { records }, token }),
 }
 
 // ─── Branch Dashboard Types ───────────────────────────────────────────────────

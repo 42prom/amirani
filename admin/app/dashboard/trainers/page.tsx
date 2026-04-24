@@ -195,7 +195,7 @@ export default function TrainersPage() {
       <div className="flex flex-col lg:flex-row gap-6 lg:items-end mt-8 ml-4">
         <div className="relative group flex-1 max-w-2xl">
           <div className="absolute inset-0 bg-[#F1C40F]/5 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#F1C40F] transition-colors" size={20} />
+          <Search className="absolute left-5 text-zinc-600 group-focus-within:text-[#F1C40F] transition-colors" size={20} />
           <input
             type="text"
             value={searchQuery}

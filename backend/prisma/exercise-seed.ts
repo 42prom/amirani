@@ -3,6 +3,19 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Infer workout location from equipment list.
+ * Any gym-specific piece of equipment (barbell, cables, machines, benches, etc.)
+ * forces GYM-only. Pure bodyweight / dumbbells / bands / kettlebell → HOME + GYM.
+ */
+function inferLocation(equipment: string[]): string[] {
+  const gymOnlyKeywords = ['barbell', 'cable', 'machine', 'bench', 'dip station', 'preacher', 'rack', 'plate', 'functional'];
+  const hasGymOnly = equipment.some(e =>
+    gymOnlyKeywords.some(k => e.toLowerCase().includes(k))
+  );
+  return hasGymOnly ? ['GYM'] : ['HOME', 'GYM'];
+}
+
 const exercises = [
   // ─── CHEST ───────────────────────────────────────────────────────────────
   { name: 'Barbell Bench Press', primaryMuscle: 'Chest', secondaryMuscles: ['Front Deltoid', 'Triceps'], equipment: ['barbell', 'bench'], difficulty: 'INTERMEDIATE' as const, mechanics: 'COMPOUND' as const, force: 'PUSH' as const, cues: ['Retract scapula', 'Drive feet into floor', 'Touch bar to lower chest', 'Full lockout at top'], commonMistakes: ['Flared elbows', 'Bouncing off chest', 'Lifting hips off bench'], metValue: 6.0 },
@@ -168,13 +181,20 @@ export async function seedExerciseLibrary() {
   console.log(`📚 Seeding Exercise Library (${exercises.length} exercises)...`);
 
   let created = 0;
+  let updated = 0;
   let skipped = 0;
 
   for (const ex of exercises) {
+    const location = inferLocation(ex.equipment);
     try {
-      await (prisma as any).exerciseLibrary.upsert({
+      const result = await (prisma as any).exerciseLibrary.upsert({
         where: { name: ex.name },
-        update: {}, // never overwrite existing
+        update: {
+          status: 'APPROVED',
+          location,
+          fitnessGoals: [],
+          isActive: true,
+        },
         create: {
           name: ex.name,
           primaryMuscle: ex.primaryMuscle,
@@ -184,19 +204,22 @@ export async function seedExerciseLibrary() {
           mechanics: ex.mechanics,
           force: ex.force,
           cues: ex.cues,
-          commonMistakes: ex.commonMistakes,
-          metValue: (ex as any).metValue || 3.0,
+          commonMistakes: (ex as any).commonMistakes ?? [],
+          metValue: (ex as any).metValue ?? 3.0,
           isActive: true,
+          status: 'APPROVED',
+          location,
+          fitnessGoals: [],
         },
       });
-      created++;
+      if (result._count !== undefined) updated++; else created++;
     } catch {
       skipped++;
     }
   }
 
-  console.log(`   ✓ Exercise Library: ${created} exercises seeded, ${skipped} skipped`);
-  return { created, skipped };
+  console.log(`   ✓ Exercise Library: ${created} created, ${updated} updated, ${skipped} skipped`);
+  return { created, updated, skipped };
 }
 
 // Run standalone

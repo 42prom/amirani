@@ -7,6 +7,7 @@ import { PlatformConfigService } from '../platform/platform-config.service';
 import { UserTier } from '@prisma/client';
 import { serverError } from '../../utils/response';
 import logger from '../../lib/logger';
+import { AIModeratorService } from '../ai-moderator/ai-moderator.service';
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -141,8 +142,8 @@ export class AIController {
         ...(parsed.data.userMetrics ?? {}),
       };
 
-      // Enqueue
-      const { jobId, dietJobId } = await enqueueAiPlanGeneration(type as any, {
+      // Build the raw job payload
+      const rawPayload = {
         userId,
         type: type as any,
         ...jobData,
@@ -164,7 +165,47 @@ export class AIController {
         ...(targetCalories !== undefined && { targetCalories }),
         ...(targetProteinG !== undefined && { targetProteinG }),
         ...(tdee !== undefined && { tdee }),
-      });
+      };
+
+      // ── AI Moderation: check cache / enrich payload before enqueuing ──────────
+      // Only applies to single-type requests; BOTH skips moderation (first-time setup).
+      if (type !== 'BOTH') {
+        try {
+          const moderation = await AIModeratorService.moderate(userId, rawPayload, type as 'WORKOUT' | 'DIET');
+          logger.info('[AI] Moderator decision', { userId, type, decision: moderation.decision });
+
+          if (moderation.decision === 'CACHE_HIT') {
+            return res.status(200).json({
+              success: true,
+              data: {
+                status: 'COMPLETED',
+                decision: 'CACHE_HIT',
+                plan: moderation.cachedPlan,
+                message: 'Returning your personalized plan.',
+              },
+            });
+          }
+
+          // For SOFT_ADJUST / TEMPLATE_GUIDED / FULL_GENERATE — enqueue enriched payload
+          const { jobId, dietJobId } = await enqueueAiPlanGeneration(type as any, moderation.enrichedPayload!);
+          return res.status(202).json({
+            success: true,
+            data: {
+              jobId,
+              ...(dietJobId && { dietJobId }),
+              status: 'QUEUED',
+              decision: moderation.decision,
+              message: 'Your AI plan is being generated.',
+            },
+          });
+        } catch (moderationErr) {
+          // Non-fatal: fall through to standard enqueue on moderator failure
+          logger.warn('[AI] Moderator failed — falling back to standard enqueue', { err: moderationErr });
+        }
+      }
+
+      // Standard enqueue (BOTH type or moderator fallback)
+      const { jobId, dietJobId } = await enqueueAiPlanGeneration(type as any, rawPayload);
 
       return res.status(202).json({ // 202 Accepted — async job enqueued
         success: true,

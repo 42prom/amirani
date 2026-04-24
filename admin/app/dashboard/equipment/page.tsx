@@ -280,7 +280,7 @@ export default function EquipmentPage() {
         <div className="relative flex-1 group">
           <div className="absolute inset-0 bg-[#F1C40F]/5 blur-xl group-focus-within:bg-[#F1C40F]/10 transition-all duration-500 rounded-2xl opacity-0 group-focus-within:opacity-100" />
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-[#F1C40F] transition-colors" size={18} />
+            <Search className="absolute left-4 text-zinc-500 group-focus-within:text-[#F1C40F] transition-colors" size={18} />
             <input
               type="text"
               value={search}

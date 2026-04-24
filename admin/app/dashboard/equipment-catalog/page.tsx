@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthStore, isSuperAdmin } from "@/lib/auth-store";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,15 @@ import {
   Check,
   Building2,
   Upload,
+  Download,
+  AlertTriangle,
 } from "lucide-react";
+
+interface ImportError {
+  row: number;
+  name: string;
+  reason: string;
+}
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomSelect } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
@@ -36,10 +44,15 @@ export default function EquipmentCatalogPage() {
   const { user, token } = useAuthStore();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const fileRef = useRef<HTMLInputElement>(null);
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importErrors, setIErrors] = useState<ImportError[]>([]);
+  const [showImportErrors, setShowImportErrors] = useState(false);
   const [formData, setFormData] = useState<CreateCatalogItemData>({
     name: "",
     category: "OTHER",
@@ -143,6 +156,75 @@ export default function EquipmentCatalogPage() {
     }
   };
 
+  // ── CSV Helpers ────────────────────────────────────────────────────────────
+
+  const exportCsv = (data: CatalogItem[]) => {
+    const headers = ["name", "category", "brand", "model", "description", "imageUrl"];
+    const rows = data.map(item => [
+      item.name,
+      item.category,
+      item.brand || "",
+      item.model || "",
+      item.description || "",
+      item.imageUrl || ""
+    ]);
+    const csvContent = [headers, ...rows].map(e => e.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "equipment-catalog.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    setIErrors([]);
+    try {
+      const text = await file.text();
+      const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) throw new Error("CSV file is empty or missing headers");
+
+      const parseRow = (line: string) => {
+        const result: string[] = [];
+        let cur = ""; let inQ = false;
+        for (let i = 0; i < line.length; i++) {
+          if (line[i] === '"') { inQ = !inQ; continue; }
+          if (line[i] === ',' && !inQ) { result.push(cur); cur = ""; continue; }
+          cur += line[i];
+        }
+        result.push(cur);
+        return result;
+      };
+
+      const headers = parseRow(lines[0]).map(h => h.toLowerCase().replace(/\s/g, ""));
+      const records = lines.slice(1).map(line => {
+        const row = parseRow(line);
+        const find = (key: string) => row[headers.indexOf(key)]?.trim() || "";
+        return {
+          name: find("name"),
+          category: (find("category") || "OTHER") as EquipmentCategory,
+          brand: find("brand"),
+          model: find("model"),
+          description: find("description"),
+          imageUrl: find("imageurl")
+        };
+      }).filter(r => r.name);
+
+      const res = await equipmentCatalogApi.import(records, token!);
+      toast.success(`Successfully imported ${res.imported} items!`);
+      queryClient.invalidateQueries({ queryKey: ["equipment-catalog"] });
+      queryClient.invalidateQueries({ queryKey: ["equipment-catalog-stats"] });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "Failed to import CSV";
+      toast.error(msg);
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   return (
     <div className="space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
@@ -151,13 +233,35 @@ export default function EquipmentCatalogPage() {
         description="Manage the global machinery master list for all Amirani facilities"
         icon={<Package size={32} />}
         actions={
+          <div className="flex items-center gap-3">
+            <input 
+              ref={fileRef} 
+              type="file" 
+              accept=".csv" 
+              className="hidden"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleImport(f); }} 
+            />
+            <button 
+              onClick={() => items && exportCsv(items)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-xl border border-zinc-700 transition-colors uppercase tracking-widest"
+            >
+              <Download size={14} /> Export CSV
+            </button>
+            <button 
+              onClick={() => fileRef.current?.click()} 
+              disabled={importing}
+              className="flex items-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold rounded-xl border border-zinc-700 transition-colors uppercase tracking-widest disabled:opacity-40"
+            >
+              {importing ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+              Import CSV
+            </button>
             <button
               onClick={openCreateModal}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-[#F1C40F] !text-black font-black rounded-xl hover:bg-[#F4D03F] transition-all whitespace-nowrap uppercase text-[10px] tracking-widest shadow-lg shadow-[#F1C40F]/10 shrink-0"
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#F1C40F] hover:bg-[#F1C40F]/90 text-black text-xs font-black rounded-xl uppercase tracking-widest transition-colors"
             >
-              <Plus size={18} />
-              Master Addition
+              <Plus size={16} /> Add Equipment
             </button>
+          </div>
         }
       />
 
@@ -174,19 +278,56 @@ export default function EquipmentCatalogPage() {
             <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Active Models</p>
             <p className="text-4xl font-black text-green-400 mt-2 tracking-tighter">{stats.activeItems}</p>
           </div>
-          <div className="group relative overflow-hidden bg-[#121721] border border-white/5 rounded-3xl p-6 transition-all duration-500 hover:border-[#F1C40F]/20">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#F1C40F]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#F1C40F]/10 transition-colors" />
-            <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Global Ecosystem</p>
-            <div className="flex items-baseline gap-2 mt-2">
-              <p className="text-4xl font-black text-[#F1C40F] tracking-tighter">{stats.totalGymsUsing}</p>
-              <span className="text-base font-bold text-zinc-600 uppercase">Facilities</span>
-            </div>
-          </div>
           <div className="group relative overflow-hidden bg-[#121721] border border-white/5 rounded-3xl p-6 transition-all duration-500 hover:border-purple-500/20">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-3xl -mr-16 -mt-16 group-hover:bg-purple-500/10 transition-colors" />
             <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Variation Groups</p>
             <p className="text-4xl font-black text-purple-400 mt-2 tracking-tighter">{stats.byCategory.length}</p>
           </div>
+          <div className="group relative overflow-hidden bg-[#121721] border border-white/5 rounded-3xl p-6 transition-all duration-500 hover:border-[#F1C40F]/20">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#F1C40F]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#F1C40F]/10 transition-colors" />
+            <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Showing</p>
+            <p className="text-4xl font-black text-[#F1C40F] mt-2 tracking-tighter">{(items?.length || 0)} / {stats.totalItems}</p>
+          </div>
+        </div>
+      )}
+
+      {/* CSV hint */}
+      <div className="bg-[#121721] border border-zinc-800 rounded-xl px-5 py-3 flex items-start gap-3">
+        <Upload size={14} className="text-zinc-500 mt-0.5 shrink-0" />
+        <p className="text-[11px] text-zinc-500 font-mono">
+          CSV columns: <span className="text-zinc-300">name, category, brand, model, description, imageUrl</span>
+          &nbsp;— use <span className="text-zinc-300">category</span> values like <span className="text-zinc-300">CARDIO, STRENGTH, FREE_WEIGHTS</span>.
+        </p>
+      </div>
+
+      {/* Import errors panel */}
+      {importErrors.length > 0 && (
+        <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setShowImportErrors(v => !v)}
+            className="w-full flex items-center justify-between px-5 py-3 text-left"
+          >
+            <div className="flex items-center gap-2">
+              <AlertTriangle size={14} className="text-yellow-400" />
+              <span className="text-[11px] font-black uppercase tracking-widest text-yellow-400">
+                {importErrors.length} row{importErrors.length !== 1 ? "s" : ""} skipped during import
+              </span>
+            </div>
+            <span className="text-[10px] text-zinc-500 uppercase tracking-widest">
+              {showImportErrors ? "Hide" : "Show"} details
+            </span>
+          </button>
+          {showImportErrors && (
+            <div className="border-t border-yellow-500/10 divide-y divide-yellow-500/5">
+              {importErrors.map((err, i) => (
+                <div key={i} className="flex items-center gap-4 px-5 py-2">
+                  <span className="text-[10px] text-zinc-600 font-mono w-12 shrink-0">Row {err.row}</span>
+                  <span className="text-[11px] text-zinc-300 flex-1 truncate">{err.name}</span>
+                  <span className="text-[10px] text-yellow-500">{err.reason}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -194,12 +335,12 @@ export default function EquipmentCatalogPage() {
       <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
         <div className="relative group flex-1">
           <div className="absolute inset-0 bg-[#F1C40F]/5 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#F1C40F] transition-colors pointer-events-none" size={20} />
+          <Search className="absolute left-5 text-zinc-600 group-focus-within:text-[#F1C40F] transition-colors pointer-events-none" size={20} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search master catalog..."
+            placeholder="Search equipment..."
             className="amirani-input amirani-input-with-icon font-medium"
           />
         </div>

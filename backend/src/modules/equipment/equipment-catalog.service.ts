@@ -233,4 +233,22 @@ export class EquipmentCatalogService {
       byCategory,
     };
   }
+
+  /**
+   * Bulk import catalog items
+   */
+  static async bulkImport(records: any[]) {
+    return prisma.equipmentCatalog.createMany({
+      data: records.map(r => ({
+        name: r.name.trim(),
+        category: r.category || 'OTHER',
+        brand: r.brand?.trim() || null,
+        model: r.model?.trim() || null,
+        description: r.description?.trim() || null,
+        imageUrl: r.imageUrl || null,
+        isActive: true,
+      })),
+      skipDuplicates: true,
+    });
+  }
 }

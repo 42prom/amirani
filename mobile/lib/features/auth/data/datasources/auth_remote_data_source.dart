@@ -9,7 +9,7 @@ import '../models/platform_config_model.dart';
 abstract class AuthRemoteDataSource {
   /// Returns (AuthResponse, mustChangePassword).
   Future<(AuthResponse, bool)> login(String email, String password);
-  Future<AuthResponse> loginWithOAuth(String provider, String idToken);
+  Future<AuthResponse> loginWithOAuth(String provider, String idToken, {String? countryCode});
   Future<UserModel> getUserProfile();
   Future<PlatformConfigModel> getAuthConfig();
   Future<void> changePassword(String currentPassword, String newPassword);
@@ -37,11 +37,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<AuthResponse> loginWithOAuth(String provider, String idToken) async {
+  Future<AuthResponse> loginWithOAuth(String provider, String idToken, {String? countryCode}) async {
     try {
       final response = await dio.post('/auth/oauth', data: {
         'provider': provider,
         'idToken': idToken,
+        if (countryCode != null) 'countryCode': countryCode,
       });
       if (response.statusCode == 200) {
         return AuthResponse.fromJson(response.data['data']);

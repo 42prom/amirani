@@ -61,6 +61,17 @@ class RoomRemoteDataSource {
     await dio.patch('/users/me', data: {'fullName': fullName});
   }
 
+  Future<List<RoomChallenge>> getChallenges(String roomId) async {
+    final res = await dio.get('/rooms/$roomId/challenges');
+    return ((res.data['data'] as List?) ?? [])
+        .map((e) => RoomChallenge.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> logChallengeProgress(String roomId, String challengeId, {int increment = 1}) async {
+    await dio.patch('/rooms/$roomId/challenges/$challengeId/progress', data: {'increment': increment});
+  }
+
   Future<List<RoomMessage>> getRoomMessages(String roomId, {int limit = 50, String? cursor}) async {
     final res = await dio.get('/rooms/$roomId/messages', queryParameters: {
       'limit': limit,

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore, isSuperAdmin } from "@/lib/auth-store";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import NextImage from "next/image";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomSelect } from "@/components/ui/Select";
@@ -34,6 +35,7 @@ interface Ingredient {
   foodCategory?: FoodCategory;
   isVerified: boolean;
   source: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -49,6 +51,7 @@ interface FormState {
   calories: string; protein: string; carbs: string; fats: string;
   fiber: string; sugar: string; sodium: string;
   foodCategory: string;
+  imageUrl: string;
 }
 
 interface ImportError {
@@ -95,6 +98,7 @@ const BLANK: FormState = {
   name: "", nameKa: "", nameRu: "", brand: "", barcode: "",
   calories: "", protein: "", carbs: "", fats: "",
   fiber: "", sugar: "", sodium: "", foodCategory: "OTHER",
+  imageUrl: "",
 };
 
 // ─── CSV helpers ──────────────────────────────────────────────────────────────
@@ -231,6 +235,7 @@ export default function IngredientDatabasePage() {
       sugar: ing.sugar != null ? String(ing.sugar) : "",
       sodium: ing.sodium != null ? String(ing.sodium) : "",
       foodCategory: ing.foodCategory ?? "OTHER",
+      imageUrl: ing.imageUrl ?? "",
     });
     setShowModal(true);
   };
@@ -268,6 +273,7 @@ export default function IngredientDatabasePage() {
       sugar: num(form.sugar),
       sodium: num(form.sodium),
       foodCategory: form.foodCategory || undefined,
+      imageUrl: form.imageUrl.trim() || undefined,
       source: "ADMIN",
     };
     if (editing) updateMutation.mutate({ id: editing.id, data: payload });
@@ -419,8 +425,8 @@ export default function IngredientDatabasePage() {
         {[
           { label: "Total Items",    value: stats?.total ?? 0,    color: "text-white" },
           { label: "Verified",       value: stats?.verified ?? 0, color: "text-green-400" },
-          { label: "Unverified",     value: (stats?.total ?? 0) - (stats?.verified ?? 0), color: "text-yellow-400" },
           { label: "Categories",     value: stats?.byCategory?.length ?? 0, color: "text-purple-400" },
+          { label: "Showing",         value: `${filtered.length} / ${stats?.total || 0}`, color: "text-[#F1C40F]" },
         ].map(s => (
           <div key={s.label} className="bg-[#121721] border border-white/5 rounded-2xl p-5">
             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{s.label}</p>
@@ -472,7 +478,7 @@ export default function IngredientDatabasePage() {
       {/* Filters */}
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+          <Search size={16} className="absolute left-4 text-zinc-500 pointer-events-none" />
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search ingredients..."
             className="amirani-input amirani-input-with-icon" />
@@ -645,6 +651,45 @@ export default function IngredientDatabasePage() {
                       className="amirani-input" placeholder="e.g. Куриная грудка" />
                   </div>
                 )}
+              </div>
+
+              {/* Image Upload */}
+              <div className="md:col-span-2">
+                <label className="amirani-label">Visual Asset (WebP URL)</label>
+                <div className="group relative h-32 bg-white/[0.02] border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center transition-all hover:bg-white/[0.05] hover:border-[#F1C40F]/50 group cursor-pointer overflow-hidden backdrop-blur-sm">
+                  {form.imageUrl ? (
+                    <div className="absolute inset-0">
+                      <NextImage 
+                        src={form.imageUrl} 
+                        alt="Ingredient" 
+                        fill
+                        className="object-cover opacity-40 group-hover:opacity-60 transition-opacity" 
+                        unoptimized
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <button 
+                          type="button"
+                          onClick={() => setForm({ ...form, imageUrl: "" })}
+                          className="p-2 bg-black/60 rounded-full text-white hover:bg-red-500/80 transition-colors"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center text-zinc-500">
+                      <Upload size={20} className="text-[#F1C40F] mb-2" />
+                      <p className="text-[10px] font-bold tracking-widest">ASSET LINK REQUIRED</p>
+                      <input 
+                        type="text"
+                        value={form.imageUrl}
+                        onChange={e => setForm({ ...form, imageUrl: e.target.value })}
+                        placeholder="Paste image URL here..."
+                        className="absolute inset-0 opacity-0 cursor-text"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Category */}

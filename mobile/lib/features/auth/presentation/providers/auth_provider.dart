@@ -118,7 +118,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return result;
   }
 
-  Future<void> loginWithGoogle() async {
+  Future<void> loginWithGoogle(String countryCode) async {
     if (!ServiceAvailability.googleAuth) {
       state = AuthError('Google sign-in is not configured on this server yet.');
       return;
@@ -130,7 +130,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       }
 
       GoogleSignInAccount? googleUser;
-      
+
       try {
         if (kIsWeb) {
           googleUser = await _googleSignIn!.signInSilently();
@@ -145,24 +145,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = AuthUnauthenticated();
         return;
       }
-      
+
       final googleAuth = await googleUser.authentication;
       final idToken = googleAuth.idToken;
-      
+
       if (idToken == null || idToken.isEmpty) {
         state = AuthError('Google sign-in failed: no ID token. Please use a regular account.');
         return;
       }
 
-      final result = await _authRepository.loginWithOAuth('google', idToken);
-      
+      final result = await _authRepository.loginWithOAuth('google', idToken, countryCode: countryCode);
+
       result.fold(
-        (failure) {
-          state = AuthError(failure.message);
-        },
-        (user) {
-          state = AuthAuthenticated(user);
-        },
+        (failure) => state = AuthError(failure.message),
+        (user) => state = AuthAuthenticated(user),
       );
     } catch (e) {
       String errorMessage = 'Google sign-in failed: $e';
@@ -175,7 +171,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> loginWithApple() async {
+  Future<void> loginWithApple(String countryCode) async {
     state = AuthLoading();
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
@@ -189,7 +185,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = AuthError('Apple sign-in failed: no identity token');
         return;
       }
-      final result = await _authRepository.loginWithOAuth('apple', idToken);
+      final result = await _authRepository.loginWithOAuth('apple', idToken, countryCode: countryCode);
       result.fold(
         (failure) => state = AuthError(failure.message),
         (user) => state = AuthAuthenticated(user),

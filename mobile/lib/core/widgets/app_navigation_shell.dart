@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../features/gym/presentation/providers/membership_provider.dart';
 import '../../../features/gym/presentation/providers/sessions_provider.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import '../../design_system/tokens/app_tokens.dart';
 import '../localization/l10n_keys.dart';
 import '../providers/day_selector_providers.dart';
 import 'offline_banner.dart';
@@ -36,7 +36,7 @@ class AppNavigationShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: Stack(
         children: [
           // Push page content above the floating nav bar
@@ -71,7 +71,7 @@ class AppNavigationShell extends ConsumerWidget {
                           left: 24,
                           right: 24),
                       decoration: BoxDecoration(
-                        color: AppTheme.backgroundDark.withValues(alpha: 0.95),
+                        color: AppTokens.colorBgPrimary.withValues(alpha: 0.95),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -116,13 +116,13 @@ class AppNavigationShell extends ConsumerWidget {
                         width: 64,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppTheme.surfaceDark,
+                          color: AppTokens.colorBgSurface,
                           border: Border.all(
-                              color: AppTheme.backgroundDark, width: 4),
+                              color: AppTokens.colorBgPrimary, width: 4),
                           boxShadow: navigationShell.currentIndex == 2
                               ? [
                                   BoxShadow(
-                                      color: AppTheme.primaryBrand
+                                      color: AppTokens.colorBrand
                                           .withValues(alpha: 0.2),
                                       blurRadius: 20,
                                       spreadRadius: 2),
@@ -131,7 +131,7 @@ class AppNavigationShell extends ConsumerWidget {
                         ),
                         child: Icon(Icons.emoji_events,
                             color: navigationShell.currentIndex == 2
-                                ? AppTheme.primaryBrand
+                                ? AppTokens.colorBrand
                                 : const Color(0xFF888888),
                             size: 32),
                       ),
@@ -151,7 +151,7 @@ class AppNavigationShell extends ConsumerWidget {
       required String label,
       required bool isActive,
       required VoidCallback onTap}) {
-    final color = isActive ? AppTheme.primaryBrand : const Color(0xFF888888);
+    final color = isActive ? AppTokens.colorBrand : const Color(0xFF888888);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,

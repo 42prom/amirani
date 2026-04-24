@@ -8,6 +8,7 @@ import { decryptField } from '../../lib/db-crypto';
 import { ProgressService } from '../../modules/mobile-sync/progress.service';
 import { PlatformConfigService } from '../../modules/platform/platform-config.service';
 import { pushNotificationQueue } from '../queue.config';
+import { PlanMemoryService } from '../../modules/plan-memory/plan-memory.service';
 
 const ANTHROPIC_API_VERSION = '2023-06-01';
 
@@ -41,6 +42,14 @@ export interface AiJobPayload {
   mealsPerDay?: number;
   mealTimes?: Record<string, string>;
   maxPrepMinutes?: number;
+  /** Injected by AIModeratorService — JSON summary of a semantically similar past plan. */
+  priorPlanContext?: string;
+  /** Pre-filtered ingredient names approved for this user's country/allergies/season. */
+  filteredIngredients?: string[];
+  /** Pre-filtered exercise names approved for this user's location/level/goal. */
+  filteredExercises?: string[];
+  /** HybridTemplate ID selected by the moderator to narrow AI generation scope. */
+  hybridTemplateId?: string;
 }
 
 const MAX_SETS_PER_DAY = 35;
@@ -234,6 +243,8 @@ async function saveWorkoutPlan(userId: string, aiResult: any, payload: AiJobPayl
   const templateName = aiResult.planMeta?.phase ? `${aiResult.planMeta.phase} — ${aiResult.planMeta.primaryGoal}` : `AI Workout Template`;
   const rawDays = Array.isArray(aiResult.days) ? aiResult.days : Object.values(aiResult.days || {});
 
+  let savedPlanId: string | undefined;
+
   await prisma.$transaction(async (tx) => {
     const masterTemplate = await (tx as any).masterWorkoutTemplate.create({
       data: {
@@ -289,12 +300,21 @@ async function saveWorkoutPlan(userId: string, aiResult: any, payload: AiJobPayl
 
     await tx.workoutPlan.updateMany({ where: { userId, isActive: true, id: { not: plan.id } }, data: { isActive: false } });
     await ProgressService.initializeTodayProgress(userId);
+    savedPlanId = plan.id;
   });
+
+  if (savedPlanId) {
+    const profile = { userId, type: 'WORKOUT' as const, fitnessLevel: payload.fitnessLevel };
+    await PlanMemoryService.storePlan(profile, aiResult);
+    await PlanMemoryService.archivePlanMeta(profile, savedPlanId, aiResult);
+  }
 }
 
 async function saveDietPlan(userId: string, aiResult: any, payload: AiJobPayload, usedFallback: boolean) {
   const meta = aiResult.planMeta || aiResult.plan_meta || aiResult.meta;
   const rawDays = Array.isArray(aiResult.days) ? aiResult.days : Object.values(aiResult.days || {});
+
+  let savedPlanId: string | undefined;
 
   await prisma.$transaction(async (tx) => {
     const masterDiet = await (tx as any).masterDietTemplate.create({
@@ -363,7 +383,20 @@ async function saveDietPlan(userId: string, aiResult: any, payload: AiJobPayload
 
     await tx.dietPlan.updateMany({ where: { userId, isActive: true, id: { not: plan.id } }, data: { isActive: false, status: 'ARCHIVED' } });
     await ProgressService.initializeTodayProgress(userId);
+    savedPlanId = plan.id;
   });
+
+  if (savedPlanId && !usedFallback) {
+    const profile = {
+      userId,
+      type: 'DIET' as const,
+      fitnessLevel: payload.fitnessLevel,
+      dietaryStyle: payload.dietaryStyle,
+      restrictions: payload.restrictions,
+    };
+    await PlanMemoryService.storePlan(profile, aiResult);
+    await PlanMemoryService.archivePlanMeta(profile, savedPlanId, aiResult);
+  }
 }
 
 function collectWorkoutErrors(plan: any, requestedDays: number): string[] {
@@ -432,7 +465,30 @@ function buildUserPrompt(payload: AiJobPayload, type: string) {
     type === 'DIET' && payload.allergies?.length ? `Allergies: ${payload.allergies.join(', ')}` : '',
   ].filter(Boolean).join('\n');
 
-  return `Generate a personalized ${type.toLowerCase()} plan based on this profile:\n${context}\n\nDeliver the response as a valid JSON object.`;
+  const sections: string[] = [
+    `Generate a personalized ${type.toLowerCase()} plan based on this profile:\n${context}`,
+  ];
+
+  if (payload.priorPlanContext) {
+    sections.push(
+      `CONTEXT FROM SIMILAR PAST PLAN (adjust and improve upon this — do not copy verbatim):\n${payload.priorPlanContext}`
+    );
+  }
+
+  if (type === 'DIET' && payload.filteredIngredients?.length) {
+    sections.push(
+      `APPROVED INGREDIENTS FOR THIS USER (prioritize these, but you may supplement with other common ingredients if needed):\n${payload.filteredIngredients.join(', ')}`
+    );
+  }
+
+  if (type === 'WORKOUT' && payload.filteredExercises?.length) {
+    sections.push(
+      `APPROVED EXERCISES FOR THIS USER (prefer these exercises; only add others if essential for balance):\n${payload.filteredExercises.join(', ')}`
+    );
+  }
+
+  sections.push('Deliver the response as a valid JSON object.');
+  return sections.join('\n\n');
 }
 
 function buildFallbackPlan(type: 'WORKOUT' | 'DIET', payload: AiJobPayload): any {

@@ -45,6 +45,7 @@ import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
 import languageRoutes from './modules/gyms/language.controller';
 import gamificationRoutes from './modules/gamification/gamification.controller';
+import contributionRoutes from './modules/contribution/trainer-contribution.controller';
 
 import { initSocket } from './lib/socket';
 import { startAiWorkers } from './jobs/worker';
@@ -198,6 +199,9 @@ app.use('/api/ai', aiRoutes);
 
 // Gamification: profile, level, badges
 app.use('/api/gamification', gamificationRoutes);
+
+// Trainer Contributions & Super Admin Review (food items, exercises, substitutions)
+app.use('/api/contributions', contributionRoutes);
 
 
 

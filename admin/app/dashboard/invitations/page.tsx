@@ -281,14 +281,14 @@ export default function InvitationsPage() {
                     Email Address
                   </label>
                   <div className="relative group">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-[#F1C40F] transition-colors" size={18} />
+                    <Mail className="absolute left-4 text-zinc-500 group-focus-within:text-[#F1C40F] transition-colors" size={18} />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       placeholder="gymowner@example.com"
-                      className="w-full bg-white/[0.03] border border-white/5 rounded-2xl amirani-input-with-icon pr-4 py-4 text-white placeholder-zinc-600 focus:outline-none focus:border-[#F1C40F] focus:bg-white/[0.05] transition-all"
+                      className="amirani-input amirani-input-with-icon"
                     />
                   </div>
                 </div>

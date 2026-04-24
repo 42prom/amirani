@@ -75,9 +75,10 @@ class RoomModel {
 
   String get metricLabel {
     switch (metric) {
-      case 'SESSIONS': return 'Classes Attended';
-      case 'STREAK':   return 'Day Streak';
-      default:         return 'Check-ins';
+      case 'SESSIONS':  return 'Classes Attended';
+      case 'STREAK':    return 'Day Streak';
+      case 'COMPOSITE': return 'All-Around Score';
+      default:          return 'Check-ins';
     }
   }
 
@@ -171,6 +172,71 @@ class MyRoomsData {
             .toList(),
         gymId: j['gymId'] as String?,
       );
+}
+
+class ChallengeProgress {
+  final int currentValue;
+  final bool completed;
+  final DateTime? completedAt;
+
+  const ChallengeProgress({
+    required this.currentValue,
+    required this.completed,
+    this.completedAt,
+  });
+
+  factory ChallengeProgress.fromJson(Map<String, dynamic> j) => ChallengeProgress(
+        currentValue: (j['currentValue'] as num?)?.toInt() ?? 0,
+        completed: j['completed'] as bool? ?? false,
+        completedAt: j['completedAt'] != null ? DateTime.tryParse(j['completedAt'].toString()) : null,
+      );
+}
+
+class RoomChallenge {
+  final String id;
+  final String roomId;
+  final String title;
+  final String? description;
+  final int targetValue;
+  final String unit;
+  final int pointsReward;
+  final bool isActive;
+  final DateTime? endDate;
+  final DateTime createdAt;
+  final ChallengeProgress myProgress;
+
+  const RoomChallenge({
+    required this.id,
+    required this.roomId,
+    required this.title,
+    this.description,
+    required this.targetValue,
+    required this.unit,
+    required this.pointsReward,
+    required this.isActive,
+    this.endDate,
+    required this.createdAt,
+    required this.myProgress,
+  });
+
+  factory RoomChallenge.fromJson(Map<String, dynamic> j) => RoomChallenge(
+        id: j['id']?.toString() ?? '',
+        roomId: j['roomId']?.toString() ?? '',
+        title: j['title']?.toString() ?? '',
+        description: j['description'] as String?,
+        targetValue: (j['targetValue'] as num?)?.toInt() ?? 1,
+        unit: j['unit']?.toString() ?? '',
+        pointsReward: (j['pointsReward'] as num?)?.toInt() ?? 0,
+        isActive: j['isActive'] as bool? ?? true,
+        endDate: j['endDate'] != null ? DateTime.tryParse(j['endDate'].toString()) : null,
+        createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? '') ?? DateTime.now(),
+        myProgress: j['myProgress'] != null
+            ? ChallengeProgress.fromJson(j['myProgress'] as Map<String, dynamic>)
+            : const ChallengeProgress(currentValue: 0, completed: false),
+      );
+
+  double get progressFraction =>
+      targetValue > 0 ? (myProgress.currentValue / targetValue).clamp(0.0, 1.0) : 0.0;
 }
 
 class RoomMessage {

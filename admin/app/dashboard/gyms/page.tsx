@@ -158,7 +158,7 @@ export default function GymsPage() {
         {/* Search */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            <Search className="absolute left-4 text-zinc-500" size={18} />
             <input
               type="text"
               value={searchQuery}
@@ -405,7 +405,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Branch Name</label>
                   <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Building2 className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -420,7 +420,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Contact Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Mail className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       type="email"
                       className="amirani-input amirani-input-with-icon"
@@ -434,7 +434,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Physical Address</label>
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <MapPin className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -449,7 +449,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">City/District</label>
                   <div className="relative">
-                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Globe className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -464,7 +464,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Country</label>
                   <div className="relative">
-                    <Info className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Info className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -479,7 +479,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Contact Phone</label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Phone className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       type="tel"
                       className="amirani-input amirani-input-with-icon"
@@ -608,7 +608,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Branch Name</label>
                   <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Building2 className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -623,7 +623,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Contact Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Mail className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       type="email"
                       className="amirani-input amirani-input-with-icon"
@@ -637,7 +637,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Physical Address</label>
                   <div className="relative">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <MapPin className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -652,7 +652,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">City/District</label>
                   <div className="relative">
-                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Globe className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -667,7 +667,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Country</label>
                   <div className="relative">
-                    <Info className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Info className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       required
                       type="text"
@@ -682,7 +682,7 @@ export default function GymsPage() {
                 <div className="space-y-2">
                   <label className="amirani-label">Contact Phone</label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+                    <Phone className="absolute left-4 text-zinc-500" size={18} />
                     <input
                       type="tel"
                       className="amirani-input amirani-input-with-icon"

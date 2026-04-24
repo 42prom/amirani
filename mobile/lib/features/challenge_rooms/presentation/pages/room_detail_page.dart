@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../data/models/room_model.dart';
 import '../providers/room_provider.dart';
 import '../providers/room_chat_provider.dart';
-import 'package:amirani_app/core/widgets/premium_state_card.dart';
 import 'package:intl/intl.dart';
+import 'package:amirani_app/core/widgets/premium_state_card.dart';
 
 class RoomDetailPage extends ConsumerStatefulWidget {
   final String roomId;
@@ -29,11 +29,11 @@ class _RoomDetailPageState extends ConsumerState<RoomDetailPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(roomDetailProvider(widget.roomId));
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
-        backgroundColor: AppTheme.backgroundDark,
+        backgroundColor: AppTokens.colorBgPrimary,
         body: state.when(
-          loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand)),
+          loading: () => const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand)),
           error: (e, _) => _ErrorBody(
             message: e.toString().replaceAll('Exception: ', ''),
             onRetry: () => ref.read(roomDetailProvider(widget.roomId).notifier).load(),
@@ -58,7 +58,7 @@ class _DetailBody extends ConsumerWidget {
     return NestedScrollView(
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverAppBar(
-          backgroundColor: AppTheme.backgroundDark,
+          backgroundColor: AppTokens.colorBgPrimary,
           surfaceTintColor: Colors.transparent,
           pinned: true,
           floating: true,
@@ -80,7 +80,7 @@ class _DetailBody extends ConsumerWidget {
             if (detail.isCreator)
               PopupMenuButton<_RoomAction>(
                 icon: const Icon(Icons.more_vert, color: Colors.white),
-                color: AppTheme.surfaceDark,
+                color: AppTokens.colorBgSurface,
                 onSelected: (action) => _handleAction(context, ref, action),
                 itemBuilder: (_) => [
                   if (!room.isPublic)
@@ -108,7 +108,7 @@ class _DetailBody extends ConsumerWidget {
             child: Container(
               margin: const EdgeInsets.fromLTRB(20, 0, 20, 12),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
+                color: AppTokens.colorBgSurface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
@@ -116,7 +116,7 @@ class _DetailBody extends ConsumerWidget {
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerColor: Colors.transparent,
                 indicator: BoxDecoration(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 labelColor: Colors.black,
@@ -124,7 +124,8 @@ class _DetailBody extends ConsumerWidget {
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 tabs: const [
                   Tab(text: 'Leaderboard'),
-                  Tab(text: 'Room Chat'),
+                  Tab(text: 'Challenges'),
+                  Tab(text: 'Chat'),
                 ],
               ),
             ),
@@ -134,6 +135,7 @@ class _DetailBody extends ConsumerWidget {
       body: TabBarView(
         children: [
           _LeaderboardView(detail: detail, roomId: roomId),
+          _ChallengesView(roomId: roomId, isMember: detail.isMember),
           _ChatView(roomId: roomId),
         ],
       ),
@@ -158,7 +160,7 @@ class _DetailBody extends ConsumerWidget {
       builder: (_) => Container(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
         decoration: const BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -170,7 +172,7 @@ class _DetailBody extends ConsumerWidget {
                   color: Colors.white24, borderRadius: BorderRadius.circular(2)),
             ),
             const SizedBox(height: 24),
-            const Icon(Icons.vpn_key_outlined, color: AppTheme.primaryBrand, size: 32),
+            const Icon(Icons.vpn_key_outlined, color: AppTokens.colorBrand, size: 32),
             const SizedBox(height: 12),
             const Text('Invite Code',
                 style: TextStyle(
@@ -184,15 +186,15 @@ class _DetailBody extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.08),
+                color: AppTokens.colorBrand.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.3), width: 1.5),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.3), width: 1.5),
               ),
               child: Text(
                 code,
                 style: const TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 32,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 10,
@@ -209,7 +211,7 @@ class _DetailBody extends ConsumerWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Invite code copied!'),
-                        backgroundColor: AppTheme.surfaceDark,
+                        backgroundColor: AppTokens.colorBgSurface,
                         duration: Duration(seconds: 2)),
                   );
                 },
@@ -217,7 +219,7 @@ class _DetailBody extends ConsumerWidget {
                 label: const Text('Copy Code',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -235,7 +237,7 @@ class _DetailBody extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Delete Room?', style: TextStyle(color: Colors.white)),
         content: Text(
@@ -288,8 +290,8 @@ class _LeaderboardView extends ConsumerWidget {
     final rest = detail.leaderboard.skip(3).toList();
 
     return RefreshIndicator(
-      color: AppTheme.primaryBrand,
-      backgroundColor: AppTheme.surfaceDark,
+      color: AppTokens.colorBrand,
+      backgroundColor: AppTokens.colorBgSurface,
       onRefresh: () => ref.read(roomDetailProvider(roomId).notifier).refresh(),
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -403,7 +405,7 @@ class _LeaderboardView extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Remove Member?', style: TextStyle(color: Colors.white)),
         content: Text(
@@ -443,7 +445,7 @@ class _LeaderboardView extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Your Display Name', style: TextStyle(color: Colors.white)),
         content: TextField(
@@ -454,7 +456,7 @@ class _LeaderboardView extends ConsumerWidget {
             hintText: 'Enter nickname',
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
             filled: true,
-            fillColor: AppTheme.backgroundDark,
+            fillColor: AppTokens.colorBgPrimary,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
@@ -465,7 +467,7 @@ class _LeaderboardView extends ConsumerWidget {
             ),
             focusedBorder: const OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(color: AppTheme.primaryBrand),
+              borderSide: BorderSide(color: AppTokens.colorBrand),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           ),
@@ -494,7 +496,7 @@ class _LeaderboardView extends ConsumerWidget {
               }
             },
             child: const Text('Save',
-                style: TextStyle(color: AppTheme.primaryBrand, fontWeight: FontWeight.bold)),
+                style: TextStyle(color: AppTokens.colorBrand, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -503,9 +505,10 @@ class _LeaderboardView extends ConsumerWidget {
 
   Color _metricColor(String metric) {
     switch (metric) {
-      case 'SESSIONS': return Colors.blueAccent;
-      case 'STREAK':   return Colors.orangeAccent;
-      default:         return AppTheme.primaryBrand;
+      case 'SESSIONS':  return Colors.blueAccent;
+      case 'STREAK':    return Colors.orangeAccent;
+      case 'COMPOSITE': return Colors.purpleAccent;
+      default:          return AppTokens.colorBrand;
     }
   }
 }
@@ -529,7 +532,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
       children: [
         Expanded(
           child: chatState.isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand))
+              ? const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand))
               : chatState.messages.isEmpty
                   ? _buildEmptyChat()
                   : ListView.builder(
@@ -567,7 +570,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
       ),
       child: Row(
@@ -576,7 +579,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
+                color: AppTokens.colorBgSurface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
@@ -599,7 +602,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
               height: 44,
               width: 44,
               decoration: const BoxDecoration(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.send, color: Colors.black, size: 18),
@@ -634,13 +637,13 @@ class _ChatMessageBubble extends StatelessWidget {
             width: 32, height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryBrand.withValues(alpha: 0.1),
-              border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+              color: AppTokens.colorBrand.withValues(alpha: 0.1),
+              border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
             ),
             child: Center(
               child: Text(
                 message.user.fullName.isNotEmpty ? message.user.fullName[0].toUpperCase() : '?',
-                style: const TextStyle(color: AppTheme.primaryBrand, fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: AppTokens.colorBrand, fontSize: 12, fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -666,7 +669,7 @@ class _ChatMessageBubble extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: AppTokens.colorBgSurface,
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(16),
                       bottomLeft: Radius.circular(16),
@@ -715,7 +718,7 @@ class _Podium extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 16, 8, 0),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -828,13 +831,13 @@ class _PodiumColumn extends StatelessWidget {
                 width: avatarSize, height: avatarSize,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isMe ? AppTheme.primaryBrand.withValues(alpha: 0.2) : rankColor.withValues(alpha: 0.12),
-                  border: Border.all(color: isMe ? AppTheme.primaryBrand : rankColor.withValues(alpha: 0.5), width: isMe ? 2.5 : 2),
+                  color: isMe ? AppTokens.colorBrand.withValues(alpha: 0.2) : rankColor.withValues(alpha: 0.12),
+                  border: Border.all(color: isMe ? AppTokens.colorBrand : rankColor.withValues(alpha: 0.5), width: isMe ? 2.5 : 2),
                 ),
                 child: Center(
                   child: Text(
                     entry!.fullName.isNotEmpty ? entry!.fullName[0].toUpperCase() : '?',
-                    style: TextStyle(color: isMe ? AppTheme.primaryBrand : rankColor, fontWeight: FontWeight.bold, fontSize: avatarSize * 0.35),
+                    style: TextStyle(color: isMe ? AppTokens.colorBrand : rankColor, fontWeight: FontWeight.bold, fontSize: avatarSize * 0.35),
                   ),
                 ),
               ),
@@ -843,7 +846,7 @@ class _PodiumColumn extends StatelessWidget {
                   right: -2, bottom: -2,
                   child: Container(
                     width: 20, height: 20,
-                    decoration: BoxDecoration(color: AppTheme.primaryBrand, shape: BoxShape.circle, border: Border.all(color: AppTheme.backgroundDark, width: 1.5)),
+                    decoration: BoxDecoration(color: AppTokens.colorBrand, shape: BoxShape.circle, border: Border.all(color: AppTokens.colorBgPrimary, width: 1.5)),
                     child: const Icon(Icons.edit, color: Colors.black, size: 11),
                   ),
                 ),
@@ -854,7 +857,7 @@ class _PodiumColumn extends StatelessWidget {
                     onTap: onKick,
                     child: Container(
                       width: 22, height: 22,
-                      decoration: BoxDecoration(color: const Color(0xFFD32F2F), shape: BoxShape.circle, border: Border.all(color: AppTheme.backgroundDark, width: 2)),
+                      decoration: BoxDecoration(color: const Color(0xFFD32F2F), shape: BoxShape.circle, border: Border.all(color: AppTokens.colorBgPrimary, width: 2)),
                       child: const Icon(Icons.close, color: Colors.white, size: 12),
                     ),
                   ),
@@ -862,7 +865,7 @@ class _PodiumColumn extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(isMe ? 'You' : entry!.fullName.split(' ').first, style: TextStyle(color: isMe ? AppTheme.primaryBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: rank == 1 ? 13 : 12), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
+          Text(isMe ? 'You' : entry!.fullName.split(' ').first, style: TextStyle(color: isMe ? AppTokens.colorBrand : Colors.white, fontWeight: FontWeight.bold, fontSize: rank == 1 ? 13 : 12), maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
           const SizedBox(height: 4),
           Text('${entry!.score}', style: TextStyle(color: rankColor, fontWeight: FontWeight.w900, fontSize: rank == 1 ? 18 : 15)),
           const SizedBox(height: 4),
@@ -915,9 +918,9 @@ class _LeaderboardRow extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: entry.isMe ? AppTheme.primaryBrand.withValues(alpha: 0.07) : AppTheme.surfaceDark,
+          color: entry.isMe ? AppTokens.colorBrand.withValues(alpha: 0.07) : AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: entry.isMe ? AppTheme.primaryBrand.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: entry.isMe ? AppTokens.colorBrand.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.05)),
         ),
         child: Row(
           children: [
@@ -925,16 +928,16 @@ class _LeaderboardRow extends StatelessWidget {
             const SizedBox(width: 8),
             Container(
               width: 36, height: 36,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: entry.isMe ? AppTheme.primaryBrand.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.06)),
-              child: Center(child: Text(entry.fullName.isNotEmpty ? entry.fullName[0].toUpperCase() : '?', style: TextStyle(color: entry.isMe ? AppTheme.primaryBrand : Colors.white54, fontWeight: FontWeight.bold, fontSize: 14))),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: entry.isMe ? AppTokens.colorBrand.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.06)),
+              child: Center(child: Text(entry.fullName.isNotEmpty ? entry.fullName[0].toUpperCase() : '?', style: TextStyle(color: entry.isMe ? AppTokens.colorBrand : Colors.white54, fontWeight: FontWeight.bold, fontSize: 14))),
             ),
             const SizedBox(width: 12),
             Expanded(child: Row(children: [
-              Flexible(child: Text(entry.fullName, style: TextStyle(color: entry.isMe ? AppTheme.primaryBrand : Colors.white, fontWeight: FontWeight.w600, fontSize: 14), overflow: TextOverflow.ellipsis)),
+              Flexible(child: Text(entry.fullName, style: TextStyle(color: entry.isMe ? AppTokens.colorBrand : Colors.white, fontWeight: FontWeight.w600, fontSize: 14), overflow: TextOverflow.ellipsis)),
               if (entry.isMe) ...[
                 const SizedBox(width: 6),
-                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1), decoration: BoxDecoration(color: AppTheme.primaryBrand.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)), child: const Text('You', style: TextStyle(color: AppTheme.primaryBrand, fontSize: 9, fontWeight: FontWeight.bold))),
-                if (onRename != null) ...[const SizedBox(width: 5), Icon(Icons.edit, size: 12, color: AppTheme.primaryBrand.withValues(alpha: 0.5))],
+                Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1), decoration: BoxDecoration(color: AppTokens.colorBrand.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)), child: const Text('You', style: TextStyle(color: AppTokens.colorBrand, fontSize: 9, fontWeight: FontWeight.bold))),
+                if (onRename != null) ...[const SizedBox(width: 5), Icon(Icons.edit, size: 12, color: AppTokens.colorBrand.withValues(alpha: 0.5))],
               ],
             ])),
             Text('${entry.score}', style: TextStyle(color: metricColor, fontSize: 16, fontWeight: FontWeight.bold)),
@@ -964,7 +967,7 @@ class _ManageMembersSectionState extends ConsumerState<_ManageMembersSection> {
   Widget build(BuildContext context) {
     final others = widget.entries.where((e) => !e.isMe).toList();
     return Container(
-      decoration: BoxDecoration(color: AppTheme.surfaceDark, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.06))),
+      decoration: BoxDecoration(color: AppTokens.colorBgSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: 0.06))),
       child: Column(children: [
         GestureDetector(
           onTap: () => setState(() => _expanded = !_expanded),
@@ -1037,7 +1040,12 @@ class _StatsRow extends StatelessWidget {
     ]);
   }
   IconData _metricIcon(String metric) {
-    switch (metric) { case 'SESSIONS': return Icons.fitness_center; case 'STREAK': return Icons.local_fire_department; default: return Icons.bolt; }
+    switch (metric) {
+      case 'SESSIONS':  return Icons.fitness_center;
+      case 'STREAK':    return Icons.local_fire_department;
+      case 'COMPOSITE': return Icons.workspace_premium;
+      default:          return Icons.bolt;
+    }
   }
 }
 
@@ -1067,12 +1075,325 @@ class _BottomCTAState extends ConsumerState<_BottomCTA> {
   Widget build(BuildContext context) {
     if (widget.detail.isCreator) return const SizedBox.shrink();
     if (!widget.detail.isMember) {
-      return SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: _loading ? null : _join, icon: const Icon(Icons.emoji_events, size: 18), label: _loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Text('Join Room', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryBrand, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))));
+      return SizedBox(width: double.infinity, child: ElevatedButton.icon(onPressed: _loading ? null : _join, icon: const Icon(Icons.emoji_events, size: 18), label: _loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Text('Join Room', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), style: ElevatedButton.styleFrom(backgroundColor: AppTokens.colorBrand, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)))));
     }
     return SizedBox(width: double.infinity, child: OutlinedButton.icon(onPressed: _loading ? null : _leave, icon: const Icon(Icons.exit_to_app, size: 18), label: _loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54)) : const Text('Leave Room', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), style: OutlinedButton.styleFrom(foregroundColor: Colors.white54, side: BorderSide(color: Colors.white.withValues(alpha: 0.15)), padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)))));
   }
   Future<void> _join() async { setState(() => _loading = true); try { await ref.read(myRoomsProvider.notifier).joinRoom(widget.roomId); await ref.read(roomDetailProvider(widget.roomId).notifier).refresh(); } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red.withValues(alpha: 0.8))); } if (mounted) setState(() => _loading = false); }
   Future<void> _leave() async { setState(() => _loading = true); try { await ref.read(myRoomsProvider.notifier).leaveRoom(widget.roomId); if (mounted) Navigator.of(context).pop(); } catch (e) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString().replaceAll('Exception: ', '')), backgroundColor: Colors.red.withValues(alpha: 0.8))); } if (mounted) setState(() => _loading = false); }
+}
+
+// ── Challenges view ──────────────────────────────────────────────────────────
+
+class _ChallengesView extends ConsumerStatefulWidget {
+  final String roomId;
+  final bool isMember;
+  const _ChallengesView({required this.roomId, required this.isMember});
+
+  @override
+  ConsumerState<_ChallengesView> createState() => _ChallengesViewState();
+}
+
+class _ChallengesViewState extends ConsumerState<_ChallengesView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(roomChallengesProvider(widget.roomId).notifier).load();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(roomChallengesProvider(widget.roomId));
+    return state.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand)),
+      error: (e, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline, color: Colors.red.withValues(alpha: 0.6), size: 48),
+              const SizedBox(height: 16),
+              Text(e.toString().replaceAll('Exception: ', ''),
+                  style: const TextStyle(color: Colors.white54, fontSize: 14),
+                  textAlign: TextAlign.center),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () => ref.read(roomChallengesProvider(widget.roomId).notifier).load(),
+                child: const Text('Retry', style: TextStyle(color: AppTokens.colorBrand)),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (challenges) => RefreshIndicator(
+        color: AppTokens.colorBrand,
+        backgroundColor: AppTokens.colorBgSurface,
+        onRefresh: () => ref.read(roomChallengesProvider(widget.roomId).notifier).load(),
+        child: challenges.isEmpty
+            ? _buildEmpty()
+            : ListView.builder(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+                itemCount: challenges.length,
+                itemBuilder: (_, i) => _ChallengeCard(
+                  challenge: challenges[i],
+                  isMember: widget.isMember,
+                  onLog: () => _logProgress(challenges[i].id),
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildEmpty() {
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverFillRemaining(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.emoji_events_outlined,
+                    color: Colors.white.withValues(alpha: 0.1), size: 64),
+                const SizedBox(height: 16),
+                Text('No challenges yet',
+                    style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Text('The room creator can add challenges\nfor members to complete.',
+                    style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
+                    textAlign: TextAlign.center),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _logProgress(String challengeId) async {
+    try {
+      await ref.read(roomChallengesProvider(widget.roomId).notifier).logProgress(challengeId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Progress logged!'),
+            backgroundColor: AppTokens.colorBgSurface,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
+            backgroundColor: Colors.red.withValues(alpha: 0.8),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
+  }
+}
+
+class _ChallengeCard extends StatefulWidget {
+  final RoomChallenge challenge;
+  final bool isMember;
+  final VoidCallback onLog;
+  const _ChallengeCard({required this.challenge, required this.isMember, required this.onLog});
+
+  @override
+  State<_ChallengeCard> createState() => _ChallengeCardState();
+}
+
+class _ChallengeCardState extends State<_ChallengeCard> {
+  bool _logging = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.challenge;
+    final progress = c.progressFraction;
+    final completed = c.myProgress.completed;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: completed
+            ? AppTokens.colorBrand.withValues(alpha: 0.06)
+            : AppTokens.colorBgSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: completed
+              ? AppTokens.colorBrand.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.06),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 38, height: 38,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: completed
+                      ? AppTokens.colorBrand.withValues(alpha: 0.15)
+                      : Colors.white.withValues(alpha: 0.06),
+                ),
+                child: Icon(
+                  completed ? Icons.check_circle : Icons.flag_outlined,
+                  color: completed ? AppTokens.colorBrand : Colors.white38,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(c.title,
+                        style: TextStyle(
+                            color: completed ? AppTokens.colorBrand : Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14)),
+                    if (c.description != null && c.description!.isNotEmpty)
+                      Text(c.description!,
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.4),
+                              fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTokens.colorBrand.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star, color: AppTokens.colorBrand, size: 12),
+                    const SizedBox(width: 3),
+                    Text('${c.pointsReward}',
+                        style: const TextStyle(
+                            color: AppTokens.colorBrand,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${c.myProgress.currentValue} / ${c.targetValue} ${c.unit}',
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 11),
+                        ),
+                        Text(
+                          '${(progress * 100).toStringAsFixed(0)}%',
+                          style: TextStyle(
+                              color: completed
+                                  ? AppTokens.colorBrand
+                                  : Colors.white.withValues(alpha: 0.4),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 6,
+                        backgroundColor: Colors.white.withValues(alpha: 0.08),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          completed ? AppTokens.colorBrand : Colors.white38,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.isMember && !completed) ...[
+                const SizedBox(width: 14),
+                GestureDetector(
+                  onTap: _logging ? null : () async {
+                    setState(() => _logging = true);
+                    await Future.microtask(widget.onLog);
+                    if (mounted) setState(() => _logging = false);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _logging
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : AppTokens.colorBrand.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                          color: AppTokens.colorBrand.withValues(alpha: _logging ? 0.1 : 0.4)),
+                    ),
+                    child: _logging
+                        ? const SizedBox(
+                            width: 14, height: 14,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: AppTokens.colorBrand))
+                        : const Text('+1',
+                            style: TextStyle(
+                                color: AppTokens.colorBrand,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (c.endDate != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.timer_outlined,
+                    color: Colors.white.withValues(alpha: 0.25), size: 12),
+                const SizedBox(width: 4),
+                Text(
+                  'Ends ${DateFormat('MMM d').format(c.endDate!)}',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.25), fontSize: 11),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }
 
 class _ErrorBody extends StatelessWidget {

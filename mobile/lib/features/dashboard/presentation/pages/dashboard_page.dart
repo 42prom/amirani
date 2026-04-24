@@ -7,7 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import '../providers/dashboard_provider.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -53,14 +53,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final bool isBranchManager = role == 'branch_manager';
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(profileSync),
             Expanded(
               child: RefreshIndicator(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 onRefresh: () async {
                   ref.read(dashboardNotifierProvider.notifier).fetchDashboardMetrics();
                   ref.read(recoveryProvider.notifier).fetchToday();
@@ -106,8 +106,8 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     width: 12,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primaryBrand,
-                      border: Border.all(color: AppTheme.backgroundDark, width: 2),
+                      color: AppTokens.colorBrand,
+                      border: Border.all(color: AppTokens.colorBgPrimary, width: 2),
                     ),
                   ),
                 ),
@@ -140,7 +140,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             width: 40,
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+                color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
                 border:
                     Border.all(color: Colors.white.withValues(alpha: 0.05))),
             child:
@@ -156,7 +156,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       return const Center(
           child: Padding(
         padding: EdgeInsets.only(top: 100),
-        child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+        child: CircularProgressIndicator(color: AppTokens.colorBrand),
       ));
     }
 
@@ -185,7 +185,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       fontWeight: FontWeight.bold)),
               Text("${sessionProgress.totalTasks - sessionProgress.completedTasks} Remaining",
                   style: TextStyle(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.8),
                       fontSize: 12,
                       fontWeight: FontWeight.bold)),
             ],
@@ -212,13 +212,13 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.25), width: 1),
+            color: AppTokens.colorBrand.withValues(alpha: 0.25), width: 1),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.06),
+            color: AppTokens.colorBrand.withValues(alpha: 0.06),
             blurRadius: 24,
           ),
         ],
@@ -233,12 +233,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 width: 36,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.35)),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.35)),
                 ),
                 child: const Icon(Icons.qr_code_2,
-                    color: AppTheme.primaryBrand, size: 20),
+                    color: AppTokens.colorBrand, size: 20),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -266,7 +266,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               height: 200,
               child: Center(
                 child: CircularProgressIndicator(
-                    color: AppTheme.primaryBrand, strokeWidth: 2),
+                    color: AppTokens.colorBrand, strokeWidth: 2),
               ),
             ),
             error: (_, __) => Padding(
@@ -290,7 +290,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       color: const Color(0xFF1A2035),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppTheme.primaryBrand.withValues(alpha: 0.2)),
+                          color: AppTokens.colorBrand.withValues(alpha: 0.2)),
                     ),
                     child: QrImageView(
                       data: token,
@@ -298,7 +298,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       size: 180,
                       eyeStyle: const QrEyeStyle(
                         eyeShape: QrEyeShape.square,
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                       ),
                       dataModuleStyle: const QrDataModuleStyle(
                         dataModuleShape: QrDataModuleShape.square,
@@ -326,7 +326,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     label: const Text('Download QR Code',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBrand,
+                      backgroundColor: AppTokens.colorBrand,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -374,7 +374,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     style: TextStyle(color: Colors.white)),
               ],
             ),
-            backgroundColor: AppTheme.surfaceDark,
+            backgroundColor: AppTokens.colorBgSurface,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
@@ -399,14 +399,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+            color: AppTokens.colorBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(24),
             border:
-                Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
           ),
           child: const Column(
             children: [
-              Icon(Icons.sync_problem, color: AppTheme.primaryBrand, size: 32),
+              Icon(Icons.sync_problem, color: AppTokens.colorBrand, size: 32),
               SizedBox(height: 12),
               Text('Sync Engine Paused',
                   style: TextStyle(
@@ -456,11 +456,11 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color:
-                        isActive ? AppTheme.primaryBrand : Colors.transparent,
+                        isActive ? AppTokens.colorBrand : Colors.transparent,
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                                color: AppTheme.primaryBrand
+                                color: AppTokens.colorBrand
                                     .withValues(alpha: 0.8),
                                 blurRadius: 10)
                           ]
@@ -484,7 +484,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
@@ -532,7 +532,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     builder: (_, value, __) => CircularProgressIndicator(
                         value: value,
                         strokeWidth: 8,
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         strokeCap: StrokeCap.round),
                   ),
                   Center(
@@ -596,7 +596,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
@@ -689,7 +689,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: meal.isCompleted 
@@ -755,7 +755,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     if (!meal.isCompleted)
                       Text(timeSuffix,
                         style: TextStyle(
-                          color: AppTheme.primaryBrand.withValues(alpha: 0.7),
+                          color: AppTokens.colorBrand.withValues(alpha: 0.7),
                           fontSize: 10,
                           fontWeight: FontWeight.w900,
                         )),
@@ -835,7 +835,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
           color: isDone 
@@ -942,12 +942,12 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: hasEntry
                 ? const Color(0xFF2ECC71).withValues(alpha: 0.3)
-                : AppTheme.primaryBrand.withValues(alpha: 0.2),
+                : AppTokens.colorBrand.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -958,7 +958,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               decoration: BoxDecoration(
                 color: hasEntry
                     ? const Color(0xFF2ECC71).withValues(alpha: 0.15)
-                    : AppTheme.primaryBrand.withValues(alpha: 0.1),
+                    : AppTokens.colorBrand.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -967,7 +967,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                     : Icons.self_improvement_rounded,
                 color: hasEntry
                     ? const Color(0xFF2ECC71)
-                    : AppTheme.primaryBrand,
+                    : AppTokens.colorBrand,
                 size: 22,
               ),
             ),
@@ -1001,14 +1001,14 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.3)),
                 ),
                 child: const Text('Log',
                     style: TextStyle(
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         fontSize: 11,
                         fontWeight: FontWeight.bold)),
               ),

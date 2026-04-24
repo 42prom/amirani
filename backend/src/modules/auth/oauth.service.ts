@@ -63,7 +63,13 @@ export class OAuthService {
     };
   }
 
-  static async authenticate(provider: string, idToken: string): Promise<AuthResult> {
+  /**
+   * @param provider    - "google" | "apple"
+   * @param idToken     - OAuth ID token from client
+   * @param countryCode - ISO 3166-1 alpha-2 code selected by user on auth screen (e.g. "GE").
+   *                      Saved to user.country on first registration; ignored on subsequent logins.
+   */
+  static async authenticate(provider: string, idToken: string, countryCode?: string): Promise<AuthResult> {
     let email: string;
     let fullName: string;
     let avatarUrl: string | undefined;
@@ -92,6 +98,8 @@ export class OAuthService {
             role: Role.GYM_MEMBER,
             isVerified: true,
             avatarUrl: avatarUrl ?? null,
+            // Save country on first registration; validated as ISO 3166-1 alpha-2
+            country: countryCode ? countryCode.toUpperCase().slice(0, 2) : null,
           },
         });
         logger.info('[OAuth] New user created', { userId: user.id });

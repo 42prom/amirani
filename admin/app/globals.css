@@ -71,31 +71,41 @@ body {
   font-size: 0.875rem;
   font-weight: 600;
   outline: none;
+  line-height: 48px; /* Force vertical centering in fixed height */
 }
 
 /* Ensure centering for button and div variants */
 button.amirani-input, div.amirani-input {
   display: flex;
   align-items: center;
+  line-height: 1;
 }
 
 .amirani-input-with-icon {
-  padding-left: 3rem !important;
+  padding-left: 3.25rem !important;
 }
+
 /* Center icon in input with icon */
-.relative:has(> .amirani-input-with-icon) > svg {
+.relative:has(> .amirani-input-with-icon) > svg:first-of-type {
   position: absolute;
   left: 1.25rem;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  margin-top: auto;
+  margin-bottom: auto;
   color: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 }
 
 .amirani-input::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.amirani-input:focus {
+.amirani-input:focus, .relative:focus-within > .amirani-input {
   border-color: rgba(241, 196, 15, 0.8);
   box-shadow: 0 0 0 2px rgba(241, 196, 15, 0.1);
 }

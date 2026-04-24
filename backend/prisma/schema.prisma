@@ -54,6 +54,7 @@ model User {
   totalPoints              Int                        @default(0)
   streakDays               Int                        @default(0)
   lastActivityAt           DateTime?                  @db.Date
+  country                  String?                    // ISO 3166-1 alpha-2 e.g. "GE", "US"
   activeGymId              String?
   activeGym                Gym?                       @relation("ActiveGym", fields: [activeGymId], references: [id])
   attendances              Attendance[]
@@ -94,6 +95,9 @@ model User {
   mealLogs                 MealLog[]
   badges                   UserBadge[]
   challengeProgress        ChallengeProgress[]
+  rewardRedemptions        RewardRedemption[]
+  createdFoodItems         FoodItem[]                 @relation("FoodItemCreator")
+  createdExercises         ExerciseLibrary[]          @relation("ExerciseCreator")
 
 
   @@map("users")
@@ -1029,6 +1033,14 @@ model UserChallenge {
   @@map("user_challenges")
 }
 
+// ── Trainer Contribution Review Lifecycle ──────────────────────────────────────
+enum ItemStatus {
+  PENDING       // created by trainer, awaiting super admin review
+  UNDER_REVIEW  // super admin has opened it for review
+  APPROVED      // live in filters and AI plans
+  REJECTED      // not used; rejection reason stored in audit
+}
+
 enum DepositStatus {
   PENDING
   APPROVED
@@ -1680,10 +1692,19 @@ model ExerciseLibrary {
   mechanics        ExerciseMechanics @default(COMPOUND)
   force            ExerciseForce     @default(PUSH)
   videoUrl         String?
+  imageUrl         String?
   cues             String[]
   commonMistakes   String[]
   metValue         Float             @default(3.0)
   isActive         Boolean           @default(true)
+  // ── Trainer Contribution & Review System ──────────────────────────────
+  status           ItemStatus        @default(PENDING)
+  // ── Exercise Filtering System ─────────────────────────────────────────
+  location         String[]          @default([])  // e.g. ["HOME", "GYM", "OUTDOOR"]
+  fitnessGoals     String[]          @default([])  // maps to FitnessGoal enum values
+  // ── Relations ─────────────────────────────────────────────────────────
+  createdById      String?
+  createdByUser    User?             @relation("ExerciseCreator", fields: [createdById], references: [id], onDelete: SetNull)
   createdAt        DateTime          @default(now())
 
   exerciseSets      ExerciseSet[]
@@ -1692,38 +1713,55 @@ model ExerciseLibrary {
 
   @@index([primaryMuscle])
   @@index([mechanics])
+  @@index([status])
   @@map("exercise_library")
 }
 
 // ─── Food Database ────────────────────────────────────────────────────────────
 
 model FoodItem {
-  id           String        @id @default(uuid())
-  name         String
-  nameKa       String?
-  nameRu       String?
-  brand        String?
-  barcode      String?       @unique
-  calories     Float // per 100g
-  protein      Float
-  carbs        Float
-  fats         Float
-  fiber        Float?
-  sugar        Float?
-  sodium       Float?
-  foodCategory FoodCategory?
-  source       FoodSource    @default(USER)
-  isVerified   Boolean       @default(false)
-  createdBy    String? // trainerUserId when source = TRAINER
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                String        @id @default(uuid())
+  name              String
+  nameKa            String?
+  nameRu            String?
+  brand             String?
+  barcode           String?       @unique
+  calories          Float         // per 100g
+  protein           Float
+  carbs             Float
+  fats              Float
+  fiber             Float?
+  sugar             Float?
+  sodium            Float?
+  foodCategory      FoodCategory?
+  source            FoodSource    @default(USER)
+  isVerified        Boolean       @default(false)
+  // ── Trainer Contribution & Review System ──────────────────────────────
+  status            ItemStatus    @default(PENDING)
+  imageUrl          String?
+  iconUrl           String?
+  // ── Smart Ingredient Filtering ────────────────────────────────────────
+  countryCodes      String[]      @default([])    // e.g. ["GE", "US"] — empty = global
+  seasonality       String[]      @default([])    // e.g. ["winter", "summer"]
+  availabilityScore Int           @default(50)    // 0-100; higher = more available
+  allergyTags       String[]      @default([])    // e.g. ["gluten", "nuts", "dairy"]
+  substitutionGroup String?                       // groups substitutable items e.g. "protein_dairy"
+  // ── Relations ─────────────────────────────────────────────────────────
+  createdById       String?
+  createdByUser     User?         @relation("FoodItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  foodLogs FoodLog[]
+  foodLogs                  FoodLog[]
+  substitutionsAsOriginal   SubstitutionMap[] @relation("OriginalFoodSubs")
+  substitutionsAsSubstitute SubstitutionMap[] @relation("SubstituteFoodSubs")
 
   @@index([name])
   @@index([barcode])
   @@index([source, isVerified])
-  @@index([createdBy])
+  @@index([status])
+  @@index([availabilityScore])
+  @@index([substitutionGroup])
   @@map("food_items")
 }
 
@@ -1768,6 +1806,52 @@ model MealLog {
   @@unique([userId, refId, date])
   @@index([userId, date])
   @@map("meal_logs")
+}
+
+// ─── Smart Substitution Map ───────────────────────────────────────────────────
+// Predefined alternatives with cultural + nutritional relevance scores.
+// SubstitutionEngine uses this to swap unavailable ingredients.
+
+model SubstitutionMap {
+  id               String   @id @default(cuid())
+  foodItemId       String                          // the original ingredient
+  substituteId     String                          // the replacement
+  culturalScore    Int      @default(50)           // 0-100: how culturally relevant
+  nutritionalScore Int      @default(50)           // 0-100: how macro-similar
+  countryCodes     String[] @default([])           // empty = universal substitution
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+
+  foodItem   FoodItem @relation("OriginalFoodSubs", fields: [foodItemId], references: [id], onDelete: Cascade)
+  substitute FoodItem @relation("SubstituteFoodSubs", fields: [substituteId], references: [id], onDelete: Cascade)
+
+  @@unique([foodItemId, substituteId])
+  @@index([foodItemId])
+  @@map("substitution_maps")
+}
+
+// ─── Hybrid Template (Predefined + AI personalisation) ────────────────────────
+// Links a diet template + workout template into one profile-aware bundle.
+// TemplateService selects the closest match before invoking AI personalisation.
+
+model HybridTemplate {
+  id                String     @id @default(cuid())
+  name              String
+  description       String?
+  countryCodes      String[]   @default([])         // empty = global
+  dietTypes         String[]   @default([])         // e.g. ["KETO", "MEDITERRANEAN"]
+  fitnessGoals      String[]   @default([])         // maps to FitnessGoal enum
+  fitnessLevels     String[]   @default([])         // maps to FitnessLevel enum
+  status            ItemStatus @default(APPROVED)
+  dietTemplateId    String?                         // references MasterDietTemplate.id
+  workoutTemplateId String?                         // references MasterWorkoutTemplate.id
+  isAIGenerated     Boolean    @default(false)
+  creatorId         String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([status])
+  @@map("hybrid_templates")
 }
 
 // ─── QR Nonce (replay attack prevention) ─────────────────────────────────────
@@ -1987,4 +2071,41 @@ model UserBadge {
   @@unique([userId, badgeId])
   @@index([userId, earnedAt])
   @@map("user_badges")
+}
+
+// ─── Reward Store ─────────────────────────────────────────────────────────────
+
+model Reward {
+  id           String    @id @default(uuid())
+  gymId        String?   // null = platform-wide reward
+  name         String
+  description  String?
+  imageUrl     String?
+  pointsCost   Int
+  stock        Int?      // null = unlimited
+  isActive     Boolean   @default(true)
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  redemptions RewardRedemption[]
+
+  @@index([gymId, isActive])
+  @@map("rewards")
+}
+
+model RewardRedemption {
+  id          String   @id @default(uuid())
+  userId      String
+  rewardId    String
+  pointsSpent Int
+  redeemedAt  DateTime @default(now())
+  status      String   @default("PENDING") // PENDING | FULFILLED | CANCELLED
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reward Reward @relation(fields: [rewardId], references: [id])
+
+  @@index([userId, redeemedAt(sort: Desc)])
+  @@index([rewardId])
+  @@map("reward_redemptions")
 }

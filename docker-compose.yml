@@ -92,6 +92,8 @@ services:
         condition: service_started
     ports:
       - "3002:3002"
+    volumes:
+      - ./admin/public/assets/equipment:/app/public/assets/equipment
     networks:
       - amirani-network
     deploy:

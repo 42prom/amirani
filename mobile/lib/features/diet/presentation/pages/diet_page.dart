@@ -7,7 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/diet_provider.dart';
 import '../providers/diet_onboarding_provider.dart';
 import '../providers/food_provider.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import '../../data/models/food_models.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/diet_plan_storage_service.dart';
 import '../../../../core/services/meal_swap_service.dart';
@@ -185,11 +186,11 @@ class _DietPageState extends ConsumerState<DietPage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                color: AppTokens.colorBrand.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.restaurant_menu,
-                  color: AppTheme.primaryBrand, size: 20),
+                  color: AppTokens.colorBrand, size: 20),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -217,10 +218,10 @@ class _DietPageState extends ConsumerState<DietPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.08),
+                color: AppTokens.colorBrand.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.25)),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +237,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                   Text(
                     '${newPlan.plan.targetCalories} kcal · P${newPlan.plan.targetProtein}g  C${newPlan.plan.targetCarbs}g  F${newPlan.plan.targetFats}g',
                     style: const TextStyle(
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),
@@ -256,7 +257,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBrand,
+              backgroundColor: AppTokens.colorBrand,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -306,7 +307,7 @@ class _DietPageState extends ConsumerState<DietPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       floatingActionButton: _buildAIFloatingButton(),
       body: SafeArea(
         child: Column(
@@ -343,7 +344,7 @@ class _DietPageState extends ConsumerState<DietPage> {
         _showAIDietDialog();
       },
       shape: const CircleBorder(),
-      backgroundColor: AppTheme.primaryBrand,
+      backgroundColor: AppTokens.colorBrand,
       elevation: 8,
       child: const Icon(Icons.auto_awesome, color: Colors.black, size: 28),
     );
@@ -360,10 +361,10 @@ class _DietPageState extends ConsumerState<DietPage> {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark.withValues(alpha: 0.8),
+              color: AppTokens.colorBgSurface.withValues(alpha: 0.8),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.3),
+                color: AppTokens.colorBrand.withValues(alpha: 0.3),
                 width: 1,
               ),
               boxShadow: [
@@ -382,11 +383,11 @@ class _DietPageState extends ConsumerState<DietPage> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(Icons.auto_awesome,
-                          color: AppTheme.primaryBrand, size: 22),
+                          color: AppTokens.colorBrand, size: 22),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -406,7 +407,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                           Text(
                             changeReason ?? "Profile updates detected",
                             style: TextStyle(
-                              color: AppTheme.textSecondary,
+                              color: AppTokens.colorTextSecondary,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -439,7 +440,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                       _launchDietOnboarding();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBrand,
+                      backgroundColor: AppTokens.colorBrand,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
@@ -591,11 +592,11 @@ class _DietPageState extends ConsumerState<DietPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.lock_outline,
-                    color: AppTheme.primaryBrand, size: 32),
+                    color: AppTokens.colorBrand, size: 32),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -618,7 +619,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -675,7 +676,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           height: MediaQuery.of(modalContext).size.height * 0.85,
           margin: const EdgeInsets.only(top: 24),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundDark.withValues(alpha: 0.7),
+            color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border(
               top: BorderSide(
@@ -790,25 +791,25 @@ class _DietPageState extends ConsumerState<DietPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppTheme.primaryBrand.withValues(alpha: 0.2),
-            AppTheme.primaryBrand.withValues(alpha: 0.1),
+            AppTokens.colorBrand.withValues(alpha: 0.2),
+            AppTokens.colorBrand.withValues(alpha: 0.1),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+              color: AppTokens.colorBrand.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.autorenew,
-                color: AppTheme.primaryBrand, size: 24),
+                color: AppTokens.colorBrand, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -829,7 +830,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Row(
@@ -864,7 +865,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           height: MediaQuery.of(modalContext).size.height * 0.6,
           margin: const EdgeInsets.only(top: 24),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundDark.withValues(alpha: 0.7),
+            color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             border: Border(
               top: BorderSide(
@@ -917,11 +918,11 @@ class _DietPageState extends ConsumerState<DietPage> {
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.15),
+                                  AppTokens.colorBrand.withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.autorenew,
-                                color: AppTheme.primaryBrand, size: 40),
+                                color: AppTokens.colorBrand, size: 40),
                           ),
                           const SizedBox(height: 24),
                           const Text(
@@ -948,7 +949,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                                 _executeSwapAll(meals, plan);
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryBrand,
+                                backgroundColor: AppTokens.colorBrand,
                                 foregroundColor: Colors.black,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 18),
@@ -1025,7 +1026,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             Text('Generating new meals...'),
           ],
         ),
-        backgroundColor: AppTheme.primaryBrand,
+        backgroundColor: AppTokens.colorBrand,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 2),
@@ -1182,7 +1183,7 @@ class _DietPageState extends ConsumerState<DietPage> {
               children: [
                 Text(_getMealTypeLabel(meal.mealType),
                     style: TextStyle(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.8),
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5)),
@@ -1203,11 +1204,11 @@ class _DietPageState extends ConsumerState<DietPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+              color: AppTokens.colorBrand.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.swap_horiz,
-                color: AppTheme.primaryBrand, size: 20),
+                color: AppTokens.colorBrand, size: 20),
           ),
         ],
       ),
@@ -1311,7 +1312,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             height: MediaQuery.of(modalContext).size.height * 0.85,
             margin: const EdgeInsets.only(top: 24),
             decoration: BoxDecoration(
-              color: AppTheme.backgroundDark.withValues(alpha: 0.7),
+              color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(32)),
               border: Border(
@@ -1409,14 +1410,14 @@ class _DietPageState extends ConsumerState<DietPage> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.primaryBrand
+                                    color: AppTokens.colorBrand
                                         .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     _getDietaryStyleLabel(dietaryStyle),
                                     style: const TextStyle(
-                                      color: AppTheme.primaryBrand,
+                                      color: AppTokens.colorBrand,
                                       fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -1538,7 +1539,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             Row(
               children: [
                 _buildNutritionChip(Icons.local_fire_department,
-                    "${alt.calories} kcal", AppTheme.primaryBrand),
+                    "${alt.calories} kcal", AppTokens.colorBrand),
                 const SizedBox(width: 12),
                 _buildNutritionChip(Icons.timer_outlined, "${alt.prepTime} min",
                     Colors.blueAccent),
@@ -1547,7 +1548,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBrand,
+                    color: AppTokens.colorBrand,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Row(
@@ -1615,7 +1616,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             Text('Swapping to ${newMeal.name}...'),
           ],
         ),
-        backgroundColor: AppTheme.primaryBrand,
+        backgroundColor: AppTokens.colorBrand,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: const Duration(seconds: 1),
@@ -1712,9 +1713,9 @@ class _DietPageState extends ConsumerState<DietPage> {
                     width: 12,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       border:
-                          Border.all(color: AppTheme.backgroundDark, width: 2),
+                          Border.all(color: AppTokens.colorBgPrimary, width: 2),
                     ),
                   ),
                 ),
@@ -1747,7 +1748,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             width: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+              color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child:
@@ -1772,7 +1773,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           _buildUnifiedDaySelector(activeDay),
           const SizedBox(height: 100),
           const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryBrand)),
+              child: CircularProgressIndicator(color: AppTokens.colorBrand)),
         ],
       );
     }
@@ -1851,7 +1852,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           _buildGeneratingBanner(),
           const SizedBox(height: 60),
           const Center(
-              child: CircularProgressIndicator(color: AppTheme.primaryBrand)),
+              child: CircularProgressIndicator(color: AppTokens.colorBrand)),
         ],
       );
     }
@@ -1876,9 +1877,9 @@ class _DietPageState extends ConsumerState<DietPage> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+        color: AppTokens.colorBrand.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
       ),
       child: const Row(
         children: [
@@ -1886,14 +1887,14 @@ class _DietPageState extends ConsumerState<DietPage> {
             width: 14,
             height: 14,
             child: CircularProgressIndicator(
-                strokeWidth: 2, color: AppTheme.primaryBrand),
+                strokeWidth: 2, color: AppTokens.colorBrand),
           ),
           SizedBox(width: 12),
           Expanded(
             child: Text(
               'Generating your personalised plan…',
               style: TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 13,
                   fontWeight: FontWeight.w500),
             ),
@@ -1910,7 +1911,7 @@ class _DietPageState extends ConsumerState<DietPage> {
           width: double.infinity,
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
           ),
@@ -1921,10 +1922,10 @@ class _DietPageState extends ConsumerState<DietPage> {
                 width: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.12),
                 ),
                 child: const Icon(Icons.auto_awesome,
-                    color: AppTheme.primaryBrand, size: 32),
+                    color: AppTokens.colorBrand, size: 32),
               ),
               const SizedBox(height: 16),
               const Text('No Plan Active',
@@ -2026,18 +2027,18 @@ class _DietPageState extends ConsumerState<DietPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.2))),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.2))),
               child: const Row(
                 children: [
                   Icon(Icons.auto_awesome,
-                      color: AppTheme.primaryBrand, size: 14),
+                      color: AppTokens.colorBrand, size: 14),
                   SizedBox(width: 4),
                   Text("ON TRACK",
                       style: TextStyle(
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5)),
@@ -2050,7 +2051,7 @@ class _DietPageState extends ConsumerState<DietPage> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             boxShadow: [
@@ -2101,7 +2102,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white12)),
                     child: const Icon(Icons.local_fire_department,
-                        color: AppTheme.primaryBrand, size: 24),
+                        color: AppTokens.colorBrand, size: 24),
                   )
                 ],
               ),
@@ -2110,7 +2111,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildMacroBar("Protein", macros.currentProtein,
-                      macros.targetProtein, AppTheme.primaryBrand),
+                      macros.targetProtein, AppTokens.colorBrand),
                   const SizedBox(width: 16),
                   _buildMacroBar("Carbs", macros.currentCarbs,
                       macros.targetCarbs, Colors.blueAccent),
@@ -2181,7 +2182,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                 fontWeight: FontWeight.bold)),
         Text("Log Meal",
             style: TextStyle(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                color: AppTokens.colorBrand.withValues(alpha: 0.8),
                 fontSize: 12,
                 fontWeight: FontWeight.bold)),
       ],
@@ -2241,25 +2242,30 @@ class _DietPageState extends ConsumerState<DietPage> {
                   fontWeight: FontWeight.bold),
             ),
             GestureDetector(
-              onTap: () => context.push('/diet/food-search',
-                  extra: {'mealType': 'SNACK', 'diaryDate': diaryDate}),
+              onTap: () async {
+                await context.push('/diet/food-search',
+                    extra: {'mealType': 'SNACK', 'diaryDate': diaryDate});
+                if (mounted) {
+                  ref.read(dietNotifierProvider.notifier).fetchDailyMacros(DateTime.now());
+                }
+              },
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.3)),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add, color: AppTheme.primaryBrand, size: 14),
+                    Icon(Icons.add, color: AppTokens.colorBrand, size: 14),
                     SizedBox(width: 4),
                     Text('Add Food',
                         style: TextStyle(
-                            color: AppTheme.primaryBrand,
+                            color: AppTokens.colorBrand,
                             fontSize: 12,
                             fontWeight: FontWeight.w600)),
                   ],
@@ -2274,7 +2280,7 @@ class _DietPageState extends ConsumerState<DietPage> {
               child: Padding(
             padding: EdgeInsets.all(16),
             child: CircularProgressIndicator(
-                color: AppTheme.primaryBrand, strokeWidth: 2),
+                color: AppTokens.colorBrand, strokeWidth: 2),
           )),
           error: (_, __) => const SizedBox.shrink(),
           data: (diary) {
@@ -2283,7 +2289,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark,
+                  color: AppTokens.colorBgSurface,
                   borderRadius: BorderRadius.circular(16),
                   border:
                       Border.all(color: Colors.white.withValues(alpha: 0.06)),
@@ -2314,12 +2320,11 @@ class _DietPageState extends ConsumerState<DietPage> {
     );
   }
 
-  Widget _buildFoodDiaryGroup(
-      dynamic group, String diaryDate) {
+  Widget _buildFoodDiaryGroup(FoodDiaryMealGroup group, String diaryDate) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
@@ -2332,34 +2337,39 @@ class _DietPageState extends ConsumerState<DietPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _capitalizeMealType(group.mealType as String),
+                  _capitalizeMealType(group.mealType),
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 13),
                 ),
                 Text(
-                  '${(group.totalCalories as double).toStringAsFixed(0)} kcal',
+                  '${group.totalCalories.toStringAsFixed(0)} kcal',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 12,
                       fontWeight: FontWeight.w600),
                 ),
               ],
             ),
           ),
-          for (final entry in group.entries as List)
+          for (final entry in group.entries)
             _buildFoodLogEntryRow(entry, diaryDate),
           GestureDetector(
-            onTap: () => context.push('/diet/food-search', extra: {
-              'mealType': group.mealType as String,
-              'diaryDate': diaryDate,
-            }),
+            onTap: () async {
+              await context.push('/diet/food-search', extra: {
+                'mealType': group.mealType,
+                'diaryDate': diaryDate,
+              });
+              if (mounted) {
+                ref.read(dietNotifierProvider.notifier).fetchDailyMacros(DateTime.now());
+              }
+            },
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Text('+ Add to ${_capitalizeMealType(group.mealType as String)}',
+              child: Text('+ Add to ${_capitalizeMealType(group.mealType)}',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.7),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.7),
                       fontSize: 12)),
             ),
           ),
@@ -2368,7 +2378,7 @@ class _DietPageState extends ConsumerState<DietPage> {
     );
   }
 
-  Widget _buildFoodLogEntryRow(dynamic entry, String diaryDate) {
+  Widget _buildFoodLogEntryRow(FoodLogEntry entry, String diaryDate) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
@@ -2378,13 +2388,13 @@ class _DietPageState extends ConsumerState<DietPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.foodName as String,
+                  entry.foodName,
                   style: const TextStyle(color: Colors.white, fontSize: 13),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${(entry.grams as double).toStringAsFixed(0)}g · P${(entry.protein as double).toStringAsFixed(0)}g  C${(entry.carbs as double).toStringAsFixed(0)}g  F${(entry.fats as double).toStringAsFixed(0)}g',
+                  '${entry.grams.toStringAsFixed(0)}g · P${entry.protein.toStringAsFixed(0)}g  C${entry.carbs.toStringAsFixed(0)}g  F${entry.fats.toStringAsFixed(0)}g',
                   style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.45),
                       fontSize: 11),
@@ -2393,7 +2403,7 @@ class _DietPageState extends ConsumerState<DietPage> {
             ),
           ),
           Text(
-            '${(entry.calories as double).toStringAsFixed(0)} kcal',
+            '${entry.calories.toStringAsFixed(0)} kcal',
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.6),
                 fontSize: 12,
@@ -2404,11 +2414,15 @@ class _DietPageState extends ConsumerState<DietPage> {
             onTap: () async {
               final ok = await ref
                   .read(foodLogProvider.notifier)
-                  .deleteLog(entry.id as String, diaryDate);
-              if (!ok && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Failed to remove entry'),
-                    backgroundColor: Colors.red));
+                  .deleteLog(entry.id, diaryDate);
+              if (mounted) {
+                if (ok) {
+                  ref.read(dietNotifierProvider.notifier).fetchDailyMacros(DateTime.now());
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Failed to remove entry'),
+                      backgroundColor: Colors.red));
+                }
               }
             },
             child: Icon(Icons.close,
@@ -2455,11 +2469,11 @@ class _DietPageState extends ConsumerState<DietPage> {
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.shopping_basket_outlined,
-                    color: AppTheme.primaryBrand, size: 18),
+                    color: AppTokens.colorBrand, size: 18),
               ),
             ),
             Container(
@@ -2467,18 +2481,18 @@ class _DietPageState extends ConsumerState<DietPage> {
               decoration: BoxDecoration(
                   color: isOverLimit
                       ? Colors.redAccent.withValues(alpha: 0.1)
-                      : AppTheme.primaryBrand.withValues(alpha: 0.1),
+                      : AppTokens.colorBrand.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                       color: isOverLimit
                           ? Colors.redAccent.withValues(alpha: 0.2)
-                          : AppTheme.primaryBrand.withValues(alpha: 0.2))),
+                          : AppTokens.colorBrand.withValues(alpha: 0.2))),
               child: Row(
                 children: [
                   Icon(isOverLimit ? Icons.warning_amber : Icons.auto_awesome,
                       color: isOverLimit
                           ? Colors.redAccent
-                          : AppTheme.primaryBrand,
+                          : AppTokens.colorBrand,
                       size: 14),
                   const SizedBox(width: 4),
                   Text(
@@ -2490,7 +2504,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                       style: TextStyle(
                           color: isOverLimit
                               ? Colors.redAccent
-                              : AppTheme.primaryBrand,
+                              : AppTokens.colorBrand,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5)),
@@ -2507,7 +2521,7 @@ class _DietPageState extends ConsumerState<DietPage> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             boxShadow: [
@@ -2561,7 +2575,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                     child: Icon(Icons.local_fire_department,
                         color: isOverLimit
                             ? Colors.redAccent
-                            : AppTheme.primaryBrand,
+                            : AppTokens.colorBrand,
                         size: 24),
                   )
                 ],
@@ -2574,7 +2588,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                       "Protein",
                       sessionProgress.consumedProtein,
                       sessionProgress.targetProtein,
-                      AppTheme.primaryBrand),
+                      AppTokens.colorBrand),
                   const SizedBox(width: 16),
                   _buildSessionMacroBar("Carbs", sessionProgress.consumedCarbs,
                       sessionProgress.targetCarbs, Colors.blueAccent),
@@ -2708,8 +2722,8 @@ class _DietPageState extends ConsumerState<DietPage> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: isTodaySelected
-            ? AppTheme.surfaceDark.withValues(alpha: 0.95)
-            : AppTheme.backgroundDark.withValues(alpha: 0.5),
+            ? AppTokens.colorBgSurface.withValues(alpha: 0.95)
+            : AppTokens.colorBgPrimary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: isDone
@@ -2788,7 +2802,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                                   decoration: BoxDecoration(
                                     color: isPastDay
                                         ? Colors.white10
-                                        : AppTheme.primaryBrand
+                                        : AppTokens.colorBrand
                                             .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
@@ -2797,7 +2811,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                                     style: TextStyle(
                                       color: isPastDay
                                           ? Colors.white24
-                                          : AppTheme.primaryBrand
+                                          : AppTokens.colorBrand
                                               .withValues(alpha: 0.5),
                                       fontSize: 8,
                                       fontWeight: FontWeight.w900,
@@ -2831,7 +2845,7 @@ class _DietPageState extends ConsumerState<DietPage> {
                     Text("${meal.calories} kcal",
                         style: TextStyle(
                             color:
-                                isDone ? AppTheme.primaryBrand : Colors.white54,
+                                isDone ? AppTokens.colorBrand : Colors.white54,
                             fontSize: 14,
                             fontWeight: FontWeight.bold)),
                     const SizedBox(width: 12),
@@ -2948,8 +2962,8 @@ class _DietPageState extends ConsumerState<DietPage> {
       child: OutlinedButton.icon(
         onPressed: () => _logMealToDiary(meal),
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.primaryBrand,
-          side: BorderSide(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+          foregroundColor: AppTokens.colorBrand,
+          side: BorderSide(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -3039,7 +3053,7 @@ class _DietPageState extends ConsumerState<DietPage> {
               margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryBrand.withValues(alpha: 0.6),
+                color: AppTokens.colorBrand.withValues(alpha: 0.6),
               ),
             ),
           Expanded(
@@ -3114,10 +3128,10 @@ class _DietPageState extends ConsumerState<DietPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+          color: AppTokens.colorBrand.withValues(alpha: 0.15),
         ),
         boxShadow: [
           BoxShadow(
@@ -3133,11 +3147,11 @@ class _DietPageState extends ConsumerState<DietPage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+              color: AppTokens.colorBrand.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.restaurant_menu,
-                color: AppTheme.primaryBrand, size: 32),
+                color: AppTokens.colorBrand, size: 32),
           ),
           const SizedBox(height: 16),
           Text(
@@ -3206,9 +3220,9 @@ class _AIDietAssistantModal extends ConsumerWidget {
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: BoxDecoration(
-        color: AppTheme.modalBackground,
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
         borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppTheme.modalRadius)),
+            top: Radius.circular(AppTokens.radius32)),
         border: Border(
           top: BorderSide(
             color: Colors.white.withValues(alpha: 0.1),
@@ -3218,10 +3232,10 @@ class _AIDietAssistantModal extends ConsumerWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppTheme.modalRadius)),
+            top: Radius.circular(AppTokens.radius32)),
         child: BackdropFilter(
           filter: ImageFilter.blur(
-              sigmaX: AppTheme.modalBlur, sigmaY: AppTheme.modalBlur),
+              sigmaX: AppTokens.blurStandard, sigmaY: AppTokens.blurStandard),
           child: Column(
             children: [
               // Drag Handle
@@ -3230,7 +3244,7 @@ class _AIDietAssistantModal extends ConsumerWidget {
                 height: 4,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.modalHandleColor,
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -3339,10 +3353,10 @@ class _AIDietAssistantModal extends ConsumerWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+            color: AppTokens.colorBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: AppTheme.primaryBrand, size: 24),
+          child: Icon(icon, color: AppTokens.colorBrand, size: 24),
         ),
         title: Text(
           title,
@@ -3382,9 +3396,9 @@ class _ShoppingBasketModal extends ConsumerWidget {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: BoxDecoration(
-        color: AppTheme.modalBackground,
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
         borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppTheme.modalRadius)),
+            top: Radius.circular(AppTokens.radius32)),
         border: Border(
           top: BorderSide(
             color: Colors.white.withValues(alpha: 0.1),
@@ -3394,10 +3408,10 @@ class _ShoppingBasketModal extends ConsumerWidget {
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppTheme.modalRadius)),
+            top: Radius.circular(AppTokens.radius32)),
         child: BackdropFilter(
           filter: ImageFilter.blur(
-              sigmaX: AppTheme.modalBlur, sigmaY: AppTheme.modalBlur),
+              sigmaX: AppTokens.blurStandard, sigmaY: AppTokens.blurStandard),
           child: Column(
             children: [
               // Drag Handle
@@ -3406,7 +3420,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
                 height: 4,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.modalHandleColor,
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -3427,7 +3441,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text("$daysLeft Days Left in Plan",
                               style: const TextStyle(
-                                  color: AppTheme.primaryBrand,
+                                  color: AppTokens.colorBrand,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5)),
@@ -3460,18 +3474,18 @@ class _ShoppingBasketModal extends ConsumerWidget {
                                 letterSpacing: 0.5)),
                         Text("$daysRange days",
                             style: const TextStyle(
-                                color: AppTheme.primaryBrand,
+                                color: AppTokens.colorBrand,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold)),
                       ],
                     ),
                     SliderTheme(
                       data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: AppTheme.primaryBrand,
+                        activeTrackColor: AppTokens.colorBrand,
                         inactiveTrackColor: Colors.white10,
-                        thumbColor: AppTheme.primaryBrand,
+                        thumbColor: AppTokens.colorBrand,
                         overlayColor:
-                            AppTheme.primaryBrand.withValues(alpha: 0.2),
+                            AppTokens.colorBrand.withValues(alpha: 0.2),
                         trackHeight: 4,
                       ),
                       child: Slider(
@@ -3575,7 +3589,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
                       Text(
                           "${checkedItems.values.where((v) => v).length} in basket",
                           style: const TextStyle(
-                              color: AppTheme.primaryBrand,
+                              color: AppTokens.colorBrand,
                               fontSize: 13,
                               fontWeight: FontWeight.bold)),
                     ],
@@ -3631,7 +3645,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBrand,
+                        backgroundColor: AppTokens.colorBrand,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -3668,7 +3682,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
             color: isChecked
-                ? (isInPantry ? const Color(0xFF2ECC71) : AppTheme.primaryBrand)
+                ? (isInPantry ? const Color(0xFF2ECC71) : AppTokens.colorBrand)
                     .withValues(alpha: 0.3)
                 : Colors.white.withValues(alpha: 0.05)),
       ),
@@ -3706,7 +3720,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
                   style: TextStyle(
                     color: isInPantry
                         ? const Color(0xFF2ECC71)
-                        : AppTheme.primaryBrand,
+                        : AppTokens.colorBrand,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -3723,7 +3737,7 @@ class _ShoppingBasketModal extends ConsumerWidget {
             style: const TextStyle(fontSize: 24),
           ),
           activeColor:
-              isInPantry ? const Color(0xFF2ECC71) : AppTheme.primaryBrand,
+              isInPantry ? const Color(0xFF2ECC71) : AppTokens.colorBrand,
           checkColor: Colors.black,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

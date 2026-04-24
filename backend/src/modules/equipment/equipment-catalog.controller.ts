@@ -125,11 +125,28 @@ router.patch('/:id', async (req: AuthenticatedRequest, res: Response) => {
 router.delete('/:id', async (req: AuthenticatedRequest, res: Response) => {
   try {
     await EquipmentCatalogService.delete(req.params.id);
-    res.status(204).send();
+    return res.status(204).send();
   } catch (error: any) {
     if (error instanceof CatalogError) {
       return badRequest(res, error.message);
     }
+    return serverError(res, error);
+  }
+});
+
+/**
+ * POST /equipment-catalog/import
+ * Bulk import catalog items
+ */
+router.post('/import', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { records } = req.body;
+    if (!Array.isArray(records)) {
+      return badRequest(res, 'Records must be an array');
+    }
+    const result = await EquipmentCatalogService.bulkImport(records);
+    return success(res, { imported: result.count });
+  } catch (error: any) {
     return serverError(res, error);
   }
 });

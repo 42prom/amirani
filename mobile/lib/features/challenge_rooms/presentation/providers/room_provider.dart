@@ -3,6 +3,8 @@ import '../../../../core/network/dio_provider.dart';
 import '../../data/datasources/room_remote_data_source.dart';
 import '../../data/models/room_model.dart';
 
+export '../../data/models/room_model.dart' show RoomChallenge, ChallengeProgress;
+
 // ─── Data source provider ─────────────────────────────────────────────────────
 
 final roomDataSourceProvider = Provider<RoomRemoteDataSource>((ref) {
@@ -102,4 +104,31 @@ class RoomDetailNotifier extends StateNotifier<AsyncValue<RoomDetail>> {
 
 final roomDetailProvider = StateNotifierProvider.family<RoomDetailNotifier, AsyncValue<RoomDetail>, String>(
   (ref, roomId) => RoomDetailNotifier(ref.watch(roomDataSourceProvider), roomId),
+);
+
+// ─── Room challenges state ────────────────────────────────────────────────────
+
+class RoomChallengesNotifier extends StateNotifier<AsyncValue<List<RoomChallenge>>> {
+  final RoomRemoteDataSource _ds;
+  final String _roomId;
+  RoomChallengesNotifier(this._ds, this._roomId) : super(const AsyncValue.loading());
+
+  Future<void> load() async {
+    state = const AsyncValue.loading();
+    try {
+      final data = await _ds.getChallenges(_roomId);
+      state = AsyncValue.data(data);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
+  Future<void> logProgress(String challengeId, {int increment = 1}) async {
+    await _ds.logChallengeProgress(_roomId, challengeId, increment: increment);
+    await load();
+  }
+}
+
+final roomChallengesProvider = StateNotifierProvider.family.autoDispose<RoomChallengesNotifier, AsyncValue<List<RoomChallenge>>, String>(
+  (ref, roomId) => RoomChallengesNotifier(ref.watch(roomDataSourceProvider), roomId),
 );

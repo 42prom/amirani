@@ -111,13 +111,13 @@ export default function GymOwnersPage() {
         actions={
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="relative w-full md:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+              <Search className="absolute left-3 text-zinc-500" size={18} />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white/[0.03] border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-[#F1C40F] text-sm transition-all"
+                className="amirani-input amirani-input-with-icon !bg-white/[0.03] !border-white/10"
               />
             </div>
             <button

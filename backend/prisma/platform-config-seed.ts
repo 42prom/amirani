@@ -1,5 +1,7 @@
 import { PrismaClient, LanguagePreference } from '@prisma/client';
 
+declare const process: any;
+
 const prisma = new PrismaClient();
 
 export async function seedPlatformConfig() {
@@ -24,8 +26,15 @@ export async function seedPlatformConfig() {
   return config;
 }
 
-if (require.main === module) {
-  seedPlatformConfig()
-    .catch(console.error)
-    .finally(() => prisma.$disconnect());
-}
+// Run the seed function directly
+seedPlatformConfig()
+  .then(() => {
+    console.log('✅ Platform Config Seeding Complete');
+  })
+  .catch((e) => {
+    console.error('❌ Platform Config Seeding Failed:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

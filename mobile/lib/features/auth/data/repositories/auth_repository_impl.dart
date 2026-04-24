@@ -55,9 +55,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> loginWithOAuth(String provider, String idToken) async {
+  Future<Either<Failure, UserEntity>> loginWithOAuth(String provider, String idToken, {String? countryCode}) async {
     try {
-      final authResponse = await remoteDataSource.loginWithOAuth(provider, idToken);
+      final authResponse = await remoteDataSource.loginWithOAuth(provider, idToken, countryCode: countryCode);
       await secureStorage.write(key: 'jwt_token', value: authResponse.token);
       await localDataSource.saveProfile(authResponse.user);
       return Right(authResponse.user.toEntity());

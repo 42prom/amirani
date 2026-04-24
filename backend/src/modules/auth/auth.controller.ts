@@ -217,12 +217,12 @@ router.post('/logout-all', authenticate, async (req: AuthenticatedRequest, res: 
  */
 router.post('/oauth', loginLimiter, async (req: Request, res: Response) => {
   try {
-    const { provider, idToken } = req.body;
+    const { provider, idToken, countryCode } = req.body;
     if (!provider || !idToken) {
       return validationError(res, [{ field: 'provider', message: 'provider and idToken are required' }]);
     }
     logger.info('[Auth] OAuth Login attempt', { provider });
-    const result = await OAuthService.authenticate(provider, idToken);
+    const result = await OAuthService.authenticate(provider, idToken, countryCode);
     logger.info('[Auth] OAuth Login success', { userId: result.user.id });
     success(res, {
       ...result,
