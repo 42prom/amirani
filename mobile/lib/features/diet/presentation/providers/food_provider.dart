@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/dio_provider.dart';
+import '../../../../core/providers/user_gym_state_provider.dart';
 import '../../data/datasources/food_remote_data_source.dart';
 import '../../data/models/food_models.dart';
 
@@ -48,8 +49,11 @@ class FoodSearchState {
 
 class FoodSearchNotifier extends StateNotifier<FoodSearchState> {
   final FoodRemoteDataSource _ds;
+  final String? _country;
 
-  FoodSearchNotifier(this._ds) : super(const FoodSearchState());
+  FoodSearchNotifier(this._ds, {String? country})
+      : _country = country,
+        super(const FoodSearchState());
 
   Future<void> search(String query) async {
     if (query.trim().isEmpty) {
@@ -58,7 +62,7 @@ class FoodSearchNotifier extends StateNotifier<FoodSearchState> {
     }
     state = state.copyWith(isLoading: true, error: null, query: query);
     try {
-      final results = await _ds.searchFood(query.trim());
+      final results = await _ds.searchFood(query.trim(), country: _country);
       if (!mounted) return;
       state = state.copyWith(results: results, isLoading: false);
     } catch (e) {
@@ -85,7 +89,16 @@ class FoodSearchNotifier extends StateNotifier<FoodSearchState> {
 }
 
 final foodSearchProvider = StateNotifierProvider.autoDispose<FoodSearchNotifier, FoodSearchState>((ref) {
-  return FoodSearchNotifier(ref.watch(foodRemoteDataSourceProvider));
+  // Read the active membership's gym country for country-aware ranking.
+  // Falls back to null (global ranking) if the user has no active gym membership.
+  final gymState = ref.watch(userGymStateProvider);
+  final country = gymState.memberships
+      .where((m) => m.isActive)
+      .map((m) => m.gymCountry)
+      .whereType<String>()
+      .firstOrNull;
+
+  return FoodSearchNotifier(ref.watch(foodRemoteDataSourceProvider), country: country);
 });
 
 // ── Log action ────────────────────────────────────────────────────────────────

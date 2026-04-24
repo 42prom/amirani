@@ -44,11 +44,11 @@ export class FoodService {
 
   // ─── Search foods ─────────────────────────────────────────────────────────
 
-  static async search(query: string, limit = 20, lang: 'EN' | 'KA' | 'RU' = 'EN'): Promise<FoodSearchResult[]> {
+  static async search(query: string, limit = 20, lang: 'EN' | 'KA' | 'RU' = 'EN', country?: string): Promise<FoodSearchResult[]> {
     query = query.trim();
     if (!query || query.length < 2) return [];
 
-    // 1. Check local DB first (cached results)
+    // 1. Check local DB first (cached results). Fetch a wider pool so country-sorting has material to work with.
     const localResults = await prisma.foodItem.findMany({
       where: {
         OR: [
@@ -58,23 +58,21 @@ export class FoodService {
           { brand:  { contains: query, mode: 'insensitive' } },
         ],
       },
-      take: limit,
-      orderBy: [{ isVerified: 'desc' }, { name: 'asc' }],
+      take: limit * 3, // wider pool so country-sorting has material to work with
+      orderBy: [{ isVerified: 'desc' }, { availabilityScore: 'desc' }, { name: 'asc' }],
     });
 
     if (localResults.length >= 5) {
-      return localResults.map(r => this.toSearchResult(r, lang));
+      return this.rankByCountry(localResults, country, lang).slice(0, limit);
     }
 
     // 2. Fallback to Nutritionix API
     try {
       const nutritionixResults = await this.searchNutritionix(query, limit);
-      // Cache results in background
       this.cacheResults(nutritionixResults).catch((e) => logger.warn('[Food] Cache write failed', { e }));
-      // Merge with local, deduplicate by name+brand
       const localNames = new Set(localResults.map(r => `${r.name}|${r.brand ?? ''}`));
       const merged = [
-        ...localResults.map(r => this.toSearchResult(r, lang)),
+        ...this.rankByCountry(localResults, country, lang),
         ...nutritionixResults.filter(r => !localNames.has(`${r.name}|${r.brand ?? ''}`)),
       ];
       return merged.slice(0, limit);
@@ -86,13 +84,12 @@ export class FoodService {
     try {
       const offResults = await this.searchOpenFoodFacts(query, limit);
       this.cacheResults(offResults).catch((e) => logger.warn('[Food] Cache write failed', { e }));
-      return [...localResults.map(r => this.toSearchResult(r, lang)), ...offResults].slice(0, limit);
+      return [...this.rankByCountry(localResults, country, lang), ...offResults].slice(0, limit);
     } catch (offErr) {
       logger.warn('[FoodService] Open Food Facts also failed', { offErr });
     }
 
-    // Return local results only
-    return localResults.map(r => this.toSearchResult(r, lang));
+    return this.rankByCountry(localResults, country, lang);
   }
 
   // ─── Barcode lookup ───────────────────────────────────────────────────────
@@ -436,6 +433,29 @@ export class FoodService {
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  /**
+   * Sort DB results so country-matching items appear first.
+   * Tier 1: countryCodes includes user country (most relevant).
+   * Tier 2: countryCodes is empty (global items, works everywhere).
+   * Tier 3: countryCodes set but doesn't include user's country.
+   * Within each tier: descending availabilityScore.
+   */
+  private static rankByCountry(items: any[], country: string | undefined, lang: 'EN' | 'KA' | 'RU' = 'EN'): FoodSearchResult[] {
+    if (!country) return items.map(r => this.toSearchResult(r, lang));
+
+    const upper = country.toUpperCase();
+    const tier = (item: any): number => {
+      const codes: string[] = item.countryCodes ?? [];
+      if (codes.length === 0)       return 1; // global
+      if (codes.includes(upper))    return 0; // country match
+      return 2;                               // other country
+    };
+
+    return [...items]
+      .sort((a, b) => tier(a) - tier(b) || (b.availabilityScore ?? 50) - (a.availabilityScore ?? 50))
+      .map(r => this.toSearchResult(r, lang));
+  }
 
   private static toSearchResult(item: any, lang: 'EN' | 'KA' | 'RU' = 'EN'): FoodSearchResult {
     const displayName = (lang === 'KA' && item.nameKa) ? item.nameKa

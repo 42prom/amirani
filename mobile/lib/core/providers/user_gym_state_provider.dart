@@ -10,6 +10,7 @@ class GymMembershipInfo {
   final String gymId;
   final String gymName;
   final String? gymLogoUrl;
+  final String? gymCountry; // ISO 3166-1 alpha-2 e.g. "GE", "US"
   final String planName;
   final String status; // ACTIVE, EXPIRED, FROZEN, etc.
   final DateTime endDate;
@@ -20,6 +21,7 @@ class GymMembershipInfo {
     required this.gymId,
     required this.gymName,
     this.gymLogoUrl,
+    this.gymCountry,
     required this.planName,
     required this.status,
     required this.endDate,
@@ -34,6 +36,7 @@ class GymMembershipInfo {
       gymId: gymJson?['id']?.toString() ?? json['gymId']?.toString() ?? '',
       gymName: gymJson?['name'] as String? ?? 'Unknown Gym',
       gymLogoUrl: gymJson?['logoUrl'] as String?,
+      gymCountry: gymJson?['country'] as String?,
       planName: planJson?['name'] as String? ?? 'Member',
       status: json['status']?.toString() ?? 'ACTIVE',
       endDate: DateTime.tryParse(json['endDate']?.toString() ?? '') ?? DateTime.now(),

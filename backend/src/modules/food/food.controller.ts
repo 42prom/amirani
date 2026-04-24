@@ -37,14 +37,15 @@ const LogFoodSchema = z.object({
  */
 router.get('/search', authenticate, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const query = req.query.q as string;
-    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+    const query   = req.query.q as string;
+    const limit   = Math.min(parseInt(req.query.limit as string) || 20, 50);
+    const country = (req.query.country as string | undefined)?.toUpperCase().slice(0, 2) || undefined;
 
     if (!query || query.trim().length < 2) {
       return badRequest(res, 'Query must be at least 2 characters');
     }
 
-    const results = await FoodService.search(query.trim(), limit);
+    const results = await FoodService.search(query.trim(), limit, 'EN', country);
     return success(res, results);
   } catch (err) {
     logger.error('[Food] search error', { err });

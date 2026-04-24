@@ -3,7 +3,7 @@ import '../../../../core/error/exceptions.dart';
 import '../models/food_models.dart';
 
 abstract class FoodRemoteDataSource {
-  Future<List<FoodSearchResult>> searchFood(String query, {int limit = 20});
+  Future<List<FoodSearchResult>> searchFood(String query, {int limit = 20, String? country});
   Future<FoodSearchResult?> lookupBarcode(String barcode);
   Future<FoodLogEntry> logFood({
     String? foodItemId,
@@ -20,9 +20,11 @@ class FoodRemoteDataSourceImpl implements FoodRemoteDataSource {
   FoodRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<List<FoodSearchResult>> searchFood(String query, {int limit = 20}) async {
+  Future<List<FoodSearchResult>> searchFood(String query, {int limit = 20, String? country}) async {
     try {
-      final res = await dio.get('/food/search', queryParameters: {'q': query, 'limit': limit});
+      final params = <String, dynamic>{'q': query, 'limit': limit};
+      if (country != null && country.isNotEmpty) params['country'] = country;
+      final res = await dio.get('/food/search', queryParameters: params);
       if (res.statusCode == 200 && res.data['data'] != null) {
         final raw = res.data['data'] as List<dynamic>;
         return raw.map((e) => FoodSearchResult.fromJson(e as Map<String, dynamic>)).toList();
