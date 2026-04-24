@@ -80,6 +80,7 @@ services:
       args:
         - NEXT_PUBLIC_ENABLE_QUICK_LOGIN=true
         - NEXT_PUBLIC_API_URL=/api
+        - INTERNAL_API_URL=http://backend:3085
     container_name: amirani-admin-dev
     restart: always
     environment:
