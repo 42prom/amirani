@@ -1,6 +1,7 @@
 import { AutomationService } from '../../modules/automations/automation.service';
 import { FreezeService } from '../../modules/memberships/freeze.service';
 import { PaymentService } from '../../modules/payments/payment.service';
+import { SaaSService } from '../../modules/platform/saas.service';
 import logger from '../../lib/logger';
 
 export async function processAutomationHourly() {
@@ -12,5 +13,7 @@ export async function processAutomationHourly() {
       logger.error('[Freeze] processAutoUnfreeze error', { err })),
     PaymentService.processExpiringSubscriptions().catch((err) =>
       logger.error('[Memberships] processExpiringSubscriptions error', { err })),
+    SaaSService.processSaaSTrialExpiry().catch((err) =>
+      logger.error('[SaaS] processSaaSTrialExpiry error', { err })),
   ]);
 }

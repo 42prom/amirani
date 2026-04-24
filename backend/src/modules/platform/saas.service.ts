@@ -187,6 +187,34 @@ export class SaaSService {
   }
 
   /**
+   * Transition gym owners whose SaaS trial has expired to PAST_DUE.
+   * Called by the hourly cron. Skips isLifetimeFree owners.
+   * Returns counts for monitoring.
+   */
+  static async processSaaSTrialExpiry(): Promise<{ transitioned: number }> {
+    const now = new Date();
+
+    const expiredOwners = await prisma.user.findMany({
+      where: {
+        role: 'GYM_OWNER',
+        isLifetimeFree: false,
+        saasSubscriptionStatus: 'TRIAL',
+        saasTrialEndsAt: { lt: now },
+      },
+      select: { id: true, email: true, fullName: true },
+    });
+
+    if (expiredOwners.length === 0) return { transitioned: 0 };
+
+    await prisma.user.updateMany({
+      where: { id: { in: expiredOwners.map((o) => o.id) } },
+      data: { saasSubscriptionStatus: 'PAST_DUE' },
+    });
+
+    return { transitioned: expiredOwners.length };
+  }
+
+  /**
    * Update a Gym Owner's custom SaaS pricing overrides (Super Admin only)
    */
   static async updateSaaSPricing(

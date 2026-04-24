@@ -168,9 +168,9 @@ export class FoodService {
     const fats      = Math.round(foodItem.fats      * factor * 10) / 10;
     const fiber    = foodItem.fiber != null ? Math.round(foodItem.fiber * factor * 10) / 10 : null;
 
-    // Get or create DailyProgress for the log date
+    // Get or create DailyProgress for the log date (UTC midnight — matches all other DailyProgress upserts)
     const dateKey = new Date(logDate);
-    dateKey.setHours(0, 0, 0, 0);
+    dateKey.setUTCHours(0, 0, 0, 0);
 
     const dailyProgress = await prisma.dailyProgress.upsert({
       where: { userId_date: { userId, date: dateKey } },
