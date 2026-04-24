@@ -79,6 +79,7 @@ services:
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_ENABLE_QUICK_LOGIN=true
+        - NEXT_PUBLIC_API_URL=/api
     container_name: amirani-admin-dev
     restart: always
     environment:

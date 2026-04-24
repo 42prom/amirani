@@ -10,7 +10,7 @@ let io: Server;
 export const initSocket = (server: HttpServer) => {
   io = new Server(server, {
     cors: {
-      origin: '*', // For development. Update in production.
+      origin: config.isDevelopment ? '*' : (process.env.ALLOWED_ORIGINS ?? '').split(',').filter(Boolean),
       methods: ['GET', 'POST']
     }
   });
@@ -197,6 +197,74 @@ export const initSocket = (server: HttpServer) => {
 
     socket.on('disconnect', () => {
       logger.info(`[WS/rooms] User ${userId} disconnected`);
+    });
+  });
+
+  // ── TRAINER CHAT Namespace: /trainer-chat ─────────────────────────────────
+  const trainerChatNs = io.of('/trainer-chat');
+
+  trainerChatNs.use((socket, next) => {
+    const token = socket.handshake.auth?.token || socket.handshake.headers['authorization']?.split(' ')[1];
+    if (!token) return next(new Error('Authentication error'));
+    try {
+      const decoded = jwt.verify(token, config.jwt.secret) as any;
+      socket.data.user = { userId: decoded.userId, role: decoded.role };
+      next();
+    } catch {
+      next(new Error('Authentication error'));
+    }
+  });
+
+  trainerChatNs.on('connection', (socket) => {
+    const { userId } = socket.data.user;
+
+    socket.on('join_ticket', (ticketId: string) => {
+      socket.join(`ticket:${ticketId}`);
+      logger.info(`[WS/trainer-chat] User ${userId} joined ticket ${ticketId}`);
+    });
+
+    socket.on('leave_ticket', (ticketId: string) => {
+      socket.leave(`ticket:${ticketId}`);
+    });
+
+    socket.on('send_message', async (data: { ticketId: string; gymId: string; body: string }) => {
+      try {
+        // Verify the user is a participant in this ticket before processing.
+        // Prevents any authenticated user from injecting messages into foreign tickets.
+        const ticket = await prisma.supportTicket.findUnique({
+          where: { id: data.ticketId },
+          select: { userId: true, trainerId: true, gymId: true },
+        });
+        if (!ticket || ticket.gymId !== data.gymId) {
+          socket.emit('error', { message: 'Ticket not found' });
+          return;
+        }
+        const isOwner = ticket.userId === userId;
+        let isAssignedTrainer = false;
+        if (!isOwner && ticket.trainerId) {
+          const profile = await prisma.trainerProfile.findUnique({
+            where: { id: ticket.trainerId },
+            select: { userId: true },
+          });
+          isAssignedTrainer = profile?.userId === userId;
+        }
+        if (!isOwner && !isAssignedTrainer) {
+          socket.emit('error', { message: 'Access denied' });
+          return;
+        }
+
+        const { SupportService } = require('../modules/support/support.service');
+        const message = await SupportService.replyToTicket(
+          data.ticketId, data.gymId, userId, socket.data.user.role, null, data.body
+        );
+        trainerChatNs.to(`ticket:${data.ticketId}`).emit('new_message', message);
+      } catch (err) {
+        socket.emit('error', { message: (err as Error).message });
+      }
+    });
+
+    socket.on('disconnect', () => {
+      logger.info(`[WS/trainer-chat] User ${userId} disconnected`);
     });
   });
 

@@ -159,7 +159,7 @@ export function TemplateLibraryModal({
                             Apply
                           </button>
                           <button onClick={() => { setRenamingTemplateId(tpl.id); setRenameValue(tpl.name); }} className="p-2 text-zinc-600 hover:text-violet-400 transition-colors hover:bg-violet-400/10 rounded-lg"><Pencil size={12} /></button>
-                          <button onClick={() => onDelete(tpl.id)} disabled={isDeleting} className="p-2 text-zinc-600 hover:text-rose-400 transition-colors hover:bg-rose-400/10 rounded-lg"><Trash2 size={16} /></button>
+                          <button onClick={() => onDelete(tpl.id)} disabled={isDeleting} className="p-2 text-zinc-600 hover:text-rose-400 transition-colors hover:bg-rose-400/10 rounded-lg"><Trash2 size={12} /></button>
                         </>
                       )}
                     </div>

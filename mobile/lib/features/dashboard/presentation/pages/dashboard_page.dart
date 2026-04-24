@@ -525,11 +525,16 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                       value: 1.0,
                       strokeWidth: 8,
                       color: Colors.black.withValues(alpha: 0.5)),
-                  CircularProgressIndicator(
-                      value: progress,
-                      strokeWidth: 8,
-                      color: AppTheme.primaryBrand,
-                      strokeCap: StrokeCap.round),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: progress),
+                    duration: const Duration(milliseconds: 900),
+                    curve: Curves.elasticOut,
+                    builder: (_, value, __) => CircularProgressIndicator(
+                        value: value,
+                        strokeWidth: 8,
+                        color: AppTheme.primaryBrand,
+                        strokeCap: StrokeCap.round),
+                  ),
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

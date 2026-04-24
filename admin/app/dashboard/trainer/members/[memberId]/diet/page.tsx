@@ -376,7 +376,7 @@ function IngredientEditor({
     const grams = 100;
     update(id, {
       name: food.name,
-      nameEn: food.nameEn ?? food.name,
+      nameEn: (food as any).nameEn ?? food.name,
       foodItemId: food.id,
       amount: String(grams),
       unit: "g",
@@ -429,7 +429,7 @@ function IngredientEditor({
               onClick={() => remove(row.id)} 
               className="h-[48px] px-2 text-zinc-700 hover:text-red-400 transition-colors ml-1 shrink-0 flex items-center justify-center"
             >
-              <Trash2 size={16} />
+              <X size={15} />
             </button>
           </div>
 
@@ -955,7 +955,7 @@ function MealDisplayCard({
             disabled={deleteMeal.isPending}
             className="p-1.5 text-zinc-600 hover:text-red-400 hover:bg-red-400/5 transition-all rounded-lg"
           >
-            <Trash2 size={16} />
+            <Trash2 size={12} />
           </button>
         </div>
       </div>
@@ -1190,13 +1190,10 @@ export default function DietBuilderPage({
   );
   const [unitPref, setUnitPref] = useState<'METRIC' | 'IMPERIAL'>('METRIC');
   const [langPref, setLangPref] = useState<'EN' | 'KA' | 'RU'>('EN');
-  const userUnitPref = member?.user?.unitPreference;
-  const userLangPref = member?.user?.languagePreference;
-
   useEffect(() => {
-    if (userUnitPref) setUnitPref(userUnitPref);
-    if (userLangPref) setLangPref(userLangPref);
-  }, [userUnitPref, userLangPref]);
+    if ((member?.user as any)?.unitPreference)    setUnitPref((member?.user as any).unitPreference);
+    if ((member?.user as any)?.languagePreference) setLangPref((member?.user as any).languagePreference);
+  }, [(member?.user as any)?.unitPreference, (member?.user as any)?.languagePreference]);
 
   // Plans
   const { data: plans, isLoading } = useQuery({
@@ -1948,11 +1945,11 @@ export default function DietBuilderPage({
               <button
                 onClick={() => deletePlan.mutate(p.id)}
                 disabled={deletePlan.isPending}
-                className={`px-2.5 h-9 border-y border-r rounded-r-lg flex items-center transition-colors text-zinc-700 hover:text-red-500 ${
+                className={`px-2.5 h-9 border-y border-r rounded-r-lg flex items-center transition-colors text-zinc-700 hover:text-red-400 ${
                   currentPlan?.id === p.id ? "border-[#F1C40F]/40" : "bg-zinc-900 border-zinc-700"
                 }`}
               >
-                <Trash2 size={16} />
+                <Trash2 size={13} />
               </button>
             </div>
           ))}
@@ -2869,7 +2866,7 @@ export default function DietBuilderPage({
                                 className="p-1.5 text-zinc-600 hover:text-red-400 transition-colors rounded"
                                 title="Delete"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={12} />
                               </button>
                             </>
                           )}

@@ -198,13 +198,6 @@ router.post('/history', async (req: AuthenticatedRequest, res: Response) => {
       reason:     `Completed workout: ${routineName}`,
     }).catch((err) => logger.warn('awardPoints failed', { err }));
 
-    // ── Increment DailyProgress.tasksCompleted (fire-and-forget) ──────────────
-    const todayDateObj = new Date(`${todayStr}T00:00:00.000Z`);
-    prisma.dailyProgress.updateMany({
-      where: { userId, date: todayDateObj },
-      data:  { tasksCompleted: { increment: 1 } },
-    }).catch((err) => logger.warn('DailyProgress increment failed', { err }));
-
     return success(res, {
       historyId: history.id,
       durationMinutes: history.durationMinutes,

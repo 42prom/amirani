@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/diet_provider.dart';
 import '../providers/diet_onboarding_provider.dart';
+import '../providers/food_provider.dart';
 import 'package:amirani_app/theme/app_theme.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/diet_plan_storage_service.dart';
@@ -2211,9 +2213,214 @@ class _DietPageState extends ConsumerState<DietPage> {
               isPastDay: isPastDay,
               isFutureDay: isFutureDay,
             )),
+        if (isTodaySelected) ...[
+          const SizedBox(height: 32),
+          _buildFoodLogSection(),
+        ],
       ],
     );
   }
+
+  Widget _buildFoodLogSection() {
+    final today = DateTime.now();
+    final diaryDate =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final diaryAsync = ref.watch(foodDiaryProvider(diaryDate));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Food Log',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
+            ),
+            GestureDetector(
+              onTap: () => context.push('/diet/food-search',
+                  extra: {'mealType': 'SNACK', 'diaryDate': diaryDate}),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add, color: AppTheme.primaryBrand, size: 14),
+                    SizedBox(width: 4),
+                    Text('Add Food',
+                        style: TextStyle(
+                            color: AppTheme.primaryBrand,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        diaryAsync.when(
+          loading: () => const Center(
+              child: Padding(
+            padding: EdgeInsets.all(16),
+            child: CircularProgressIndicator(
+                color: AppTheme.primaryBrand, strokeWidth: 2),
+          )),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (diary) {
+            if (diary.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceDark,
+                  borderRadius: BorderRadius.circular(16),
+                  border:
+                      Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.restaurant_outlined,
+                        color: Colors.white.withValues(alpha: 0.25), size: 32),
+                    const SizedBox(height: 8),
+                    Text('No food logged today',
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                            fontSize: 13)),
+                  ],
+                ),
+              );
+            }
+            return Column(
+              children: [
+                for (final group in diary.meals)
+                  if (group.entries.isNotEmpty)
+                    _buildFoodDiaryGroup(group, diaryDate),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFoodDiaryGroup(
+      dynamic group, String diaryDate) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.surfaceDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _capitalizeMealType(group.mealType as String),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13),
+                ),
+                Text(
+                  '${(group.totalCalories as double).toStringAsFixed(0)} kcal',
+                  style: TextStyle(
+                      color: AppTheme.primaryBrand,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+          for (final entry in group.entries as List)
+            _buildFoodLogEntryRow(entry, diaryDate),
+          GestureDetector(
+            onTap: () => context.push('/diet/food-search', extra: {
+              'mealType': group.mealType as String,
+              'diaryDate': diaryDate,
+            }),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+              child: Text('+ Add to ${_capitalizeMealType(group.mealType as String)}',
+                  style: TextStyle(
+                      color: AppTheme.primaryBrand.withValues(alpha: 0.7),
+                      fontSize: 12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFoodLogEntryRow(dynamic entry, String diaryDate) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.foodName as String,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '${(entry.grams as double).toStringAsFixed(0)}g · P${(entry.protein as double).toStringAsFixed(0)}g  C${(entry.carbs as double).toStringAsFixed(0)}g  F${(entry.fats as double).toStringAsFixed(0)}g',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${(entry.calories as double).toStringAsFixed(0)} kcal',
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.6),
+                fontSize: 12,
+                fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () async {
+              final ok = await ref
+                  .read(foodLogProvider.notifier)
+                  .deleteLog(entry.id as String, diaryDate);
+              if (!ok && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('Failed to remove entry'),
+                    backgroundColor: Colors.red));
+              }
+            },
+            child: Icon(Icons.close,
+                size: 16, color: Colors.white.withValues(alpha: 0.3)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _capitalizeMealType(String t) =>
+      t.isEmpty ? t : t[0] + t.substring(1).toLowerCase();
 
   Widget _buildSessionMacros(SessionProgressState sessionProgress) {
     final remaining = sessionProgress.remainingCalories;
@@ -2455,6 +2662,38 @@ class _DietPageState extends ConsumerState<DietPage> {
     );
   }
 
+  Widget _buildMacroChips(MealProgress meal) {
+    return Row(
+      children: [
+        _macroChip('P', '${meal.protein}g', const Color(0xFF3498DB)),
+        const SizedBox(width: 6),
+        _macroChip('C', '${meal.carbs}g', const Color(0xFFF1C40E)),
+        const SizedBox(width: 6),
+        _macroChip('F', '${meal.fats}g', const Color(0xFFE67E22)),
+      ],
+    );
+  }
+
+  Widget _macroChip(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+      ),
+      child: Text(
+        '$label $value',
+        style: TextStyle(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+
   Widget _buildInteractiveMealCard(
     MealProgress meal, {
     required bool isTodaySelected,
@@ -2583,6 +2822,8 @@ class _DietPageState extends ConsumerState<DietPage> {
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   color: Colors.white54, fontSize: 12)),
+                          const SizedBox(height: 6),
+                          _buildMacroChips(meal),
                         ],
                       ),
                     ),

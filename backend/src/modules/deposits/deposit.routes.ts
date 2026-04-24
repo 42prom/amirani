@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { DepositController } from './deposit.controller';
-import { authenticate, authorize } from '../../middleware/auth.middleware';
+import { authenticate, authorize, validateBranchOwnership } from '../../middleware/auth.middleware';
 import { Role } from '@prisma/client';
 
 const router = Router();
@@ -23,9 +23,11 @@ router.patch(
 );
 
 // Gym Owners and Branch Managers: Submit a new deposit for a gym
+// validateBranchOwnership ensures caller owns or manages the target gymId
 router.post(
   '/gym/:gymId',
   authorize(Role.SUPER_ADMIN, Role.GYM_OWNER, Role.BRANCH_ADMIN),
+  validateBranchOwnership('gymId'),
   DepositController.submitDeposit
 );
 
@@ -33,6 +35,7 @@ router.post(
 router.get(
   '/gym/:gymId',
   authorize(Role.SUPER_ADMIN, Role.GYM_OWNER, Role.BRANCH_ADMIN),
+  validateBranchOwnership('gymId'),
   DepositController.getGymDeposits
 );
 

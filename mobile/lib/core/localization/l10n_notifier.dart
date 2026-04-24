@@ -44,6 +44,7 @@ class L10nNotifier extends StateNotifier<L10nState> {
   /// Downloads the pack only when the cached version is outdated, missing,
   /// or the backend forces a refresh via [forceRefresh].
   Future<void> ensureLanguage({
+    required String gymId,
     required String lang,
     required int version,
     String? displayName,
@@ -78,10 +79,10 @@ class L10nNotifier extends StateNotifier<L10nState> {
 
     try {
       final res = await _dio.get<Map<String, dynamic>>(
-        '/language-packs/$lang/$version',
+        '/gyms/$gymId/language/$lang',
       );
 
-      final raw = res.data?['translations'];
+      final raw = res.data?['data'];
       if (raw == null || raw is! Map) throw const FormatException('missing translations');
 
       // Type-safe parse — reject packs with non-string values.

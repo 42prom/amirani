@@ -123,17 +123,17 @@ class MembershipNotifier extends StateNotifier<MembershipState> {
 
       // Background language pack sync — silent, no UI blocked.
       // Finds the first active membership that carries a language config.
-      final langConfig = memberships
+      final langEntry = memberships
           .where((m) => m.isActive && m.hasLanguageConfig)
-          .map((m) => m.language!)
           .firstOrNull;
 
-      if (langConfig != null) {
+      if (langEntry != null) {
         _ref.read(l10nProvider.notifier).ensureLanguage(
-          lang:         langConfig.code,
-          version:      langConfig.version,
-          displayName:  langConfig.displayName,
-          forceRefresh: langConfig.forceRefresh,
+          gymId:        langEntry.gymId,
+          lang:         langEntry.language!.code,
+          version:      langEntry.language!.version,
+          displayName:  langEntry.language!.displayName,
+          forceRefresh: langEntry.language!.forceRefresh,
         );
       }
     } catch (e) {

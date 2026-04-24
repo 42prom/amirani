@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../features/gym/presentation/providers/membership_provider.dart';
 import '../../../features/gym/presentation/providers/sessions_provider.dart';
 import 'package:amirani_app/theme/app_theme.dart';
+import '../localization/l10n_keys.dart';
 import '../providers/day_selector_providers.dart';
 import 'offline_banner.dart';
 
@@ -78,10 +79,12 @@ class AppNavigationShell extends ConsumerWidget {
                         children: [
                           _buildNavItem(
                               icon: Icons.calendar_today,
+                              label: L10n.navWorkout,
                               isActive: navigationShell.currentIndex == 0,
                               onTap: () => _onTap(ref, 0)),
                           _buildNavItem(
                               icon: Icons.restaurant_menu,
+                              label: L10n.navDiet,
                               isActive: navigationShell.currentIndex == 1,
                               onTap: () => _onTap(ref, 1)),
 
@@ -89,10 +92,12 @@ class AppNavigationShell extends ConsumerWidget {
 
                           _buildNavItem(
                               icon: Icons.fitness_center,
+                              label: L10n.navGym,
                               isActive: navigationShell.currentIndex == 3,
                               onTap: () => _onTap(ref, 3)),
                           _buildNavItem(
                               icon: Icons.bar_chart,
+                              label: L10n.navDashboard,
                               isActive: navigationShell.currentIndex == 4,
                               onTap: () => _onTap(ref, 4)),
                         ],
@@ -143,22 +148,32 @@ class AppNavigationShell extends ConsumerWidget {
 
   Widget _buildNavItem(
       {required IconData icon,
+      required String label,
       required bool isActive,
       required VoidCallback onTap}) {
+    final color = isActive ? AppTheme.primaryBrand : const Color(0xFF888888);
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 48,
-          minHeight: 48,
-        ),
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Icon(
-            icon,
-            size: 28,
-            color: isActive ? AppTheme.primaryBrand : const Color(0xFF888888),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 24, color: color),
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 10,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
           ),
         ),
       ),

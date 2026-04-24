@@ -598,9 +598,9 @@ export class MobileController {
       const dateString = req.query.date as string;
       const targetDate = dateString ? new Date(dateString) : new Date();
       
-      // Start of day
-      const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+      // Start of day (UTC to match DailyProgress date storage)
+      const startOfDay = new Date(targetDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(targetDate.setUTCHours(23, 59, 59, 999));
 
       const dailyProgress = await prisma.dailyProgress.findFirst({
         where: { 

@@ -10,9 +10,11 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build-time env for Next.js public variables
 ARG NEXT_PUBLIC_ENABLE_QUICK_LOGIN
 ENV NEXT_PUBLIC_ENABLE_QUICK_LOGIN=$NEXT_PUBLIC_ENABLE_QUICK_LOGIN
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Next.js build
 RUN npm run build

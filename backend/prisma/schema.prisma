@@ -93,6 +93,7 @@ model User {
   foodLogs                 FoodLog[]
   mealLogs                 MealLog[]
   badges                   UserBadge[]
+  challengeProgress        ChallengeProgress[]
 
 
   @@map("users")
@@ -1562,10 +1563,11 @@ model ProgressRoom {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  gym     Gym              @relation(fields: [gymId], references: [id], onDelete: Cascade)
-  creator User             @relation("RoomCreator", fields: [creatorId], references: [id])
-  members RoomMembership[]
-  messages RoomMessage[]
+  gym        Gym               @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  creator    User              @relation("RoomCreator", fields: [creatorId], references: [id])
+  members    RoomMembership[]
+  messages   RoomMessage[]
+  challenges RoomChallenge[]
 
   @@index([gymId, isActive])
   @@map("progress_rooms")
@@ -1622,6 +1624,46 @@ model PointEvent {
   @@index([userId, roomId])
   @@index([roomId, createdAt(sort: Desc)])
   @@map("point_events")
+}
+
+// ─── Room Challenges ──────────────────────────────────────────────────────────
+
+model RoomChallenge {
+  id           String    @id @default(uuid())
+  roomId       String
+  title        String
+  description  String?
+  targetValue  Int
+  unit         String    // "sessions", "check-ins", "km", etc.
+  pointsReward Int       @default(25)
+  startDate    DateTime  @default(now())
+  endDate      DateTime?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  room     ProgressRoom        @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  progress ChallengeProgress[]
+
+  @@index([roomId, isActive])
+  @@map("room_challenges")
+}
+
+model ChallengeProgress {
+  id           String    @id @default(uuid())
+  challengeId  String
+  userId       String
+  currentValue Int       @default(0)
+  completed    Boolean   @default(false)
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  challenge RoomChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+  @@index([userId])
+  @@map("challenge_progress")
 }
 
 // ─── Exercise Library ─────────────────────────────────────────────────────────

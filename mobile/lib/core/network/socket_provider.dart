@@ -9,32 +9,59 @@ class SocketService {
   final String baseUrl;
   final String? token;
 
+  // One socket per namespace — shared across all notifiers that need it.
+  // Prevents duplicate TCP connections on every room/chat open.
+  io.Socket? _roomSocket;
+  io.Socket? _trainerChatSocket;
+
   SocketService({required this.baseUrl, this.token});
 
   io.Socket getRoomSocket() {
-    return io.io('$baseUrl/challenge-rooms', 
+    _roomSocket ??= io.io(
+      '$baseUrl/challenge-rooms',
       io.OptionBuilder()
-        .setTransports(['websocket'])
-        .setAuth({'token': token})
-        .enableAutoConnect()
-        .enableForceNew()
-        .build()
+          .setTransports(['websocket'])
+          .setAuth({'token': token})
+          .disableAutoConnect()
+          .enableReconnection()
+          .setReconnectionAttempts(5)
+          .setReconnectionDelay(2000)
+          .build(),
     );
+    return _roomSocket!;
+  }
+
+  io.Socket getTrainerChatSocket() {
+    _trainerChatSocket ??= io.io(
+      '$baseUrl/trainer-chat',
+      io.OptionBuilder()
+          .setTransports(['websocket'])
+          .setAuth({'token': token})
+          .disableAutoConnect()
+          .enableReconnection()
+          .setReconnectionAttempts(5)
+          .setReconnectionDelay(2000)
+          .build(),
+    );
+    return _trainerChatSocket!;
   }
 
   void dispose() {
-    // We don't dispose global socket here if it was reused, 
-    // but specific namespace sockets should be managed by their providers.
+    _roomSocket?.dispose();
+    _roomSocket = null;
+    _trainerChatSocket?.dispose();
+    _trainerChatSocket = null;
   }
 }
 
 final socketServiceProvider = FutureProvider<SocketService>((ref) async {
   final storage = ref.watch(socketStorageProvider);
   final token = await storage.read(key: 'jwt_token');
-  
-  // Use same base URL as Dio
+
   final dio = ref.watch(dioProvider);
   final baseUrl = dio.options.baseUrl.replaceAll('/api', '');
 
-  return SocketService(baseUrl: baseUrl, token: token);
+  final service = SocketService(baseUrl: baseUrl, token: token);
+  ref.onDispose(service.dispose);
+  return service;
 });

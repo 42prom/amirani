@@ -3,6 +3,7 @@ import { Role, DifficultyLevel, NotificationType } from '@prisma/client';
 import { NotificationService } from '../notifications/notification.service';
 import { WorkoutProcessorService } from '../workouts/workout-processor.service';
 import { DietProcessorService } from '../diets/diet-processor.service';
+import { ProgressService } from '../mobile-sync/progress.service';
 
 const workoutProcessor = new WorkoutProcessorService(prisma);
 const dietProcessor = new DietProcessorService(prisma);
@@ -331,14 +332,19 @@ export class TrainerService {
       orderBy: { createdAt: 'desc' },
     });
     
-    // Polyfill for frontend: merging template routines and literal routines
-    return plans.map((p: any) => ({
-       ...p,
-       routines: [
-         ...(p.masterTemplate?.routines || []),
-         ...(p.routines || [])
-       ]
-    }));
+    // Merge template routines + instance overrides, deduplicated by id
+    return plans.map((p: any) => {
+      const seen = new Set<string>();
+      const merged = [
+        ...(p.masterTemplate?.routines || []),
+        ...(p.routines || []),
+      ].filter((r: any) => {
+        if (seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+      });
+      return { ...p, routines: merged };
+    });
   }
 
   /** Update workout plan metadata */
@@ -367,11 +373,17 @@ export class TrainerService {
         });
       }
 
-      // Check whether member already had an AI-generated active plan (conflict)
+      // Deactivate any conflicting AI-generated plan so only one plan is active
       const aiConflict = await prisma.workoutPlan.findFirst({
         where: { userId: plan.userId, isAIGenerated: true, isActive: true },
         select: { id: true },
       });
+      if (aiConflict) {
+        await prisma.workoutPlan.update({
+          where: { id: aiConflict.id },
+          data: { isActive: false },
+        });
+      }
 
       // Notify member of the newly activated plan
       NotificationService.send({
@@ -432,6 +444,7 @@ export class TrainerService {
 
     if (updated.isActive) {
        await TrainerService.notifyMemberOfChange(updated.userId, 'workout');
+       ProgressService.initializeTodayProgress(updated.userId).catch(() => {});
     }
 
     return { ...updated, routines: [
@@ -858,11 +871,15 @@ export class TrainerService {
       },
     }).catch(() => { /* non-blocking */ });
 
-    return prisma.dietPlan.update({
+    const activated = await prisma.dietPlan.update({
       where: { id: planId },
       data: { isActive: true },
       include: { masterTemplate: { include: { meals: { orderBy: { orderIndex: 'asc' } } } } },
     });
+
+    ProgressService.initializeTodayProgress(plan.userId).catch(() => {});
+
+    return activated;
   }
 
   /** Deactivate a diet plan */
@@ -1235,10 +1252,13 @@ export class TrainerService {
            timeOfDay: data.timeOfDay,
            instructions: data.instructions,
            scheduledDate: data.scheduledDate,
-           totalCalories: totals!.totalCalories,
-           protein: totals!.protein,
-           carbs: totals!.carbs,
-           fats: totals!.fats,
+           // Only overwrite macro fields when new ingredients were provided
+           ...(totals ? {
+             totalCalories: totals.totalCalories,
+             protein: totals.protein,
+             carbs: totals.carbs,
+             fats: totals.fats,
+           } : {}),
            ...(ingredients ? {
              ingredients: {
                create: ingredients.map((ing: any) => ({

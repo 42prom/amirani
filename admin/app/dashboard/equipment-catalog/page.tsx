@@ -15,7 +15,6 @@ import {
   Check,
   Building2,
   Upload,
-  Trash2,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { CustomSelect } from "@/components/ui/Select";
@@ -339,7 +338,7 @@ export default function EquipmentCatalogPage() {
                     }}
                     className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-red-500 text-white/50 hover:text-white rounded-xl transition-all opacity-0 group-hover:opacity-100 backdrop-blur-md border border-white/10"
                   >
-                    <Trash2 size={16} />
+                    <X size={14} />
                   </button>
                 )}
               </div>

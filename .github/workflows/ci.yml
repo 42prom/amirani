@@ -31,7 +31,6 @@ jobs:
 
       - name: Run Tests
         run: cd backend && npm test
-        continue-on-error: true  # remove once test suite is established
 
   admin-ci:
     name: Admin CI
@@ -70,6 +69,9 @@ jobs:
 
       - name: Flutter analyze
         run: cd mobile && flutter analyze --no-fatal-infos
+
+      - name: Flutter test
+        run: cd mobile && flutter test
 
       - name: Flutter build check (no-codesign)
         run: cd mobile && flutter build apk --debug --no-pub

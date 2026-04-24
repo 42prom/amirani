@@ -2,7 +2,8 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, AuthenticatedRequest } from '../../middleware/auth.middleware';
 import { enqueueAiPlanGeneration, enqueueAiJobStatus } from '../../jobs';
-import { success, badRequest, internalError, rateLimited } from '../../utils/response';
+import { success, badRequest, internalError, rateLimited, forbidden } from '../../utils/response';
+import { PlatformConfigService } from '../platform/platform-config.service';
 import prisma from '../../lib/prisma';
 import logger from '../../lib/logger';
 
@@ -10,14 +11,24 @@ const router = Router();
 router.use(authenticate);
 
 // ─── Rate Limit (5 AI requests per user per hour) ─────────────────────────────
-// Uses Redis via BullMQ connection — fires a simple sorted-set based counter.
+// Module-level singleton — one connection reused across all requests.
 // Falls open on Redis failure to avoid blocking users.
+
+let _rateLimitRedis: import('ioredis').default | null = null;
+
+async function getRateLimitRedis(): Promise<import('ioredis').default> {
+  if (!_rateLimitRedis) {
+    const { redisConnection } = await import('../../jobs');
+    const Redis = (await import('ioredis')).default;
+    _rateLimitRedis = new Redis(redisConnection as any);
+    _rateLimitRedis.on('error', () => { _rateLimitRedis = null; }); // reset on disconnect
+  }
+  return _rateLimitRedis;
+}
 
 async function checkAiRateLimit(userId: string): Promise<boolean> {
   try {
-    const { redisConnection } = await import('../../jobs');
-    const Redis = (await import('ioredis')).default;
-    const redis = new Redis(redisConnection as any);
+    const redis = await getRateLimitRedis();
 
     const key = `ai:ratelimit:${userId}`;
     const now = Date.now();
@@ -30,8 +41,6 @@ async function checkAiRateLimit(userId: string): Promise<boolean> {
     pipe.zcard(key);                                      // Count requests in window
     pipe.expire(key, 3600);                               // Reset TTL
     const results = await pipe.exec();
-
-    await redis.quit();
 
     if (!results) return true; // Fail open
     const count = results[2]?.[1] as number ?? 0;
@@ -93,6 +102,15 @@ router.post('/generate-workout', async (req: AuthenticatedRequest, res: Response
     const allowed = await checkAiRateLimit(userId);
     if (!allowed) {
       return rateLimited(res);
+    }
+
+    // Enforce tier capability: canAccessAICoach
+    const userTierRow = await prisma.user.findUnique({ where: { id: userId }, select: { tier: true } });
+    if (userTierRow) {
+      const tierLimits = await PlatformConfigService.getTierLimits(userTierRow.tier);
+      if (!tierLimits.canAccessAICoach) {
+        return forbidden(res, 'AI Coach is not available on your current plan. Please upgrade to access this feature.');
+      }
     }
 
     const parsed = GenerateWorkoutSchema.safeParse(req.body);
@@ -189,6 +207,15 @@ router.post('/generate-diet', async (req: AuthenticatedRequest, res: Response) =
     const allowed = await checkAiRateLimit(userId);
     if (!allowed) {
       return rateLimited(res);
+    }
+
+    // Enforce tier capability: canAccessDietPlanner
+    const userTierRow = await prisma.user.findUnique({ where: { id: userId }, select: { tier: true } });
+    if (userTierRow) {
+      const tierLimits = await PlatformConfigService.getTierLimits(userTierRow.tier);
+      if (!tierLimits.canAccessDietPlanner) {
+        return forbidden(res, 'Diet Planner is not available on your current plan. Please upgrade to access this feature.');
+      }
     }
 
     const parsed = GenerateDietSchema.safeParse(req.body);

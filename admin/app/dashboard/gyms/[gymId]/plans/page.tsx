@@ -479,7 +479,7 @@ export default function SubscriptionPlansPage() {
                     {formData.features?.map((feature, i) => (
                       <span key={i} className="px-3 py-1 bg-zinc-800 rounded-full text-sm text-zinc-300 flex items-center gap-2">
                         {feature}
-                        <button onClick={() => removeFeature(i)} className="text-zinc-500 hover:text-red-400"><Trash2 size={12} /></button>
+                        <button onClick={() => removeFeature(i)}><X size={14} /></button>
                       </span>
                     ))}
                   </div>

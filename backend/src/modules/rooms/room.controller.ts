@@ -28,13 +28,24 @@ router.get('/:id', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
-/** GET /api/rooms/:id/messages — fetch room messages */
+/** GET /api/rooms/:id/messages — fetch room messages (paginated) */
 router.get('/:id/messages', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const limit = parseInt(String(req.query.limit ?? '50'));
     const cursor = req.query.cursor as string | undefined;
     const messages = await RoomService.getMessages(req.params.id, req.user!.userId, limit, cursor);
     res.json({ data: messages });
+  } catch (err: any) {
+    res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/** POST /api/rooms/:id/messages — REST fallback for sending a message (used if Socket.IO unavailable) */
+router.post('/:id/messages', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { body, imageUrl } = req.body;
+    const message = await RoomService.sendMessage(req.params.id, req.user!.userId, body, imageUrl);
+    res.status(201).json({ data: message });
   } catch (err: any) {
     res.status(err.status ?? 500).json({ error: err.message });
   }

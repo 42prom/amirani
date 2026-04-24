@@ -5,7 +5,7 @@ import { getIO } from '../../lib/socket';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type RoomMetric  = 'CHECKINS' | 'SESSIONS' | 'STREAK';
+export type RoomMetric  = 'CHECKINS' | 'SESSIONS' | 'STREAK' | 'COMPOSITE';
 export type RoomPeriod  = 'WEEKLY' | 'MONTHLY' | 'ONGOING' | 'CUSTOM';
 
 export interface CreateRoomData {
@@ -107,6 +107,79 @@ async function computeLeaderboard(
     });
     scoreMap = new Map(counts.map((c) => [c.userId, c._count.id]));
 
+  } else if (room.metric === 'COMPOSITE') {
+    // COMPOSITE: (check_ins×10) + (sessions×15) + (streak×5) + (challenges_completed×25)
+
+    // Check-ins
+    const checkInCounts = await prisma.attendance.groupBy({
+      by: ['userId'],
+      where: { userId: { in: memberIds }, gymId: room.gymId, checkIn: { gte: start, lte: end } },
+      _count: { id: true },
+    });
+    const checkInMap = new Map<string, number>(checkInCounts.map((c: any) => [c.userId as string, c._count.id as number]));
+
+    // Sessions attended
+    const matchingSessions = await prisma.trainingSession.findMany({
+      where: { gymId: room.gymId, startTime: { gte: start, lte: end } },
+      select: { id: true },
+    });
+    const sessionIds = matchingSessions.map((s: any) => s.id);
+    const sessionCounts = await prisma.sessionBooking.groupBy({
+      by: ['userId'],
+      where: { userId: { in: memberIds }, status: 'ATTENDED', sessionId: { in: sessionIds } },
+      _count: { id: true },
+    });
+    const sessionMap = new Map<string, number>(sessionCounts.map((c: any) => [c.userId as string, c._count.id as number]));
+
+    // Streak (reuse the same logic)
+    const attendances = await prisma.attendance.findMany({
+      where: { userId: { in: memberIds }, gymId: room.gymId, checkIn: { gte: start, lte: end } },
+      select: { userId: true, checkIn: true },
+    });
+    const dateSetMap = new Map<string, Set<string>>();
+    for (const att of attendances) {
+      const uid = att.userId;
+      if (!dateSetMap.has(uid)) dateSetMap.set(uid, new Set());
+      dateSetMap.get(uid)!.add(new Date(att.checkIn).toISOString().split('T')[0]);
+    }
+    const streakMap = new Map<string, number>();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const uid of memberIds) {
+      const dates = dateSetMap.get(uid) ?? new Set<string>();
+      let streak = 0;
+      const cur = new Date(today);
+      while (true) {
+        if (cur < start) break;
+        const ds = cur.toISOString().split('T')[0];
+        if (dates.has(ds)) { streak++; cur.setDate(cur.getDate() - 1); } else break;
+      }
+      streakMap.set(uid, streak);
+    }
+
+    // Challenges completed in this room during period
+    const completions = await prisma.challengeProgress.findMany({
+      where: {
+        userId: { in: memberIds },
+        completed: true,
+        completedAt: { gte: start, lte: end },
+        challenge: { roomId: room.id, isActive: true },
+      },
+      select: { userId: true },
+    });
+    const challengeMap = new Map<string, number>();
+    for (const c of completions) {
+      challengeMap.set(c.userId, (challengeMap.get(c.userId) ?? 0) + 1);
+    }
+
+    scoreMap = new Map(memberIds.map((uid) => [
+      uid,
+      (checkInMap.get(uid) ?? 0) * 10 +
+      (sessionMap.get(uid) ?? 0) * 15 +
+      (streakMap.get(uid) ?? 0) * 5 +
+      (challengeMap.get(uid) ?? 0) * 25,
+    ]));
+
   } else {
     // STREAK — consecutive days with attendance, counting backwards from today
     const attendances = await prisma.attendance.findMany({
@@ -130,6 +203,7 @@ async function computeLeaderboard(
       let streak = 0;
       const cur = new Date(today);
       while (true) {
+        if (cur < start) break; // cap streak at the room's period boundary
         const ds = cur.toISOString().split('T')[0];
         if (dates.has(ds)) {
           streak++;
@@ -331,13 +405,18 @@ export class RoomService {
       if (!activeMembership) throw Object.assign(new Error('Active gym membership required'), { status: 403 });
     }
 
-    const memberCount = await prisma.roomMembership.count({ where: { roomId } });
-    if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
+    // Atomic check + create to prevent exceeding maxMembers under concurrent joins
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.roomMembership.findUnique({
+        where: { roomId_userId: { roomId, userId } },
+      });
+      if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
 
-    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId, userId } } });
-    if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
+      const memberCount = await tx.roomMembership.count({ where: { roomId } });
+      if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
 
-    return prisma.roomMembership.create({ data: { roomId, userId } });
+      return tx.roomMembership.create({ data: { roomId, userId } });
+    });
   }
 
   static async joinByCode(code: string, userId: string) {
@@ -345,14 +424,18 @@ export class RoomService {
     if (!room) throw Object.assign(new Error('Invalid invite code'), { status: 404 });
     if (!room.isActive) throw Object.assign(new Error('Room is no longer active'), { status: 400 });
 
-    const memberCount = await prisma.roomMembership.count({ where: { roomId: room.id } });
-    if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
+    return prisma.$transaction(async (tx) => {
+      const existing = await tx.roomMembership.findUnique({
+        where: { roomId_userId: { roomId: room.id, userId } },
+      });
+      if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
 
-    const existing = await prisma.roomMembership.findUnique({ where: { roomId_userId: { roomId: room.id, userId } } });
-    if (existing) throw Object.assign(new Error('Already a member'), { status: 400 });
+      const memberCount = await tx.roomMembership.count({ where: { roomId: room.id } });
+      if (memberCount >= room.maxMembers) throw Object.assign(new Error('Room is full'), { status: 400 });
 
-    await prisma.roomMembership.create({ data: { roomId: room.id, userId } });
-    return room;
+      await tx.roomMembership.create({ data: { roomId: room.id, userId } });
+      return room;
+    });
   }
 
   // ─── Leave ────────────────────────────────────────────────────────────────
@@ -435,6 +518,10 @@ export class RoomService {
   // ─── Messaging ────────────────────────────────────────────────────────────
 
   static async sendMessage(roomId: string, userId: string, body: string, imageUrl?: string) {
+    const trimmed = body?.trim() ?? '';
+    if (!trimmed && !imageUrl) throw Object.assign(new Error('Message body is required'), { status: 400 });
+    if (trimmed.length > 2000) throw Object.assign(new Error('Message too long (max 2000 characters)'), { status: 400 });
+
     // Check if user is a member
     const membership = await prisma.roomMembership.findUnique({
       where: { roomId_userId: { roomId, userId } },
@@ -445,7 +532,7 @@ export class RoomService {
       data: {
         roomId,
         userId,
-        body,
+        body: trimmed,
         imageUrl,
       },
       include: {

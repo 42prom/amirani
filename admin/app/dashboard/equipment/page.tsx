@@ -17,8 +17,7 @@ import {
   Upload,
   Edit2,
   Package,
-  ArrowRight,
-  Trash2
+  ArrowRight
 } from "lucide-react";
 import NextImage from "next/image";
 import { CustomSelect } from "@/components/ui/Select";
@@ -407,7 +406,7 @@ export default function EquipmentPage() {
                       }}
                       className="w-full py-3 bg-red-500/5 text-red-500/60 hover:bg-red-500 hover:text-white border border-red-500/10 rounded-2xl transition-all flex items-center justify-center gap-2 font-black uppercase tracking-widest text-[9px] group/del active:scale-[0.98]"
                     >
-                      <Trash2 size={16} className="group-hover/del:scale-110 transition-transform" />
+                      <X size={14} className="group-hover/del:scale-110 transition-transform" />
                       Decommission
                     </button>
                   </div>

@@ -1039,7 +1039,7 @@ function HardwareGatewayPanel({ gymId, token }: { gymId: string; token: string }
                     className="p-1.5 text-zinc-700 hover:text-red-400 transition-colors rounded-lg hover:bg-red-500/10"
                     title="Remove gateway"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} />
                   </button>
 
                   {/* Expand toggle */}
@@ -1551,7 +1551,7 @@ function CardManagementPanel({ gymId, token }: { gymId: string; token: string })
                         title="Revoke access for this card"
                         className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-500/20 transition-all disabled:opacity-50"
                       >
-                        {isRevoking ? <RefreshCw size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                        {isRevoking ? <RefreshCw size={10} className="animate-spin" /> : <X size={10} />}
                         Revoke
                       </button>
                     )}
@@ -2107,7 +2107,7 @@ export default function AccessPage() {
                                 onClick={() => handleDeleteSystem(system)}
                                 className="p-1.5 bg-zinc-800 text-zinc-400 rounded-lg hover:text-red-400 transition-colors"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={13} />
                               </button>
                             </div>
 

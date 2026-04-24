@@ -190,7 +190,7 @@ export function ExerciseCard({
             disabled={deleteEx.isPending}
             className="p-1.5 text-zinc-600 hover:text-rose-400 transition-colors bg-zinc-900/40 rounded-lg hover:bg-rose-400/10"
           >
-            {deleteEx.isPending ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+            {deleteEx.isPending ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
           </button>
         </div>
       </div>

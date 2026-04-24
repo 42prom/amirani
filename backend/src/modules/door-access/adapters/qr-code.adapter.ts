@@ -12,7 +12,8 @@ export class QRCodeAdapter implements IDoorAdapter {
 
   async initialize(config: DoorAdapterConfig): Promise<void> {
     this.config = config;
-    this.secretKey = config.secretKey || process.env.DOOR_QR_SECRET || 'default-secret-key';
+    this.secretKey = config.secretKey ?? process.env.DOOR_QR_SECRET ?? '';
+    if (!this.secretKey) throw new Error('DOOR_QR_SECRET must be set — refusing to start with no door secret');
   }
 
   async generateUnlockCode(userId: string, doorId: string): Promise<DoorUnlockResult> {
@@ -61,7 +62,7 @@ export class QRCodeAdapter implements IDoorAdapter {
         .digest('hex')
         .substring(0, 16);
 
-      return signature === expectedSignature;
+      return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
     } catch {
       return false;
     }
