@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuthStore, isSuperAdmin } from "@/lib/auth-store";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -16,6 +17,7 @@ import {
   AlertCircle,
   RefreshCw,
   X,
+  Pencil,
 } from "lucide-react";
 
 const PUBLISH_TIMEOUT_MS = 15_000;
@@ -251,6 +253,15 @@ function PackRow({
           </span>
         )}
       </div>
+
+      {/* Edit button */}
+      <Link
+        href={`/dashboard/language-packs/${pack.code}`}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-zinc-500 hover:text-white border border-zinc-700 hover:border-zinc-600 rounded-xl transition-colors"
+      >
+        <Pencil size={12} />
+        Edit
+      </Link>
 
       {/* Toggle button */}
       <button

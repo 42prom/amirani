@@ -1,11 +1,11 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:flutter/services.dart' show HapticFeedback, Clipboard, ClipboardData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/profile_sync_provider.dart';
 import '../../../gym/presentation/providers/gym_provider.dart';
 import '../../../gym/domain/entities/registration_requirements_entity.dart';
@@ -15,9 +15,12 @@ import '../../../../core/providers/workout_profile_sync_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/utils/error_messages.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import 'package:amirani_app/core/localization/l10n_provider.dart';
 import 'package:amirani_app/core/localization/l10n_state.dart';
 import 'package:amirani_app/core/localization/language_flag.dart';
+import '../providers/notification_prefs_provider.dart';
+import '../providers/referral_provider.dart';
 
 class ProfileSettingsModal extends ConsumerStatefulWidget {
   const ProfileSettingsModal({super.key});
@@ -147,8 +150,8 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
     return Container(
       height: screenHeight * 0.85 + bottomInset,
       decoration: BoxDecoration(
-        color: AppTheme.modalBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         border: Border(
           top: BorderSide(
             color: Colors.white.withValues(alpha: 0.1),
@@ -157,9 +160,9 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
         ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: AppTheme.modalBlur, sigmaY: AppTheme.modalBlur),
+          filter: ImageFilter.blur(sigmaX: AppTokens.blurStandard, sigmaY: AppTokens.blurStandard),
           child: Column(
             children: [
               _buildDragHandle(),
@@ -174,17 +177,17 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                       padding: EdgeInsets.symmetric(vertical: 8.0),
                       child: Text('Personal Info',
                           style: TextStyle(
-                              color: AppTheme.primaryBrand,
+                              color: AppTokens.colorBrand,
                               fontWeight: FontWeight.bold)),
                     ),
-                    _buildTextField('First Name', 'Enter first name',
+                    _buildTextField(L10n.profileFirstName, 'Enter first name',
                         controller: _firstNameController),
                     const SizedBox(height: 16),
-                    _buildTextField('Last Name', 'Enter last name',
+                    _buildTextField(L10n.profileLastName, 'Enter last name',
                         controller: _lastNameController),
                     const SizedBox(height: 16),
                     _buildDropdown(
-                        'Gender', ['Male', 'Female', 'Other'], _gender,
+                        L10n.profileGender, ['Male', 'Female', 'Other'], _gender,
                         onChanged: (value) {
                       if (value != null) {
                         setState(() {
@@ -193,7 +196,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                       }
                     }),
                     const SizedBox(height: 16),
-                    _buildTextField('Date of Birth', _dob,
+                    _buildTextField(L10n.profileDob, _dob,
                         icon: Icons.calendar_today,
                         readOnly: true, onTap: () async {
                       final date = await showDatePicker(
@@ -205,9 +208,9 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.dark(
-                                primary: AppTheme.primaryBrand,
+                                primary: AppTokens.colorBrand,
                                 onPrimary: Colors.black,
-                                surface: AppTheme.surfaceDark,
+                                surface: AppTokens.colorBgSurface,
                                 onSurface: Colors.white,
                               ),
                             ),
@@ -224,7 +227,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                     }),
                     if (regReqs?.phoneNumber == true) ...[
                       const SizedBox(height: 16),
-                      _buildTextField('Phone Number', 'e.g., +1 234 567 8900',
+                      _buildTextField(L10n.profilePhone, 'e.g., +1 234 567 8900',
                           controller: _phoneController, isNumber: true),
                     ],
                     if (regReqs?.personalNumber == true) ...[
@@ -248,21 +251,21 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                       padding: EdgeInsets.symmetric(vertical: 8.0),
                       child: Text('Medical & Health',
                           style: TextStyle(
-                              color: AppTheme.primaryBrand,
+                              color: AppTokens.colorBrand,
                               fontWeight: FontWeight.bold)),
                     ),
                     Container(
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppTheme.primaryBrand),
+                        border: Border.all(color: AppTokens.colorBrand),
                       ),
                       child: const Row(
                         children: [
                           Icon(Icons.health_and_safety,
-                              color: AppTheme.primaryBrand),
+                              color: AppTokens.colorBrand),
                           SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -277,11 +280,11 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                     Row(
                       children: [
                         Expanded(
-                            child: _buildTextField('Weight (kg)', 'e.g., 75',
+                            child: _buildTextField(L10n.profileWeight, 'e.g., 75',
                                 isNumber: true, controller: _weightController)),
                         const SizedBox(width: 16),
                         Expanded(
-                            child: _buildTextField('Height (cm)', 'e.g., 180',
+                            child: _buildTextField(L10n.profileHeight, 'e.g., 180',
                                 isNumber: true, controller: _heightController)),
                       ],
                     ),
@@ -309,19 +312,19 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                             width: 24,
                             decoration: BoxDecoration(
                               color: _noMedicalConditions
-                                  ? AppTheme.primaryBrand
+                                  ? AppTokens.colorBrand
                                   : Colors.transparent,
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
                                 color: _noMedicalConditions
-                                    ? AppTheme.primaryBrand
+                                    ? AppTokens.colorBrand
                                     : Colors.white54,
                                 width: 2,
                               ),
                             ),
                             child: _noMedicalConditions
                                 ? const Icon(Icons.check,
-                                    color: AppTheme.backgroundDark, size: 16)
+                                    color: AppTokens.colorBgPrimary, size: 16)
                                 : null,
                           ),
                           const SizedBox(width: 12),
@@ -345,15 +348,196 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                             maxLines: 4, controller: _medicalController),
                       ),
                     ),
+                    const SizedBox(height: 32),
+                    _buildReferralSection(),
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
+              _buildNotificationsSection(),
               _buildAccountActions(),
               _buildSaveButton(regReqs),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildReferralSection() {
+    final referralAsync = ref.watch(referralProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            'Invite Friends',
+            style: TextStyle(color: AppTokens.colorBrand, fontWeight: FontWeight.bold),
+          ),
+        ),
+        referralAsync.when(
+          loading: () => Container(
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: AppTokens.colorBrand),
+              ),
+            ),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (info) => Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Share your code — you get 200 pts, they get 100 pts.',
+                  style: TextStyle(color: Colors.white60, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppTokens.colorBrand.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          info.code,
+                          style: const TextStyle(
+                            color: AppTokens.colorBrand,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 3,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        Clipboard.setData(ClipboardData(text: info.code));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Referral code copied!'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppTokens.colorBrand.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.copy_rounded, color: AppTokens.colorBrand, size: 20),
+                      ),
+                    ),
+                  ],
+                ),
+                if (info.usedCount > 0) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    '${info.usedCount} friend${info.usedCount == 1 ? '' : 's'} joined · ${info.pointsEarned} pts earned',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNotificationsSection() {
+    final prefs = ref.watch(notificationPrefsProvider);
+    if (prefs.isLoading) return const SizedBox.shrink();
+
+    Widget buildToggleRow(String label, String subtitle, bool value, ValueChanged<bool> onChanged) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                  Text(subtitle, style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 11)),
+                ],
+              ),
+            ),
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: AppTokens.colorBrand,
+              inactiveThumbColor: Colors.white30,
+              inactiveTrackColor: Colors.white12,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            child: Text(
+              'Notifications',
+              style: TextStyle(color: AppTokens.colorBrand, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            child: Column(
+              children: [
+                buildToggleRow('Push Notifications', 'All alerts on this device', prefs.pushEnabled,
+                    (v) => ref.read(notificationPrefsProvider.notifier).setPushEnabled(v)),
+                Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                buildToggleRow('Workout Reminders', 'Daily plan and session alerts', prefs.workoutReminders,
+                    (v) => ref.read(notificationPrefsProvider.notifier).setWorkoutReminders(v)),
+                Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                buildToggleRow('Diet Reminders', 'Meal logging and nutrition alerts', prefs.mealReminders,
+                    (v) => ref.read(notificationPrefsProvider.notifier).setMealReminders(v)),
+                Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                buildToggleRow('Motivational Messages', 'Streak milestones and encouragement', prefs.motivationalMessages,
+                    (v) => ref.read(notificationPrefsProvider.notifier).setMotivationalMessages(v)),
+                Divider(color: Colors.white.withValues(alpha: 0.06), height: 1),
+                buildToggleRow('Quiet Hours', 'Silence notifications ${prefs.quietHoursStart}–${prefs.quietHoursEnd}', prefs.quietHoursEnabled,
+                    (v) => ref.read(notificationPrefsProvider.notifier).setQuietHoursEnabled(v)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
@@ -379,7 +563,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
             children: [
               _AccountActionButton(
                 icon: Icons.logout_rounded,
-                label: 'Sign Out',
+                label: L10n.authLogout,
                 onTap: _confirmSignOut,
               ),
               Container(
@@ -390,7 +574,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
               ),
               _AccountActionButton(
                 icon: Icons.delete_outline_rounded,
-                label: 'Delete Account',
+                label: L10n.settingsDeleteAccount,
                 onTap: _confirmDeleteAccount,
                 dimmer: true,
               ),
@@ -405,8 +589,8 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
-        title: const Text('Sign Out?', style: TextStyle(color: Colors.white)),
+        backgroundColor: AppTokens.colorBgSurface,
+        title: Text('${L10n.authLogout}?', style: const TextStyle(color: Colors.white)),
         content: const Text(
           'You will be returned to the login screen.',
           style: TextStyle(color: Colors.white60),
@@ -414,12 +598,12 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text(L10n.buttonCancel, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign Out'),
+            child: Text(L10n.authLogout),
           ),
         ],
       ),
@@ -437,8 +621,8 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
     final proceed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
-        title: const Text('Delete Account?', style: TextStyle(color: Colors.white)),
+        backgroundColor: AppTokens.colorBgSurface,
+        title: Text('${L10n.settingsDeleteAccount}?', style: const TextStyle(color: Colors.white)),
         content: const Text(
           'This will permanently delete your account and all associated data. This cannot be undone.',
           style: TextStyle(color: Colors.white60),
@@ -446,7 +630,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text(L10n.buttonCancel, style: const TextStyle(color: Colors.white60)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade800),
@@ -463,7 +647,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         title: const Text('Are you sure?', style: TextStyle(color: Colors.white)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -496,7 +680,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
               FocusScope.of(ctx).unfocus();
               Navigator.pop(ctx, false);
             },
-            child: const Text('Cancel', style: TextStyle(color: Colors.white60)),
+            child: Text(L10n.buttonCancel, style: const TextStyle(color: Colors.white60)),
           ),
           StatefulBuilder(
             builder: (_, setState) => ElevatedButton(
@@ -609,7 +793,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
       height: 4,
       width: 40,
       decoration: BoxDecoration(
-        color: AppTheme.modalHandleColor,
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -639,8 +823,8 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
               width: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: AppTheme.primaryBrand, width: 2),
-                color: AppTheme.surfaceDark,
+                border: Border.all(color: AppTokens.colorBrand, width: 2),
+                color: AppTokens.colorBgSurface,
                 image: profileProvider != null
                     ? DecorationImage(
                         image: profileProvider,
@@ -660,7 +844,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: const BoxDecoration(
-                        color: AppTheme.backgroundDark,
+                        color: AppTokens.colorBgPrimary,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.camera_alt,
@@ -691,7 +875,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                 ),
                 Text(
                   'Branch Connection Active',
-                  style: TextStyle(color: AppTheme.primaryBrand.withValues(alpha: 0.8), fontSize: 12),
+                  style: TextStyle(color: AppTokens.colorBrand.withValues(alpha: 0.8), fontSize: 12),
                 ),
               ],
             ),
@@ -750,7 +934,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
               ),
             ),
           ),
@@ -779,7 +963,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
           ),
           child: Theme(
             data: Theme.of(context).copyWith(
-              canvasColor: AppTheme.surfaceDark,
+              canvasColor: AppTokens.colorBgSurface,
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -797,7 +981,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                       item,
                       style: TextStyle(
                         color: item == (items.contains(value) ? value : items.first)
-                            ? AppTheme.primaryBrand
+                            ? AppTokens.colorBrand
                             : Colors.white,
                         fontWeight:
                             item == (items.contains(value) ? value : items.first) ? FontWeight.bold : FontWeight.normal,
@@ -836,7 +1020,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
           top: 16,
           bottom: MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(
           top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -873,7 +1057,7 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
           Navigator.pop(context);
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.primaryBrand,
+          backgroundColor: AppTokens.colorBrand,
           foregroundColor: Colors.black,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -886,9 +1070,9 @@ class _ProfileSettingsModalState extends ConsumerState<ProfileSettingsModal> {
                 height: 20, width: 20,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
               )
-            : const Text(
-                'Save Profile',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+            : Text(
+                L10n.profileSaveChanges,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
               ),
       ),
     );
@@ -912,7 +1096,7 @@ class _LanguageSwitcherRow extends StatelessWidget {
           const Icon(Icons.language_rounded, color: Colors.white38, size: 16),
           const SizedBox(width: 8),
           Text(
-            'Language',
+            L10n.settingsLanguage,
             style: const TextStyle(
               color: Colors.white38,
               fontSize: 12,
@@ -925,7 +1109,7 @@ class _LanguageSwitcherRow extends StatelessWidget {
             width: 16, height: 16,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBrand),
+              valueColor: AlwaysStoppedAnimation<Color>(AppTokens.colorBrand),
             ),
           )
         else
@@ -988,7 +1172,7 @@ class _LangChip extends StatelessWidget {
     curve: Curves.easeInOut,
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
     decoration: BoxDecoration(
-      color: active ? AppTheme.primaryBrand : Colors.transparent,
+      color: active ? AppTokens.colorBrand : Colors.transparent,
       borderRadius: BorderRadius.circular(20),
     ),
     child: Text(

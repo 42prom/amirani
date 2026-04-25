@@ -27,6 +27,7 @@ import '../../../../core/providers/day_selector_providers.dart';
 import '../../../../core/utils/app_notifications.dart';
 import '../../../../core/providers/diet_profile_sync_provider.dart';
 import '../../../../core/providers/points_provider.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import 'diet_onboarding_page.dart';
 import 'package:amirani_app/core/widgets/premium_state_card.dart';
 import '../../../../core/utils/food_emoji_registry.dart';
@@ -2110,13 +2111,13 @@ class _DietPageState extends ConsumerState<DietPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildMacroBar("Protein", macros.currentProtein,
+                  _buildMacroBar(L10n.dietProtein, macros.currentProtein,
                       macros.targetProtein, AppTokens.colorBrand),
                   const SizedBox(width: 16),
-                  _buildMacroBar("Carbs", macros.currentCarbs,
+                  _buildMacroBar(L10n.dietCarbs, macros.currentCarbs,
                       macros.targetCarbs, Colors.blueAccent),
                   const SizedBox(width: 16),
-                  _buildMacroBar("Fats", macros.currentFats, macros.targetFats,
+                  _buildMacroBar(L10n.dietFat, macros.currentFats, macros.targetFats,
                       Colors.greenAccent),
                 ],
               )
@@ -2585,15 +2586,15 @@ class _DietPageState extends ConsumerState<DietPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildSessionMacroBar(
-                      "Protein",
+                      L10n.dietProtein,
                       sessionProgress.consumedProtein,
                       sessionProgress.targetProtein,
                       AppTokens.colorBrand),
                   const SizedBox(width: 16),
-                  _buildSessionMacroBar("Carbs", sessionProgress.consumedCarbs,
+                  _buildSessionMacroBar(L10n.dietCarbs, sessionProgress.consumedCarbs,
                       sessionProgress.targetCarbs, Colors.blueAccent),
                   const SizedBox(width: 16),
-                  _buildSessionMacroBar("Fats", sessionProgress.consumedFats,
+                  _buildSessionMacroBar(L10n.dietFat, sessionProgress.consumedFats,
                       sessionProgress.targetFats, Colors.greenAccent),
                 ],
               )
@@ -3010,12 +3011,10 @@ class _DietPageState extends ConsumerState<DietPage> {
           'source': 'USER',
         },
       });
-      // Award points for completing a meal task.
-      await ref.read(pointsProvider.notifier).awardMealLogged();
-      final pts = ref.read(pointsProvider).lastAwardedPoints ?? kPointsPerMeal;
+      ref.read(pointsProvider.notifier).syncFromBackend();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('${meal.name} logged  +$pts pts'),
+          content: Text('${meal.name} logged'),
           backgroundColor: const Color(0xFF2ECC71),
           behavior: SnackBarBehavior.floating,
           shape:

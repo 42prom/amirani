@@ -685,8 +685,10 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
     final timeSuffix = meal.scheduledTime != null ? "${meal.scheduledTime} • " : "";
     final heroIngredient = meal.ingredients.isNotEmpty ? meal.ingredients.first.name : null;
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+    return GestureDetector(
+      onTap: () => ref.read(sessionProgressProvider.notifier).toggleMealCompletion(meal.mealId),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTokens.colorBgSurface,
@@ -790,6 +792,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -831,91 +834,98 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
   }) {
     final isDone = progressPercent >= 1.0;
     
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppTokens.colorBgSurface,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: isDone 
-            ? const Color(0xFF2ECC71).withValues(alpha: 0.2)
-            : Colors.white.withValues(alpha: 0.08),
+    return GestureDetector(
+      onTap: () {
+        // We can't directly change tab from here easily without a global controller,
+        // but we can at least show a message or do nothing if it's already a link.
+        // Usually, the BottomNavigationBar handles this.
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTokens.colorBgSurface,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: isDone 
+              ? const Color(0xFF2ECC71).withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.08),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                image: DecorationImage(
-                    image: CachedNetworkImageProvider(imgUrl), fit: BoxFit.cover)),
-            child: isDone ? Container(
+        child: Row(
+          children: [
+            Container(
+              height: 56,
+              width: 56,
               decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Icon(Icons.check, color: Color(0xFF2ECC71), size: 24),
-            ) : null,
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(title,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isDone ? const Color(0xFF2ECC71).withValues(alpha: 0.1) : Colors.white10,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(isDone ? "COMPLETED" : "IN PROGRESS",
-                        style: TextStyle(
-                            color: isDone ? const Color(0xFF2ECC71) : Colors.white38,
-                            fontSize: 8,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5)),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(18),
+                  image: DecorationImage(
+                      image: CachedNetworkImageProvider(imgUrl), fit: BoxFit.cover)),
+              child: isDone ? Container(
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 6,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(4)),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progressPercent.clamp(0.0, 1.0),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2ECC71), Color(0xFF27AE60)],
-                            ),
-                            borderRadius: BorderRadius.circular(4))),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(progressLabel,
-                    style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold)),
-              ],
+                child: const Icon(Icons.check, color: Color(0xFF2ECC71), size: 24),
+              ) : null,
             ),
-          ),
-        ],
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(title,
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isDone ? const Color(0xFF2ECC71).withValues(alpha: 0.1) : Colors.white10,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(isDone ? "COMPLETED" : "IN PROGRESS",
+                          style: TextStyle(
+                              color: isDone ? const Color(0xFF2ECC71) : Colors.white38,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 6,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(4)),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: progressPercent.clamp(0.0, 1.0),
+                      child: Container(
+                          decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF2ECC71), Color(0xFF27AE60)],
+                              ),
+                              borderRadius: BorderRadius.circular(4))),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(progressLabel,
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.4),
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

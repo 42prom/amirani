@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/onboarding_provider.dart';
 
 /// Legacy gender selector widget — not used in the current onboarding flow.
@@ -88,7 +88,7 @@ class _GenderCard extends StatelessWidget {
                     color.withValues(alpha: 0.25),
                     color.withValues(alpha: 0.08),
                   ]
-                : [AppTheme.surfaceDark, AppTheme.surfaceDark],
+                : [AppTokens.colorBgSurface, AppTokens.colorBgSurface],
           ),
         ),
         child: Center(
@@ -100,7 +100,7 @@ class _GenderCard extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: selected ? color : AppTheme.textPrimary,
+                  color: selected ? color : AppTokens.colorTextPrimary,
                   fontWeight: FontWeight.w700,
                   fontSize: 16,
                 ),

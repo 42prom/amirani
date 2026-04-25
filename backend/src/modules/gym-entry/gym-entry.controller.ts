@@ -380,6 +380,11 @@ router.get('/details/:gymId', authenticate, async (req: AuthenticatedRequest, re
           }
         },
         equipment: true,
+        branches: {
+          where: { isActive: true },
+          select: { id: true, name: true, address: true, city: true, phone: true, maxCapacity: true, openTime: true, closeTime: true },
+          orderBy: { createdAt: 'asc' },
+        },
       },
     });
 
@@ -420,6 +425,7 @@ router.get('/details/:gymId', authenticate, async (req: AuthenticatedRequest, re
         isAvailable: t.isAvailable,
       })),
       equipment: gym.equipment.map(e => e.name),
+      branches: (gym as any).branches ?? [],
     });
   } catch (err) {
     logger.error('[GymEntry] details error', { err });

@@ -109,7 +109,29 @@ class AppLifecycleSyncService with WidgetsBindingObserver {
 
   void _onBackground() {
     if (!_isAuthenticated) return;
-    _ref.read(mobileSyncServiceProvider).syncUp();
+    
+    // ── PROACTIVE FLUSH ─────────────────────────────────────────────────────
+    // Instead of waiting for the debouncer, we flush current progress now.
+    final session = _ref.read(sessionProgressProvider);
+    // No pointsProvider needed here for basic sync
+
+    final payload = {
+      'date': session.date.toIso8601String(),
+      'caloriesConsumed': session.consumedCalories,
+      'proteinConsumed': session.consumedProtein,
+      'carbsConsumed': session.consumedCarbs,
+      'fatsConsumed': session.consumedFats,
+      'waterConsumed': session.hydration.completedCups,
+      'activeMinutes': session.activityMinutes,
+      'tasksTotal': session.totalTasks,
+      'tasksCompleted': session.completedTasks,
+      'score': session.dailyScore,
+    };
+
+    _ref.read(mobileSyncServiceProvider).syncUp(
+      dailyProgress: [payload],
+    );
+
     _saveSnapshot();
   }
 

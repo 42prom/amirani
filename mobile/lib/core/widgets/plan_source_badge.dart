@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Attribution pill shown on workout and diet plan cards.
 /// Exactly one badge is shown per card — AI or trainer, never both.
@@ -35,13 +35,13 @@ class PlanSourceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = _isAI ? '🤖  AI Generated' : '👤  From: $_trainerName';
-    final color = _isAI ? AppTheme.primaryBrand : AppTheme.primaryBrand;
+    final color = _isAI ? AppTokens.colorBrand : AppTokens.colorBrand;
     final bg = _isAI
-        ? AppTheme.primaryBrand.withValues(alpha: 0.15)
-        : AppTheme.primaryBrand.withValues(alpha: 0.10);
+        ? AppTokens.colorBrand.withValues(alpha: 0.15)
+        : AppTokens.colorBrand.withValues(alpha: 0.10);
     final border = _isAI
-        ? AppTheme.primaryBrand.withValues(alpha: 0.35)
-        : AppTheme.primaryBrand.withValues(alpha: 0.25);
+        ? AppTokens.colorBrand.withValues(alpha: 0.35)
+        : AppTokens.colorBrand.withValues(alpha: 0.25);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

@@ -71,11 +71,11 @@ class _DetailBody extends ConsumerWidget {
                   color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
               overflow: TextOverflow.ellipsis),
           actions: [
-            if (!room.isPublic && detail.isMember)
+            if (detail.isMember)
               IconButton(
                 icon: const Icon(Icons.share_outlined, color: Colors.white),
                 onPressed: () => _showInviteCodeSheet(context, room.inviteCode),
-                tooltip: 'Share Invite Code',
+                tooltip: 'Share Room',
               ),
             if (detail.isCreator)
               PopupMenuButton<_RoomAction>(
@@ -134,7 +134,11 @@ class _DetailBody extends ConsumerWidget {
       ],
       body: TabBarView(
         children: [
-          _LeaderboardView(detail: detail, roomId: roomId),
+          _LeaderboardView(
+            detail: detail,
+            roomId: roomId,
+            onShare: () => _showInviteCodeSheet(context, detail.room.inviteCode),
+          ),
           _ChallengesView(roomId: roomId, isMember: detail.isMember),
           _ChatView(roomId: roomId),
         ],
@@ -154,11 +158,13 @@ class _DetailBody extends ConsumerWidget {
   }
 
   void _showInviteCodeSheet(BuildContext context, String code) {
+    final deeplink = 'amirani://rooms/join?code=$code';
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (_) => Container(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 40),
+        padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 40),
         decoration: const BoxDecoration(
           color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -168,64 +174,114 @@ class _DetailBody extends ConsumerWidget {
           children: [
             Container(
               width: 40, height: 4,
-              decoration: BoxDecoration(
-                  color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
             ),
-            const SizedBox(height: 24),
-            const Icon(Icons.vpn_key_outlined, color: AppTokens.colorBrand, size: 32),
-            const SizedBox(height: 12),
-            const Text('Invite Code',
-                style: TextStyle(
-                    color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            Text('Share this code with people you want to invite',
-                style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.45), fontSize: 13),
+            const SizedBox(height: 20),
+            const Icon(Icons.share_outlined, color: AppTokens.colorBrand, size: 28),
+            const SizedBox(height: 10),
+            const Text('Share Room',
+                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text('Invite friends to join and compete',
+                style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 13),
                 textAlign: TextAlign.center),
-            const SizedBox(height: 24),
+            if (detail.myEntry != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppTokens.colorBrand.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.emoji_events, color: AppTokens.colorBrand, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      'You\'re ranked #${detail.myEntry!.rank} · ${detail.myEntry!.score} pts',
+                      style: const TextStyle(color: AppTokens.colorBrand, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
                 color: AppTokens.colorBrand.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: AppTokens.colorBrand.withValues(alpha: 0.3), width: 1.5),
+                border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3), width: 1.5),
               ),
-              child: Text(
-                code,
-                style: const TextStyle(
-                  color: AppTokens.colorBrand,
-                  fontSize: 32,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 10,
-                ),
+              child: Column(
+                children: [
+                  Text('INVITE CODE',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.4), fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2)),
+                  const SizedBox(height: 8),
+                  Text(code,
+                      style: const TextStyle(color: AppTokens.colorBrand, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: 10)),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            SizedBox(
+            const SizedBox(height: 10),
+            Container(
               width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: code));
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Invite code copied!'),
-                        backgroundColor: AppTokens.colorBgSurface,
-                        duration: Duration(seconds: 2)),
-                  );
-                },
-                icon: const Icon(Icons.copy, size: 18),
-                label: const Text('Copy Code',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTokens.colorBrand,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               ),
+              child: Text(deeplink,
+                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                  overflow: TextOverflow.ellipsis),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: code));
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Code copied!'), backgroundColor: AppTokens.colorBgSurface, duration: Duration(seconds: 2)),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, size: 16),
+                    label: const Text('Copy Code', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: BorderSide(color: Colors.white.withValues(alpha: 0.2)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: deeplink));
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Link copied!'), backgroundColor: AppTokens.colorBgSurface, duration: Duration(seconds: 2)),
+                      );
+                    },
+                    icon: const Icon(Icons.link, size: 16),
+                    label: const Text('Copy Link', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTokens.colorBrand,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -277,7 +333,8 @@ class _DetailBody extends ConsumerWidget {
 class _LeaderboardView extends ConsumerWidget {
   final RoomDetail detail;
   final String roomId;
-  const _LeaderboardView({required this.detail, required this.roomId});
+  final VoidCallback? onShare;
+  const _LeaderboardView({required this.detail, required this.roomId, this.onShare});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -302,6 +359,10 @@ class _LeaderboardView extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (detail.myEntry != null && detail.myEntry!.rank == 1) ...[
+                    _WinnerBanner(score: detail.myEntry!.score, onShare: onShare),
+                    const SizedBox(height: 12),
+                  ],
                   _StatsRow(room: room, metricColor: metricColor),
                   if (room.description != null && room.description!.isNotEmpty) ...[
                     const SizedBox(height: 12),
@@ -1391,6 +1452,55 @@ class _ChallengeCardState extends State<_ChallengeCard> {
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+class _WinnerBanner extends StatelessWidget {
+  final int score;
+  final VoidCallback? onShare;
+  const _WinnerBanner({required this.score, this.onShare});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onShare,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [AppTokens.colorBrand.withValues(alpha: 0.18), AppTokens.colorBrand.withValues(alpha: 0.06)],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.emoji_events, color: AppTokens.colorBrand, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("You're leading!",
+                      style: TextStyle(color: AppTokens.colorBrand, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text('Score: $score pts · Challenge friends to beat you',
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.55), fontSize: 12)),
+                ],
+              ),
+            ),
+            if (onShare != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: AppTokens.colorBrand,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text('Invite', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
+              ),
+          ],
+        ),
       ),
     );
   }

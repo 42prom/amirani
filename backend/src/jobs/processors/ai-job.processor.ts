@@ -9,6 +9,7 @@ import { ProgressService } from '../../modules/mobile-sync/progress.service';
 import { PlatformConfigService } from '../../modules/platform/platform-config.service';
 import { pushNotificationQueue } from '../queue.config';
 import { PlanMemoryService } from '../../modules/plan-memory/plan-memory.service';
+import { getAiConfig, resolveModelName } from '../../lib/ai-config';
 
 const ANTHROPIC_API_VERSION = '2023-06-01';
 
@@ -498,15 +499,4 @@ function buildFallbackPlan(type: 'WORKOUT' | 'DIET', payload: AiJobPayload): any
   return { planMeta: { dailyCalories: 2000 }, days: [{ dayOfWeek: 'MONDAY', meals: [{ type: 'BREAKFAST', calories: 500, ingredients: [{ name: 'Oats', amount: 80, unit: 'g', calories: 300 }] }] }] };
 }
 
-let _aiConfigCache: any = null;
-async function getAiConfig() {
-  if (_aiConfigCache && Date.now() < _aiConfigCache.expiresAt) return _aiConfigCache.value;
-  const cfg = await prisma.aIConfig.findFirst({ where: { isEnabled: true }, orderBy: { updatedAt: 'desc' } });
-  if (!cfg) return null;
-  const dec = { ...cfg, openaiApiKey: decryptField(cfg.openaiApiKey), anthropicApiKey: decryptField(cfg.anthropicApiKey), deepseekApiKey: decryptField(cfg.deepseekApiKey) };
-  _aiConfigCache = { value: dec, expiresAt: Date.now() + 60000 };
-  return dec;
-}
-
-function resolveModelName(aiConfig: any) { return aiConfig.openaiModel || aiConfig.anthropicModel || aiConfig.deepseekModel || 'unknown'; }
 function getStartOfToday() { const d = new Date(); d.setUTCHours(0, 0, 0, 0); return d; }

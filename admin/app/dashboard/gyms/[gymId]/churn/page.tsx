@@ -149,7 +149,7 @@ export default function ChurnRiskPage() {
     staleTime: 2 * 60 * 1000,
   });
 
-  const members = data?.data ?? [];
+  const members = data ?? [];
 
   // Summary counts
   const summary = {
@@ -180,7 +180,7 @@ export default function ChurnRiskPage() {
         channels: ["PUSH", "IN_APP"],
         targetAudience: audienceMap[level] as CampaignAudience,
       }, token!);
-      await marketingApi.send(gymId, campaign.data.id, token!);
+      await marketingApi.send(gymId, campaign.id, token!);
       router.push(`/dashboard/gyms/${gymId}/marketing`);
     } catch {
       // fail silently — user can go to marketing page to retry

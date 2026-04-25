@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 enum TrainerAvatarSize { small, medium, large }
 
@@ -107,16 +107,16 @@ class TrainerAvatarChip extends StatelessWidget {
       height: d,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+        color: AppTokens.colorBrand.withValues(alpha: 0.15),
         border: Border.all(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.3),
+          color: AppTokens.colorBrand.withValues(alpha: 0.3),
         ),
       ),
       child: Center(
         child: Text(
           _initials,
           style: TextStyle(
-            color: AppTheme.primaryBrand,
+            color: AppTokens.colorBrand,
             fontSize: d * 0.35,
             fontWeight: FontWeight.bold,
           ),

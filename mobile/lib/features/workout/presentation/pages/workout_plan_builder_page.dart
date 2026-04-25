@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../../core/services/ai_orchestration_service.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/data/exercise_database.dart';
 import '../../../../core/services/user_equipment_service.dart';
 import '../../../../core/services/gym_equipment_service.dart';
@@ -267,8 +267,8 @@ class _WorkoutPlanBuilderPageState
     return Container(
       height: screenHeight * 0.85 + bottomInset,
       decoration: BoxDecoration(
-        color: AppTheme.modalBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         border: Border(
           top: BorderSide(
             color: Colors.white.withValues(alpha: 0.1),
@@ -277,9 +277,9 @@ class _WorkoutPlanBuilderPageState
         ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: AppTheme.modalBlur, sigmaY: AppTheme.modalBlur),
+          filter: ImageFilter.blur(sigmaX: AppTokens.blurStandard, sigmaY: AppTokens.blurStandard),
           child: Column(
             children: [
               _buildDragHandle(),
@@ -304,7 +304,7 @@ class _WorkoutPlanBuilderPageState
       height: 4,
       width: 40,
       decoration: BoxDecoration(
-        color: AppTheme.modalHandleColor,
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(2),
       ),
     );
@@ -385,7 +385,7 @@ class _WorkoutPlanBuilderPageState
               ),
               decoration: BoxDecoration(
                 color: isCompleted
-                    ? AppTheme.primaryBrand
+                    ? AppTokens.colorBrand
                     : Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(2),
               ),
@@ -433,14 +433,14 @@ class _WorkoutPlanBuilderPageState
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+            color: AppTokens.colorBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border:
-                Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
           ),
           child: const Row(
             children: [
-              Icon(Icons.info_outline, color: AppTheme.primaryBrand, size: 20),
+              Icon(Icons.info_outline, color: AppTokens.colorBrand, size: 20),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -479,12 +479,12 @@ class _WorkoutPlanBuilderPageState
                   duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
                     color: isSelected || isBodyweight
-                        ? AppTheme.primaryBrand.withValues(alpha: 0.15)
+                        ? AppTokens.colorBrand.withValues(alpha: 0.15)
                         : const Color(0xFF1A1A1A),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: isSelected || isBodyweight
-                          ? AppTheme.primaryBrand.withValues(alpha: 0.5)
+                          ? AppTokens.colorBrand.withValues(alpha: 0.5)
                           : Colors.white.withValues(alpha: 0.05),
                     ),
                   ),
@@ -522,7 +522,7 @@ class _WorkoutPlanBuilderPageState
                         ),
                       if (isSelected && !isBodyweight)
                         const Icon(Icons.check_circle,
-                            color: AppTheme.primaryBrand, size: 16),
+                            color: AppTokens.colorBrand, size: 16),
                     ],
                   ),
                 ),
@@ -832,7 +832,7 @@ class _WorkoutPlanBuilderPageState
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isSelected
-                          ? AppTheme.primaryBrand
+                          ? AppTokens.colorBrand
                           : Colors.white.withValues(alpha: 0.05),
                     ),
                     child: Center(
@@ -875,12 +875,12 @@ class _WorkoutPlanBuilderPageState
                           horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppTheme.primaryBrand
+                            ? AppTokens.colorBrand
                             : Colors.white.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
-                              ? AppTheme.primaryBrand
+                              ? AppTokens.colorBrand
                               : Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
@@ -918,12 +918,12 @@ class _WorkoutPlanBuilderPageState
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppTheme.primaryBrand.withValues(alpha: 0.15)
+                          ? AppTokens.colorBrand.withValues(alpha: 0.15)
                           : Colors.white.withValues(alpha: 0.03),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
-                            ? AppTheme.primaryBrand
+                            ? AppTokens.colorBrand
                             : Colors.white.withValues(alpha: 0.05),
                       ),
                     ),
@@ -932,7 +932,7 @@ class _WorkoutPlanBuilderPageState
                         Icon(
                           _getLevelIcon(level),
                           color: isSelected
-                              ? AppTheme.primaryBrand
+                              ? AppTokens.colorBrand
                               : Colors.white54,
                           size: 20,
                         ),
@@ -949,7 +949,7 @@ class _WorkoutPlanBuilderPageState
                         const Spacer(),
                         if (isSelected)
                           const Icon(Icons.check_circle,
-                              color: AppTheme.primaryBrand, size: 20),
+                              color: AppTokens.colorBrand, size: 20),
                       ],
                     ),
                   ),
@@ -980,12 +980,12 @@ class _WorkoutPlanBuilderPageState
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppTheme.primaryBrand.withValues(alpha: 0.2)
+                          ? AppTokens.colorBrand.withValues(alpha: 0.2)
                           : Colors.white.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isSelected
-                            ? AppTheme.primaryBrand
+                            ? AppTokens.colorBrand
                             : Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
@@ -993,7 +993,7 @@ class _WorkoutPlanBuilderPageState
                       _getGoalName(goal),
                       style: TextStyle(
                         color:
-                            isSelected ? AppTheme.primaryBrand : Colors.white70,
+                            isSelected ? AppTokens.colorBrand : Colors.white70,
                         fontSize: 12,
                         fontWeight:
                             isSelected ? FontWeight.bold : FontWeight.normal,
@@ -1027,7 +1027,7 @@ class _WorkoutPlanBuilderPageState
         children: [
           Row(
             children: [
-              Icon(icon, color: AppTheme.primaryBrand, size: 20),
+              Icon(icon, color: AppTokens.colorBrand, size: 20),
               const SizedBox(width: 8),
               Text(
                 title,
@@ -1110,18 +1110,18 @@ class _WorkoutPlanBuilderPageState
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppTheme.primaryBrand.withValues(alpha: 0.15),
-                  AppTheme.primaryBrand.withValues(alpha: 0.05),
+                  AppTokens.colorBrand.withValues(alpha: 0.15),
+                  AppTokens.colorBrand.withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.3)),
             ),
             child: Column(
               children: [
                 const Icon(Icons.auto_awesome,
-                    color: AppTheme.primaryBrand, size: 32),
+                    color: AppTokens.colorBrand, size: 32),
                 const SizedBox(height: 8),
                 const Text(
                   'Ready to Generate',
@@ -1230,7 +1230,7 @@ class _WorkoutPlanBuilderPageState
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(
           top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -1242,7 +1242,7 @@ class _WorkoutPlanBuilderPageState
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: (state.isGenerating ? const Color(0xFF2ECC71) : AppTheme.primaryBrand)
+              color: (state.isGenerating ? const Color(0xFF2ECC71) : AppTokens.colorBrand)
                   .withValues(alpha: 0.2),
               blurRadius: 15,
               offset: const Offset(0, 4),
@@ -1254,7 +1254,7 @@ class _WorkoutPlanBuilderPageState
           child: Stack(
             children: [
               // Background Base
-              Container(color: AppTheme.primaryBrand),
+              Container(color: AppTokens.colorBrand),
               
               // Progress Fill
               if (state.isGenerating)
@@ -1318,7 +1318,7 @@ class _WorkoutPlanBuilderPageState
             ),
             child: const Icon(
               Icons.auto_awesome,
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               size: 48,
             ),
           ),
@@ -1336,7 +1336,7 @@ class _WorkoutPlanBuilderPageState
           // Progress bar synced with state
           LinearProgressIndicator(
             value: state.generationProgress,
-            backgroundColor: AppTheme.surfaceDark,
+            backgroundColor: AppTokens.colorBgSurface,
             valueColor:
                 const AlwaysStoppedAnimation<Color>(Color(0xFF2ECC71)),
             minHeight: 8,
@@ -1346,7 +1346,7 @@ class _WorkoutPlanBuilderPageState
           Text(
             '${(state.generationProgress * 100).toInt()}% complete',
             style: const TextStyle(
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Vertical scrollable ruler.
 /// Selected value is always centred at the indicator line.
@@ -157,9 +157,9 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                                         .toStringAsFixed(widget.decimalPlaces),
                                 style: TextStyle(
                                   color: isMajor
-                                      ? AppTheme.textSecondary
+                                      ? AppTokens.colorTextSecondary
                                           .withValues(alpha: 0.80)
-                                      : AppTheme.textSecondary
+                                      : AppTokens.colorTextSecondary
                                           .withValues(alpha: 0.45),
                                   fontSize: isMajor ? 10 : 9,
                                   fontWeight: isMajor
@@ -199,8 +199,8 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          AppTheme.backgroundDark,
-                          AppTheme.backgroundDark.withValues(alpha: 0),
+                          AppTokens.colorBgPrimary,
+                          AppTokens.colorBgPrimary.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -221,8 +221,8 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          AppTheme.backgroundDark,
-                          AppTheme.backgroundDark.withValues(alpha: 0),
+                          AppTokens.colorBgPrimary,
+                          AppTokens.colorBgPrimary.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -242,9 +242,9 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              AppTheme.primaryBrand.withValues(alpha: 0),
-                              AppTheme.primaryBrand.withValues(alpha: 0.9),
-                              AppTheme.primaryBrand,
+                              AppTokens.colorBrand.withValues(alpha: 0),
+                              AppTokens.colorBrand.withValues(alpha: 0.9),
+                              AppTokens.colorBrand,
                             ],
                             stops: const [0.0, 0.4, 1.0],
                             begin: Alignment.centerLeft,
@@ -254,13 +254,13 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                           boxShadow: [
                             BoxShadow(
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.7),
+                                  AppTokens.colorBrand.withValues(alpha: 0.7),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
                             BoxShadow(
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.3),
+                                  AppTokens.colorBrand.withValues(alpha: 0.3),
                               blurRadius: 18,
                               spreadRadius: 5,
                             ),
@@ -274,11 +274,11 @@ class _VerticalRulerPickerState extends State<VerticalRulerPicker> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBrand.withValues(alpha: 0.9),
+                            color: AppTokens.colorBrand.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(4),
                             boxShadow: [
                               BoxShadow(
-                                color: AppTheme.primaryBrand
+                                color: AppTokens.colorBrand
                                     .withValues(alpha: 0.4),
                                 blurRadius: 4,
                               ),

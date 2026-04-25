@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class PremiumStateCard extends StatelessWidget {
   final IconData icon;
@@ -23,10 +23,10 @@ class PremiumStateCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark.withValues(alpha: 0.4),
+        color: AppTokens.colorBgSurface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+          color: AppTokens.colorBrand.withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -44,10 +44,10 @@ class PremiumStateCard extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.1),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.05),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.05),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -55,7 +55,7 @@ class PremiumStateCard extends StatelessWidget {
                   ),
                   child: Icon(
                     icon,
-                    color: AppTheme.primaryBrand,
+                    color: AppTokens.colorBrand,
                     size: 40,
                   ),
                 ),
@@ -77,7 +77,7 @@ class PremiumStateCard extends StatelessWidget {
                   subtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: AppTheme.textSecondary.withValues(alpha: 0.8),
+                    color: AppTokens.colorTextSecondary.withValues(alpha: 0.8),
                     fontSize: 13,
                     height: 1.5,
                   ),
@@ -87,7 +87,7 @@ class PremiumStateCard extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onAction,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBrand,
+                      backgroundColor: AppTokens.colorBrand,
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       shape: RoundedRectangleBorder(

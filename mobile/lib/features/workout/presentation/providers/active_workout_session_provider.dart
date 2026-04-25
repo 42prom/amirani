@@ -258,18 +258,16 @@ class ActiveWorkoutSessionNotifier
     });
   }
 
-  // ── Sync completed session to backend and award points ───────────────────
+  // ── Sync completed session to backend ────────────────────────────────────
 
   Future<void> _syncSession(ActiveWorkoutSessionState session) async {
-    final totalSets =
-        session.exercises.fold<int>(0, (sum, e) => sum + e.loggedSets.length);
-    _ref.read(pointsProvider.notifier).awardWorkoutCompleted(setsLogged: totalSets);
     final ds = _ref.read(workoutHistoryDataSourceProvider);
     try {
       await ds.saveSession(session);
     } catch (_) {
       ds.queueSession(session);
     }
+    _ref.read(pointsProvider.notifier).syncFromBackend();
   }
 
   @override

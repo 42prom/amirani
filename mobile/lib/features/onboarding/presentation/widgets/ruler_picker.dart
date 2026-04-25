@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Horizontal scrollable ruler picker.
 /// Uses LayoutBuilder so the centre indicator always aligns with the selected
@@ -160,7 +160,7 @@ class _RulerPickerState extends State<RulerPicker> {
                                     .toStringAsFixed(widget.decimalPlaces),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppTheme.textSecondary
+                                  color: AppTokens.colorTextSecondary
                                       .withValues(alpha: 0.65),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -215,7 +215,7 @@ class _RulerPickerState extends State<RulerPicker> {
                         "${widget.value.toStringAsFixed(widget.decimalPlaces)} ${widget.unit}",
                         key: ValueKey(widget.value),
                         style: const TextStyle(
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           fontSize: 13,
                           fontWeight: FontWeight.w800,
                         ),
@@ -233,15 +233,15 @@ class _RulerPickerState extends State<RulerPicker> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              AppTheme.primaryBrand.withValues(alpha: 0.4),
-                              AppTheme.primaryBrand,
+                              AppTokens.colorBrand.withValues(alpha: 0.4),
+                              AppTokens.colorBrand,
                             ],
                           ),
                           borderRadius: BorderRadius.circular(2),
                           boxShadow: [
                             BoxShadow(
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.6),
+                                  AppTokens.colorBrand.withValues(alpha: 0.6),
                               blurRadius: 10,
                               spreadRadius: 1,
                             ),
@@ -252,12 +252,12 @@ class _RulerPickerState extends State<RulerPicker> {
                         width: 7,
                         height: 7,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.5),
+                                  AppTokens.colorBrand.withValues(alpha: 0.5),
                               blurRadius: 8,
                               spreadRadius: 2,
                             ),
@@ -290,8 +290,8 @@ class _FadeEdge extends StatelessWidget {
           begin: fromLeft ? Alignment.centerLeft : Alignment.centerRight,
           end: fromLeft ? Alignment.centerRight : Alignment.centerLeft,
           colors: [
-            AppTheme.backgroundDark,
-            AppTheme.backgroundDark.withValues(alpha: 0),
+            AppTokens.colorBgPrimary,
+            AppTokens.colorBgPrimary.withValues(alpha: 0),
           ],
         ),
       ),

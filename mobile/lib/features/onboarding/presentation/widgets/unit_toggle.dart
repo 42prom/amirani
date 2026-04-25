@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class UnitToggle extends StatelessWidget {
   final List<String> options;
@@ -20,7 +20,7 @@ class UnitToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(50),
         border: Border.all(color: Colors.white10),
       ),
@@ -38,13 +38,13 @@ class UnitToggle extends StatelessWidget {
                   ? const EdgeInsets.symmetric(horizontal: 10, vertical: 5)
                   : const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
               decoration: BoxDecoration(
-                color: selected ? AppTheme.primaryBrand : Colors.transparent,
+                color: selected ? AppTokens.colorBrand : Colors.transparent,
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Text(
                 options[i],
                 style: TextStyle(
-                  color: selected ? Colors.black : AppTheme.textSecondary,
+                  color: selected ? Colors.black : AppTokens.colorTextSecondary,
                   fontWeight: FontWeight.w600,
                   fontSize: compact ? 11 : 13,
                 ),

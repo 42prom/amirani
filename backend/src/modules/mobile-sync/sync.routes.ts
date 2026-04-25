@@ -4,6 +4,7 @@ import { SyncController } from './sync.controller';
 import { AIController } from './ai.controller';
 import { MobileController } from './mobile.controller';
 import { authenticate } from '../../middleware/auth.middleware';
+import { aiLimiter } from '../../lib/rate-limiters';
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.post('/up', SyncController.syncUp);
 router.get('/down', SyncController.syncDown);
 
 // AI Generation (async — returns jobId immediately)
-router.post('/ai/generate-plan', AIController.generatePlan);
+router.post('/ai/generate-plan', aiLimiter, AIController.generatePlan);
 // AI Job Status (client polls this or waits for push notification)
 router.get('/ai/status/:jobId', AIController.getJobStatus);
 

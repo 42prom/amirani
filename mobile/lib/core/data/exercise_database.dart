@@ -1488,7 +1488,7 @@ extension MuscleGroupExtension on MuscleGroup {
       case MuscleGroup.neck:
         return const Color(0xFFEF6C00); // Deep orange — neck
       default:
-        return const Color(0xFF5ABF4D); // AppTheme.primaryBrand fallback
+        return const Color(0xFF5ABF4D); // AppTokens.colorBrand fallback
     }
   }
 

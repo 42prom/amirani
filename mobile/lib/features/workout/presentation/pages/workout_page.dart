@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../../../core/utils/app_notifications.dart';
@@ -154,10 +154,10 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                color: AppTokens.colorBrand.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.fitness_center, color: AppTheme.primaryBrand, size: 20),
+              child: const Icon(Icons.fitness_center, color: AppTokens.colorBrand, size: 20),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -181,9 +181,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.08),
+                color: AppTokens.colorBrand.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.25)),
+                border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.25)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,7 +195,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   const SizedBox(height: 4),
                   Text(
                     '${newPlan.plan.routines.length} session${newPlan.plan.routines.length == 1 ? '' : 's'} · ${newPlan.plan.difficulty}',
-                    style: const TextStyle(color: AppTheme.primaryBrand, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: AppTokens.colorBrand, fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -212,7 +212,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBrand,
+              backgroundColor: AppTokens.colorBrand,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
@@ -257,14 +257,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Column(
           children: [
             const WorkoutHeader(),
             Expanded(
               child: RefreshIndicator(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 onRefresh: () async {
                   await ref.read(workoutNotifierProvider.notifier).fetchActivePlan();
                   await ref.read(sessionProgressProvider.notifier).syncDown();
@@ -321,7 +321,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       loading: () => const Center(
         child: Padding(
           padding: EdgeInsets.only(top: 100.0),
-          child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+          child: CircularProgressIndicator(color: AppTokens.colorBrand),
         ),
       ),
       error: (_, __) => _buildLegacyBody(state, sessionProgress, isLinkedToGym, isActiveMember, activeDay),
@@ -334,7 +334,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       return const Center(
           child: Padding(
         padding: EdgeInsets.only(top: 100.0),
-        child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+        child: CircularProgressIndicator(color: AppTokens.colorBrand),
       ));
     }
 
@@ -374,7 +374,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         children: [
           _buildGeneratingBanner(),
           const SizedBox(height: 100),
-          const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand)),
+          const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand)),
         ],
       );
     }
@@ -392,9 +392,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+        color: AppTokens.colorBrand.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
       ),
       child: const Row(
         children: [
@@ -402,14 +402,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
             width: 14,
             height: 14,
             child: CircularProgressIndicator(
-                strokeWidth: 2, color: AppTheme.primaryBrand),
+                strokeWidth: 2, color: AppTokens.colorBrand),
           ),
           SizedBox(width: 12),
           Expanded(
             child: Text(
               'Creating your workout plan…',
               style: TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 13,
                   fontWeight: FontWeight.w500),
             ),
@@ -504,7 +504,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     selectedWorkout.workoutName,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -622,7 +622,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark,
+              color: AppTokens.colorBgSurface,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
               boxShadow: [
@@ -804,7 +804,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         height: 200,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -854,7 +854,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                       gradient: const LinearGradient(colors: [Color(0xFFF1C40E), Color(0xFFD4AC0D)]),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
-                        BoxShadow(color: AppTheme.primaryBrand.withValues(alpha: 0.2), blurRadius: 15)
+                        BoxShadow(color: AppTokens.colorBrand.withValues(alpha: 0.2), blurRadius: 15)
                       ],
                     ),
                     alignment: Alignment.center,
@@ -886,7 +886,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
@@ -916,7 +916,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [

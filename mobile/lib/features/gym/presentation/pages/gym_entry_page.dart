@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart' show openAppSettings;
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/gym_access_provider.dart';
 import '../providers/membership_provider.dart';
 import '../providers/nfc_key_provider.dart';
@@ -170,7 +170,7 @@ class _GymEntryPageState extends ConsumerState<GymEntryPage> with WidgetsBinding
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           child: Container(
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark,
+              color: AppTokens.colorBgSurface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -178,7 +178,7 @@ class _GymEntryPageState extends ConsumerState<GymEntryPage> with WidgetsBinding
               indicatorSize: TabBarIndicatorSize.tab,
               dividerColor: Colors.transparent,
               indicator: BoxDecoration(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 borderRadius: BorderRadius.circular(12),
               ),
               labelColor: Colors.black,
@@ -202,7 +202,7 @@ class _GymEntryPageState extends ConsumerState<GymEntryPage> with WidgetsBinding
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(color: AppTheme.primaryBrand, strokeWidth: 3),
+            const CircularProgressIndicator(color: AppTokens.colorBrand, strokeWidth: 3),
             const SizedBox(height: 20),
             Text('Verifying access…', style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 16)),
           ],
@@ -298,7 +298,7 @@ class _QrScannerViewState extends State<_QrScannerView> with TickerProviderState
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Text(widget.errorMessage!, style: const TextStyle(color: Colors.redAccent, fontSize: 13), textAlign: TextAlign.center),
                 ),
-                TextButton(onPressed: widget.onRetry, child: const Text('Try Again', style: TextStyle(color: AppTheme.primaryBrand))),
+                TextButton(onPressed: widget.onRetry, child: const Text('Try Again', style: TextStyle(color: AppTokens.colorBrand))),
               ] else
                 Text('Scan the QR code at the gym entrance', style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 14)),
             ],
@@ -328,8 +328,8 @@ class _QrScannerViewState extends State<_QrScannerView> with TickerProviderState
                   child: Container(
                     height: 2,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [Colors.transparent, AppTheme.primaryBrand.withValues(alpha: 0.8), AppTheme.primaryBrand, AppTheme.primaryBrand.withValues(alpha: 0.8), Colors.transparent]),
-                      boxShadow: [BoxShadow(color: AppTheme.primaryBrand.withValues(alpha: 0.5), blurRadius: 8)],
+                      gradient: LinearGradient(colors: [Colors.transparent, AppTokens.colorBrand.withValues(alpha: 0.8), AppTokens.colorBrand, AppTokens.colorBrand.withValues(alpha: 0.8), Colors.transparent]),
+                      boxShadow: [BoxShadow(color: AppTokens.colorBrand.withValues(alpha: 0.5), blurRadius: 8)],
                     ),
                   ),
                 ),
@@ -396,7 +396,7 @@ class _PhoneKeyView extends ConsumerWidget {
           else if (!nfcState.status.isSupported)
             const PremiumStateCard(icon: Icons.error_outline, title: 'Not Supported', subtitle: 'NFC/HCE door access is not supported.', actionLabel: null)
           else
-            const CircularProgressIndicator(color: AppTheme.primaryBrand),
+            const CircularProgressIndicator(color: AppTokens.colorBrand),
         ],
       ),
     );
@@ -408,11 +408,11 @@ class _PhoneKeyView extends ConsumerWidget {
       height: 200, width: 200,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isActive ? AppTheme.primaryBrand.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.02),
-        border: Border.all(color: isActive ? AppTheme.primaryBrand.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1), width: 2),
-        boxShadow: isActive ? [BoxShadow(color: AppTheme.primaryBrand.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10)] : null,
+        color: isActive ? AppTokens.colorBrand.withValues(alpha: 0.05) : Colors.white.withValues(alpha: 0.02),
+        border: Border.all(color: isActive ? AppTokens.colorBrand.withValues(alpha: 0.3) : Colors.white.withValues(alpha: 0.1), width: 2),
+        boxShadow: isActive ? [BoxShadow(color: AppTokens.colorBrand.withValues(alpha: 0.1), blurRadius: 40, spreadRadius: 10)] : null,
       ),
-      child: Center(child: Icon(isActive ? Icons.contactless : Icons.phonelink_lock, color: isActive ? AppTheme.primaryBrand : Colors.white24, size: 80)),
+      child: Center(child: Icon(isActive ? Icons.contactless : Icons.phonelink_lock, color: isActive ? AppTokens.colorBrand : Colors.white24, size: 80)),
     );
   }
 
@@ -421,16 +421,16 @@ class _PhoneKeyView extends ConsumerWidget {
       children: [
         Container(
           padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(color: AppTheme.surfaceDark, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.2))),
+          decoration: BoxDecoration(color: AppTokens.colorBgSurface, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2))),
           child: Row(
             children: [
-              const Icon(Icons.check_circle, color: AppTheme.primaryBrand, size: 24),
+              const Icon(Icons.check_circle, color: AppTokens.colorBrand, size: 24),
               const SizedBox(width: 16),
               const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text('Key is Active', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 Text('Hold phone near gym reader', style: TextStyle(color: Colors.white54, fontSize: 12)),
               ])),
-              Switch(value: true, onChanged: (val) => ref.read(nfcKeyProvider.notifier).togglePower(val), activeThumbColor: AppTheme.primaryBrand),
+              Switch(value: true, onChanged: (val) => ref.read(nfcKeyProvider.notifier).togglePower(val), activeThumbColor: AppTokens.colorBrand),
             ],
           ),
         ),
@@ -452,7 +452,7 @@ class _PhoneKeyView extends ConsumerWidget {
             onPressed: state.isEnrolling ? null : () => ref.read(nfcKeyProvider.notifier).enroll(membership.memberships.first.gymId),
             icon: state.isEnrolling ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)) : const Icon(Icons.vpn_key),
             label: Text(state.isEnrolling ? 'Activating...' : 'Activate Phone Key', style: const TextStyle(fontWeight: FontWeight.bold)),
-            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryBrand, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+            style: ElevatedButton.styleFrom(backgroundColor: AppTokens.colorBrand, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
           ),
         ),
         if (state.error != null) ...[const SizedBox(height: 12), Text(state.error!, style: const TextStyle(color: Colors.redAccent, fontSize: 12))],
@@ -484,7 +484,7 @@ class _CornerPainter extends CustomPainter {
   const _CornerPainter(this.sides, this.thickness);
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = AppTheme.primaryBrand..strokeWidth = thickness..strokeCap = StrokeCap.round..style = PaintingStyle.stroke;
+    final paint = Paint()..color = AppTokens.colorBrand..strokeWidth = thickness..strokeCap = StrokeCap.round..style = PaintingStyle.stroke;
     final w = size.width, h = size.height;
     if (sides[0]) canvas.drawLine(Offset.zero, Offset(w, 0), paint);
     if (sides[1]) canvas.drawLine(Offset(w, 0), Offset(w, h), paint);

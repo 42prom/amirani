@@ -124,7 +124,7 @@ export default function LoginPage() {
                   try {
                     const { user, token } = await authApi.login("owner@amirani.dev", "GymOwner123!");
                     setAuth(user, token);
-                    router.push("/dashboard/gyms");
+                    router.push("/dashboard");
                   } catch (err: unknown) {
                     const message = err instanceof Error ? err.message : "Gym Owner login failed";
                     setError(`${message}. (Check if DB/Backend are running or run npm run db:seed)`);

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../config/app_config.dart';
 
 /// Displays a user avatar from either a local file path or a remote URL,
@@ -89,7 +89,7 @@ class UserAvatar extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: Center(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuthStore, isSuperAdmin } from "@/lib/auth-store";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,9 @@ import {
   Upload,
   Download,
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  HardDrive,
 } from "lucide-react";
 
 interface ImportError {
@@ -48,6 +51,9 @@ export default function EquipmentCatalogPage() {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 50;
+
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
   const [importing, setImporting] = useState(false);
@@ -58,6 +64,11 @@ export default function EquipmentCatalogPage() {
     category: "OTHER",
     model: "",
   });
+
+  // Reset page on filter change
+  useEffect(() => {
+    setPage(0);
+  }, [search, categoryFilter]);
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["equipment-catalog", search, categoryFilter],
@@ -225,13 +236,19 @@ export default function EquipmentCatalogPage() {
     }
   };
 
+  // ── Filtered + Paginated ───────────────────────────────────────────────────
+  const filtered = items ?? [];
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage   = Math.min(page, totalPages - 1);
+  const paginated  = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
+
   return (
     <div className="space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <PageHeader
         title="EQUIPMENT CATALOG"
         description="Manage the global machinery master list for all Amirani facilities"
-        icon={<Package size={32} />}
+        icon={<HardDrive size={32} />}
         actions={
           <div className="flex items-center gap-3">
             <input 
@@ -286,7 +303,11 @@ export default function EquipmentCatalogPage() {
           <div className="group relative overflow-hidden bg-[#121721] border border-white/5 rounded-3xl p-6 transition-all duration-500 hover:border-[#F1C40F]/20">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#F1C40F]/5 blur-3xl -mr-16 -mt-16 group-hover:bg-[#F1C40F]/10 transition-colors" />
             <p className="text-xs font-black text-zinc-500 uppercase tracking-widest">Showing</p>
-            <p className="text-4xl font-black text-[#F1C40F] mt-2 tracking-tighter">{(items?.length || 0)} / {stats.totalItems}</p>
+            <p className="text-4xl font-black text-[#F1C40F] mt-2 tracking-tighter">
+              {filtered.length > 0 
+                ? `${safePage * PAGE_SIZE + 1}–${Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`
+                : "0 / 0"}
+            </p>
           </div>
         </div>
       )}
@@ -383,7 +404,7 @@ export default function EquipmentCatalogPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-            {items.map((item) => (
+            {paginated.map((item: CatalogItem) => (
               <div
                 key={item.id}
                 className={`group relative bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-white/5 overflow-hidden transition-all duration-500 hover:border-[#F1C40F]/30 hover:shadow-2xl hover:shadow-black/50 ${
@@ -391,7 +412,7 @@ export default function EquipmentCatalogPage() {
                 }`}
               >
                 {/* Visual Area */}
-                <div className="relative h-64 overflow-hidden bg-zinc-950">
+                <div className="relative h-48 overflow-hidden bg-zinc-950">
                   {item.imageUrl ? (
                     <NextImage
                       src={item.imageUrl}
@@ -401,7 +422,7 @@ export default function EquipmentCatalogPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-zinc-800">
-                      <Package size={64} className="group-hover:scale-110 transition-transform duration-500" />
+                      <Package size={48} className="group-hover:scale-110 transition-transform duration-500" />
                       <span className="text-[10px] font-black uppercase tracking-tighter mt-2 opacity-50">Image Missing</span>
                     </div>
                   )}
@@ -422,18 +443,18 @@ export default function EquipmentCatalogPage() {
                 </div>
 
                 {/* Info Area */}
-                <div className="p-6 pb-20">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-[#F1C40F] transition-colors">{item.name}</h3>
+                <div className="p-5 pb-20">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-[#F1C40F] transition-colors line-clamp-1">{item.name}</h3>
                   </div>
 
                   {(item.brand || item.model) && (
-                    <p className="text-xs font-black text-[#F1C40F] uppercase tracking-[0.2em] mb-3">
+                    <p className="text-[10px] font-black text-[#F1C40F] uppercase tracking-[0.2em] mb-3">
                       {item.brand}{item.brand && item.model && " • "}{item.model}
                     </p>
                   )}
 
-                  <p className="text-sm text-zinc-500 leading-relaxed line-clamp-2 italic">
+                  <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2 italic">
                     {item.description || "System metadata for high-performance industrial equipment. Optimized for amirani global specifications."}
                   </p>
 
@@ -441,14 +462,14 @@ export default function EquipmentCatalogPage() {
                   <div className="absolute inset-x-0 bottom-0 p-4 border-t border-white/5 flex gap-3 transition-all">
                     <button
                       onClick={() => openEditModal(item)}
-                      className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl flex items-center justify-center gap-2 transition-all font-bold text-xs uppercase tracking-widest border border-white/5"
+                      className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-2xl flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase tracking-widest border border-white/5"
                     >
                       <Edit2 size={14} />
                       CONFIGURE
                     </button>
                     <button
                       onClick={() => updateMutation.mutate({ id: item.id, data: { isActive: !item.isActive } })}
-                      className={`flex-1 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all font-bold text-xs uppercase tracking-widest border shadow-xl ${
+                      className={`flex-1 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all font-bold text-[10px] uppercase tracking-widest border shadow-xl ${
                         item.isActive
                           ? "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20"
                           : "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
@@ -484,6 +505,65 @@ export default function EquipmentCatalogPage() {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {filtered.length > PAGE_SIZE && (
+          <div className="flex items-center justify-between px-6 py-8">
+            <span className="text-xs text-zinc-500 font-bold uppercase tracking-widest">
+              Showing {safePage * PAGE_SIZE + 1}–{Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => {
+                  setPage(p => Math.max(0, p - 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                disabled={safePage === 0}
+                className="p-2 rounded-xl bg-[#121721] border border-white/5 text-zinc-500 hover:text-white hover:border-[#F1C40F]/30 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              
+              <div className="flex items-center gap-1.5">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  // Basic sliding window for page numbers
+                  let pageNum = i;
+                  if (totalPages > 5 && safePage > 2) {
+                    pageNum = Math.min(safePage - 2 + i, totalPages - 5 + i);
+                  }
+                  
+                  return (
+                    <button 
+                      key={pageNum} 
+                      onClick={() => {
+                        setPage(pageNum);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className={`w-10 h-10 rounded-xl text-xs font-black transition-all border ${
+                        pageNum === safePage 
+                          ? "bg-[#F1C40F] text-black border-[#F1C40F] shadow-lg shadow-[#F1C40F]/20" 
+                          : "bg-[#121721] border-white/5 text-zinc-500 hover:text-white hover:border-white/20"
+                      }`}
+                    >
+                      {pageNum + 1}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button 
+                onClick={() => {
+                  setPage(p => Math.min(totalPages - 1, p + 1));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }} 
+                disabled={safePage === totalPages - 1}
+                className="p-2 rounded-xl bg-[#121721] border border-white/5 text-zinc-500 hover:text-white hover:border-[#F1C40F]/30 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
           </div>
         )}
       </div>

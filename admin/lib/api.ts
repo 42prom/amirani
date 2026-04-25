@@ -490,8 +490,18 @@ export interface Branch {
   id: string;
   name: string;
   address?: string;
+  city?: string;
+  phone?: string;
+  maxCapacity: number;
+  openTime?: string;
+  closeTime?: string;
   gymId: string;
+  isActive: boolean;
   createdAt: string;
+  admins?: Array<{ id: string; fullName: string; email: string; avatarUrl: string | null }>;
+  activeMembers?: number;
+  trainerCount?: number;
+  todayCheckins?: number;
 }
 
 export interface GymDetail extends Gym {
@@ -1424,10 +1434,10 @@ export interface CreateCampaignData {
 
 export const marketingApi = {
   list: (gymId: string, token: string) =>
-    api<{ data: MarketingCampaign[] }>(`/marketing/gyms/${gymId}/campaigns`, { token }),
+    api<MarketingCampaign[]>(`/marketing/gyms/${gymId}/campaigns`, { token }),
 
   create: (gymId: string, data: CreateCampaignData, token: string) =>
-    api<{ data: MarketingCampaign }>(`/marketing/gyms/${gymId}/campaigns`, {
+    api<MarketingCampaign>(`/marketing/gyms/${gymId}/campaigns`, {
       method: "POST",
       body: data,
       token,
@@ -1436,14 +1446,14 @@ export const marketingApi = {
   previewAudience: (gymId: string, audience: CampaignAudience, token: string, targetPlanId?: string) => {
     const qs = new URLSearchParams({ audience });
     if (targetPlanId) qs.set("targetPlanId", targetPlanId);
-    return api<{ data: { count: number; audience: string } }>(
+    return api<{ count: number; audience: string }>(
       `/marketing/gyms/${gymId}/campaigns/preview-audience?${qs}`,
       { token }
     );
   },
 
   send: (gymId: string, campaignId: string, token: string) =>
-    api<{ data: { sent: number; total: number } }>(
+    api<{ sent: number; total: number }>(
       `/marketing/gyms/${gymId}/campaigns/${campaignId}/send`,
       { method: "POST", token }
     ),
@@ -1487,13 +1497,119 @@ export interface ChurnSummary {
 
 export const analyticsApi = {
   getChurnAll: (gymId: string, token: string) =>
-    api<{ data: MemberChurnScore[] }>(`/analytics/gyms/${gymId}/churn`, { token }),
+    api<MemberChurnScore[]>(`/analytics/gyms/${gymId}/churn`, { token }),
 
   getAtRisk: (gymId: string, token: string) =>
-    api<{ data: MemberChurnScore[] }>(`/analytics/gyms/${gymId}/churn/at-risk`, { token }),
+    api<MemberChurnScore[]>(`/analytics/gyms/${gymId}/churn/at-risk`, { token }),
 
   getChurnSummary: (gymId: string, token: string) =>
-    api<{ data: ChurnSummary }>(`/analytics/gyms/${gymId}/churn/summary`, { token }),
+    api<ChurnSummary>(`/analytics/gyms/${gymId}/churn/summary`, { token }),
+
+  getPlatformKpis: (token: string) =>
+    api<{ ownerCount: number; gymCount: number; totalRevenueThisMonth: number; avgRevenuePerOwner: number }>(
+      '/analytics/platform-kpis', { token }
+    ),
+
+  getTopOwners: (token: string, limit = 10) =>
+    api<Array<{ id: string; fullName: string; email: string; gymCount: number; activeMembers: number; revenueThisMonth: number }>>(
+      `/analytics/top-owners?limit=${limit}`, { token }
+    ),
+
+  getGymOwnerDashboard: (token: string, days = 30) =>
+    api<Array<{ id: string; name: string; city: string; country: string; activeMembers: number; trainerCount: number; todayCheckins: number; monthRevenue: number }>>(
+      `/analytics/gym-owner/dashboard?days=${days}`, { token }
+    ),
+
+  getMemberGrowth: (token: string, days = 30) =>
+    api<{ totalNewThisPeriod: number; retentionRate: number; byDay: Array<{ date: string; count: number }>; byMonth: Array<{ month: string; count: number }> }>(
+      `/analytics/member-growth?days=${days}`, { token }
+    ),
+
+  getEngagement: (token: string) =>
+    api<{ dau: number; mau: number; dauMauRatio: number; avgWorkoutsPerWeek: number; featureUsage: { workoutsToday: number; foodLogsToday: number; checkinsToday: number; workoutUsersThisMonth: number; foodLogUsersThisMonth: number; checkinUsersThisMonth: number } }>(
+      '/analytics/engagement', { token }
+    ),
+
+  getWorkoutCompletion: (token: string, days = 30) =>
+    api<{ totalPlannedRoutines: number; completionsInPeriod: number; avgSessionDurationMinutes: number; byDayOfWeek: Array<{ day: string; count: number }> }>(
+      `/analytics/workout-completion?days=${days}`, { token }
+    ),
+
+  getDietAdherence: (token: string, days = 30) =>
+    api<{ activeDietPlanUsers: number; usersLoggedMeals: number; mealLogRate: number; totalMealLogsInPeriod: number; avgDailyCaloriesLogged: number }>(
+      `/analytics/diet-adherence?days=${days}`, { token }
+    ),
+
+  getLeaderboardHealth: (token: string) =>
+    api<{ pointsBuckets: { beginner: number; active: number; champion: number }; totalUsersWithPoints: number; inactiveLast7d: number; inactiveLast30d: number; neverActive: number }>(
+      '/analytics/leaderboard-health', { token }
+    ),
+
+  getPlatformRevenueTrend: (token: string, days = 30) =>
+    api<Array<{ date: string; revenue: number }>>(
+      `/analytics/platform-revenue-trend?days=${days}`, { token }
+    ),
+
+  getPlatformStats: (token: string) =>
+    api<{ revenueGrowth: number; newPartners: number; totalActiveMembers: number; topGymName: string }>(
+      '/analytics/platform-stats', { token }
+    ),
+
+  // Gym owner deep-dive (P3-5)
+  getGymPulse: (gymId: string, token: string) =>
+    api<{ activeNow: number; todayTotal: number; yesterdayTotal: number; vsYesterday: number; hourlyCheckins: Array<{ hour: number; count: number }> }>(
+      `/analytics/gyms/${gymId}/pulse`, { token }
+    ),
+
+  getRetentionHeatmap: (gymId: string, token: string) =>
+    api<{ byDayOfWeek: Array<{ day: string; count: number; avgPerWeek: number }>; periodWeeks: number; totalCheckins: number }>(
+      `/analytics/gyms/${gymId}/retention-heatmap`, { token }
+    ),
+
+  getTopTrainers: (gymId: string, token: string) =>
+    api<Array<{ trainerId: string; fullName: string; assignedMembers: number; sessionsThisMonth: number; completionRate: number }>>(
+      `/analytics/gyms/${gymId}/top-trainers`, { token }
+    ),
+
+  getPlanMix: (gymId: string, token: string) =>
+    api<{ plans: Array<{ planId: string; name: string; price: number; activeCount: number; pendingCount: number; cancelledCount: number; frozenCount: number; percentage: number }>; totalActiveMembers: number }>(
+      `/analytics/gyms/${gymId}/plan-mix`, { token }
+    ),
+
+  getGymRevenue: (gymId: string, token: string) =>
+    api<{ kpis: { mrr: number; arr: number; revenueAtRisk: number; revenueAtRiskPct: number; avgRevenuePerMember: number; activeMembers: number; newMembersThisMonth: number; realizedThisMonth: number; realizedLastMonth: number; momGrowthPct: number }; monthlyTrend: Array<{ month: string; realized: number; projected: number }>; planBreakdown: Array<{ planName: string; activeMembers: number; monthlyValue: number; percentage: number }> }>(
+      `/analytics/gyms/${gymId}/revenue`, { token }
+    ),
+}
+
+// ─── Branch Management ────────────────────────────────────────────────────────
+
+export interface BranchStats {
+  activeMembers: number;
+  trainerCount: number;
+  todayCheckins: number;
+  monthCheckins: number;
+  expiringSoon: number;
+}
+
+export const branchesApi = {
+  list: (gymId: string, token: string) =>
+    api<Branch[]>(`/gym-owner/gyms/${gymId}/branches`, { token }),
+
+  create: (gymId: string, token: string, data: { name: string; address?: string; city?: string; phone?: string; maxCapacity?: number; openTime?: string; closeTime?: string }) =>
+    api<Branch>(`/gym-owner/gyms/${gymId}/branches`, { method: 'POST', body: data, token }),
+
+  update: (gymId: string, branchId: string, token: string, data: Partial<{ name: string; address: string; city: string; phone: string; maxCapacity: number; openTime: string; closeTime: string; isActive: boolean }>) =>
+    api<Branch>(`/gym-owner/gyms/${gymId}/branches/${branchId}`, { method: 'PATCH', body: data, token }),
+
+  deactivate: (gymId: string, branchId: string, token: string) =>
+    api<{ message: string }>(`/gym-owner/gyms/${gymId}/branches/${branchId}`, { method: 'DELETE', token }),
+
+  getStats: (gymId: string, branchId: string, token: string) =>
+    api<{ branch: Branch; stats: BranchStats }>(`/gym-owner/gyms/${gymId}/branches/${branchId}/stats`, { token }),
+
+  assignAdmin: (gymId: string, branchId: string, adminId: string, token: string) =>
+    api<{ message: string }>(`/gym-owner/gyms/${gymId}/branches/${branchId}/assign-admin`, { method: 'POST', body: { adminId }, token }),
 }
 
 // ─── Automation Rules ──────────────────────────────────────────────────────────
@@ -1685,10 +1801,10 @@ export interface RevenueIntelligence {
 
 export const revenueApi = {
   getIntelligence: (gymId: string, token: string) =>
-    api<{ data: RevenueIntelligence }>(`/analytics/gyms/${gymId}/revenue`, { token }),
+    api<RevenueIntelligence>(`/analytics/gyms/${gymId}/revenue`, { token }),
 
   getKPIs: (gymId: string, token: string) =>
-    api<{ data: RevenueKPIs }>(`/analytics/gyms/${gymId}/revenue/kpis`, { token }),
+    api<RevenueKPIs>(`/analytics/gyms/${gymId}/revenue/kpis`, { token }),
 }
 
 // ─── Training Sessions ─────────────────────────────────────────────────────────

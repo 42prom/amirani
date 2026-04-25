@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:amirani_app/design_system/design_system.dart';
-import '../providers/water_tracker_provider.dart';
+import 'package:amirani_app/core/providers/session_progress_provider.dart';
 
 /// Compact water tracker bar shown on the home dashboard.
-/// Tap a preset bubble to log intake. Progress animates with wave fill.
+/// Unified with the SessionProgress system for real-time cloud sync.
 class WaterTrackerWidget extends ConsumerWidget {
   const WaterTrackerWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(waterTrackerProvider);
-    final pct = (state.consumedMl / state.goalMl).clamp(0.0, 1.0);
-    final liters = (state.consumedMl / 1000).toStringAsFixed(1);
-    final goal = (state.goalMl / 1000).toStringAsFixed(1);
+    final session = ref.watch(sessionProgressProvider);
+    final hydration = session.hydration;
+    
+    // We display in ml. Logic: 1 cup = 250ml. 
+    // targetCups defaults to 10 (2.5L) or 12 (3L).
+    final goalMl = hydration.targetCups * 250;
+    final consumedMl = hydration.completedCups * 250;
+    
+    final pct = (consumedMl / (goalMl > 0 ? goalMl : 1)).clamp(0.0, 1.0);
+    final liters = (consumedMl / 1000).toStringAsFixed(1);
+    final goal = (goalMl / 1000).toStringAsFixed(1);
 
     return GlassCard(
       padding: const EdgeInsets.all(AppTokens.space16),
@@ -85,17 +92,22 @@ class WaterTrackerWidget extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ...[250, 350, 500].map(
+              ...[250, 500, 750].map(
                 (ml) => _QuickLogBubble(
                   ml: ml,
-                  onTap: () =>
-                      ref.read(waterTrackerProvider.notifier).logMl(ml),
+                  onTap: () {
+                    // Logic: ml to cups. 250ml = 1 cup.
+                    final cups = (ml / 250).ceil();
+                    ref.read(sessionProgressProvider.notifier).updateHydration(
+                      hydration.completedCups + cups
+                    );
+                  },
                 ),
               ),
               _QuickLogBubble(
                 ml: null,
                 label: 'Custom',
-                onTap: () => _showCustomDialog(context, ref),
+                onTap: () => _showCustomDialog(context, ref, hydration.completedCups),
               ),
             ],
           ),
@@ -119,14 +131,14 @@ class WaterTrackerWidget extends ConsumerWidget {
                 children: [
                   Icon(Icons.info_outline,
                       size: 12,
-                      color: AppTokens.colorScoreHydration
-                          .withValues(alpha: 0.8)),
+                      color:
+                          AppTokens.colorScoreHydration.withValues(alpha: 0.8)),
                   const SizedBox(width: AppTokens.space6),
                   Text(
                     'Stay hydrated — you\'re under 50% of your daily goal',
                     style: AppTokens.textCaption.copyWith(
-                      color: AppTokens.colorScoreHydration
-                          .withValues(alpha: 0.8),
+                      color:
+                          AppTokens.colorScoreHydration.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -138,7 +150,7 @@ class WaterTrackerWidget extends ConsumerWidget {
     );
   }
 
-  void _showCustomDialog(BuildContext context, WidgetRef ref) {
+  void _showCustomDialog(BuildContext context, WidgetRef ref, int currentCups) {
     final controller = TextEditingController();
     showDialog<void>(
       context: context,
@@ -156,8 +168,7 @@ class WaterTrackerWidget extends ConsumerWidget {
             hintStyle: const TextStyle(color: AppTokens.colorTextMuted),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTokens.radius12),
-              borderSide:
-                  const BorderSide(color: AppTokens.colorBorderSubtle),
+              borderSide: const BorderSide(color: AppTokens.colorBorderSubtle),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppTokens.radius12),
@@ -175,7 +186,10 @@ class WaterTrackerWidget extends ConsumerWidget {
             onPressed: () {
               final ml = int.tryParse(controller.text.trim());
               if (ml != null && ml > 0) {
-                ref.read(waterTrackerProvider.notifier).logMl(ml);
+                final extraCups = (ml / 250).ceil();
+                ref.read(sessionProgressProvider.notifier).updateHydration(
+                  currentCups + extraCups
+                );
               }
               Navigator.pop(ctx);
             },

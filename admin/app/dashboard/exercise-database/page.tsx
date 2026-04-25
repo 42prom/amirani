@@ -353,7 +353,13 @@ export default function ExerciseDatabasePage() {
           { label: "Total Exercises", value: stats?.total ?? 0,          color: "text-white" },
           { label: "Active",          value: stats?.active ?? 0,         color: "text-green-400" },
           { label: "Muscle Groups",   value: stats?.byMuscle?.length ?? 0, color: "text-[#F1C40F]" },
-          { label: "Showing",         value: `${filtered.length} / ${stats?.total || 0}`, color: "text-[#F1C40F]" },
+          { 
+            label: "Showing",         
+            value: filtered.length > 0 
+              ? `${safePage * PAGE_SIZE + 1}–${Math.min((safePage + 1) * PAGE_SIZE, filtered.length)} / ${filtered.length}`
+              : "0 / 0", 
+            color: "text-[#F1C40F]" 
+          },
         ].map(s => (
           <div key={s.label} className="bg-[#121721] border border-white/5 rounded-2xl p-5">
             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{s.label}</p>

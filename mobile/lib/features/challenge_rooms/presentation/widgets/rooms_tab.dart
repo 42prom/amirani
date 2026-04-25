@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../data/models/room_model.dart';
 import '../providers/room_provider.dart';
 import '../pages/room_detail_page.dart';
@@ -29,7 +29,7 @@ class _RoomsTabState extends ConsumerState<RoomsTab> {
 
     return state.when(
       loading: () => const Center(
-        child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+        child: CircularProgressIndicator(color: AppTokens.colorBrand),
       ),
       error: (e, _) => _ErrorView(
         message: e.toString().replaceAll('Exception: ', ''),
@@ -51,8 +51,8 @@ class _RoomsContent extends ConsumerWidget {
         data.availableRooms.isNotEmpty;
 
     return RefreshIndicator(
-      color: AppTheme.primaryBrand,
-      backgroundColor: AppTheme.surfaceDark,
+      color: AppTokens.colorBrand,
+      backgroundColor: AppTokens.colorBgSurface,
       onRefresh: () => ref.read(myRoomsProvider.notifier).load(),
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -123,7 +123,7 @@ class _GymRoomsHeader extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
-              colors: [AppTheme.primaryBrand, Color(0xFFB8860B)],
+              colors: [AppTokens.colorBrand, Color(0xFFB8860B)],
             ),
             borderRadius: BorderRadius.circular(8),
           ),
@@ -180,11 +180,11 @@ class _GymRoomCard extends ConsumerWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryBrand.withValues(alpha: 0.12),
-              AppTheme.surfaceDark,
+              AppTokens.colorBrand.withValues(alpha: 0.12),
+              AppTokens.colorBgSurface,
             ],
           ),
-          border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.35), width: 1.2),
+          border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.35), width: 1.2),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -242,18 +242,18 @@ class _GymRoomCard extends ConsumerWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Icon(Icons.people_outline, size: 14, color: AppTheme.primaryBrand.withValues(alpha: 0.7)),
+                  Icon(Icons.people_outline, size: 14, color: AppTokens.colorBrand.withValues(alpha: 0.7)),
                   const SizedBox(width: 4),
                   Text(
                     '${room.memberCount} / ${room.maxMembers} members',
-                    style: TextStyle(color: AppTheme.primaryBrand.withValues(alpha: 0.7), fontSize: 12),
+                    style: TextStyle(color: AppTokens.colorBrand.withValues(alpha: 0.7), fontSize: 12),
                   ),
                   const Spacer(),
-                  Icon(Icons.verified, size: 13, color: AppTheme.primaryBrand.withValues(alpha: 0.6)),
+                  Icon(Icons.verified, size: 13, color: AppTokens.colorBrand.withValues(alpha: 0.6)),
                   const SizedBox(width: 4),
                   Text(
                     'Official Challenge',
-                    style: TextStyle(color: AppTheme.primaryBrand.withValues(alpha: 0.6), fontSize: 11),
+                    style: TextStyle(color: AppTokens.colorBrand.withValues(alpha: 0.6), fontSize: 11),
                   ),
                 ],
               ),
@@ -268,7 +268,7 @@ class _GymRoomCard extends ConsumerWidget {
     switch (metric) {
       case 'SESSIONS': return Colors.blueAccent;
       case 'STREAK':   return Colors.orangeAccent;
-      default:         return AppTheme.primaryBrand;
+      default:         return AppTokens.colorBrand;
     }
   }
 
@@ -297,14 +297,14 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: AppTheme.primaryBrand, size: 18),
+            Icon(icon, color: AppTokens.colorBrand, size: 18),
             const SizedBox(width: 8),
             Text(
               label,
@@ -332,12 +332,12 @@ class _SectionHeader extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+            color: AppTokens.colorBrand.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             '$count',
-            style: const TextStyle(color: AppTheme.primaryBrand, fontSize: 11, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: AppTokens.colorBrand, fontSize: 11, fontWeight: FontWeight.bold),
           ),
         ),
       ],
@@ -362,7 +362,7 @@ class _RoomCard extends ConsumerWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -445,7 +445,7 @@ class _RoomCard extends ConsumerWidget {
     switch (metric) {
       case 'SESSIONS': return Colors.blueAccent;
       case 'STREAK':   return Colors.orangeAccent;
-      default:         return AppTheme.primaryBrand;
+      default:         return AppTokens.colorBrand;
     }
   }
 
@@ -476,18 +476,18 @@ class _JoinButtonState extends ConsumerState<_JoinButton> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+          color: AppTokens.colorBrand.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+          border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
         ),
         child: _loading
             ? const SizedBox(
                 width: 14, height: 14,
-                child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBrand),
+                child: CircularProgressIndicator(strokeWidth: 2, color: AppTokens.colorBrand),
               )
             : const Text('Join',
                 style: TextStyle(
-                    color: AppTheme.primaryBrand, fontSize: 12, fontWeight: FontWeight.bold)),
+                    color: AppTokens.colorBrand, fontSize: 12, fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -541,9 +541,9 @@ class _EmptyState extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+              color: AppTokens.colorBrand.withValues(alpha: 0.1),
             ),
-            child: const Icon(Icons.emoji_events, color: AppTheme.primaryBrand, size: 36),
+            child: const Icon(Icons.emoji_events, color: AppTokens.colorBrand, size: 36),
           ),
           const SizedBox(height: 20),
           const Text('No rooms yet',
@@ -584,12 +584,12 @@ class _ErrorView extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                 ),
                 child: const Text('Retry',
-                    style: TextStyle(color: AppTheme.primaryBrand, fontWeight: FontWeight.bold)),
+                    style: TextStyle(color: AppTokens.colorBrand, fontWeight: FontWeight.bold)),
               ),
             ),
           ],

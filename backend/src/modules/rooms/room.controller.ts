@@ -148,6 +148,33 @@ router.get('/:id/my-rank', async (req: AuthenticatedRequest, res: Response) => {
   }
 });
 
+/** GET /api/rooms/:id/share-card — shareable room metadata for viral sharing */
+router.get('/:id/share-card', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const room = await prisma.progressRoom.findUnique({
+      where: { id: req.params.id },
+      include: { _count: { select: { memberships: true } } },
+    });
+    if (!room) return res.status(404).json({ error: 'Room not found' });
+
+    const topPlayers = await getRoomLeaderboard(req.params.id, 3);
+
+    res.json({
+      data: {
+        roomName: room.name,
+        memberCount: room._count.memberships,
+        metric: room.metric,
+        period: room.period,
+        inviteCode: room.inviteCode,
+        shareLink: `amirani://rooms/join?code=${room.inviteCode}`,
+        topPlayers: topPlayers.map(e => ({ name: e.fullName, score: e.totalPoints, rank: e.rank })),
+      },
+    });
+  } catch (err: any) {
+    res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
 // ─── Admin routes ─────────────────────────────────────────────────────────────
 
 /** GET /api/rooms/gyms/:gymId — admin: list all rooms */

@@ -44,8 +44,11 @@ import nutritionStatsRoutes from './modules/food/nutrition-stats.controller';
 import workoutRoutes from './modules/workouts/workout.controller';
 import aiRoutes from './modules/ai/ai.controller';
 import languageRoutes from './modules/gyms/language.controller';
+import languagePacksAdminRoutes from './modules/admin/language-packs.controller';
 import gamificationRoutes from './modules/gamification/gamification.controller';
 import contributionRoutes from './modules/contribution/trainer-contribution.controller';
+import healthRoutes, { requestIdMiddleware } from './modules/health/health.controller';
+import referralRoutes from './modules/referrals/referral.controller';
 
 import { initSocket } from './lib/socket';
 import { startAiWorkers } from './jobs/worker';
@@ -86,6 +89,7 @@ app.use(cors({
 // The handler itself (stripe-webhook.controller) performs full sig + idempotency checks.
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }), stripeWebhookRoutes);
 app.use(express.json());
+app.use(requestIdMiddleware);
 app.use(requestLogger);
 app.use('/api/', globalLimiter);
 
@@ -102,6 +106,9 @@ app.use('/api/admin', adminRoutes);
 
 // Invitation routes (Super Admin only)
 app.use('/api/admin/invitations', invitationRoutes);
+
+// Language pack management (Super Admin only)
+app.use('/api/admin/language-packs', languagePacksAdminRoutes);
 
 // Gym management routes
 app.use('/api/gym-management', gymRoutes);
@@ -203,18 +210,11 @@ app.use('/api/gamification', gamificationRoutes);
 // Trainer Contributions & Super Admin Review (food items, exercises, substitutions)
 app.use('/api/contributions', contributionRoutes);
 
+// Referral system
+app.use('/api/referrals', referralRoutes);
 
-
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'amirani-backend-v2',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
-});
+// Health checks (public — no auth, no rate limit)
+app.use('/health', healthRoutes);
 
 // Root route
 app.get('/', (req, res) => {

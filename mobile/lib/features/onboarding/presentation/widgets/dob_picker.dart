@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class DobPicker extends StatefulWidget {
   final DateTime? value;
@@ -84,7 +84,7 @@ class _DobPickerState extends State<DobPicker> {
   }
 
   TextStyle _itemStyle(bool selected) => TextStyle(
-        color: selected ? AppTheme.textPrimary : AppTheme.textSecondary.withValues(alpha: 0.4),
+        color: selected ? AppTokens.colorTextPrimary : AppTokens.colorTextSecondary.withValues(alpha: 0.4),
         fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
         fontSize: selected ? 20 : 15,
       );
@@ -93,7 +93,7 @@ class _DobPickerState extends State<DobPicker> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
@@ -106,10 +106,10 @@ class _DobPickerState extends State<DobPicker> {
               height: 42,
               margin: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                color: AppTokens.colorBrand.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.25)),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.25)),
               ),
             ),
           ),
@@ -133,7 +133,7 @@ class _DobPickerState extends State<DobPicker> {
                 },
               ),
               // Divider
-              Text('/', style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.3), fontSize: 20)),
+              Text('/', style: TextStyle(color: AppTokens.colorTextSecondary.withValues(alpha: 0.3), fontSize: 20)),
               // Month
               _wheel(
                 controller: _monthCtrl,
@@ -147,7 +147,7 @@ class _DobPickerState extends State<DobPicker> {
                   return Text(_months[i], style: _itemStyle(selected));
                 },
               ),
-              Text('/', style: TextStyle(color: AppTheme.textSecondary.withValues(alpha: 0.3), fontSize: 20)),
+              Text('/', style: TextStyle(color: AppTokens.colorTextSecondary.withValues(alpha: 0.3), fontSize: 20)),
               // Year
               _wheel(
                 controller: _yearCtrl,

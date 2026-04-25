@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
 import '../../../../design_system/tokens/app_tokens.dart';
 import '../../../../design_system/components/glass_card.dart';
 import '../../../../design_system/components/glass_onboarding_background.dart';
@@ -372,7 +371,7 @@ class _GenderTiles extends StatelessWidget {
 
   Widget _tile(String label, OnboardingGender value, IconData icon) {
     final isSelected = selected == value;
-    final activeColor = value == OnboardingGender.male ? AppTheme.maleBlue : AppTheme.femalePink;
+    final activeColor = value == OnboardingGender.male ? const Color(0xFF2D9CDB) : const Color(0xFFFF52AF);
 
     return Expanded(
       child: GestureDetector(

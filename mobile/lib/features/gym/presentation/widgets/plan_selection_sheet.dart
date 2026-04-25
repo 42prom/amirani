@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/membership_plans_provider.dart';
 import '../../../../core/utils/app_notifications.dart';
 
@@ -24,7 +24,7 @@ class PlanSelectionSheet extends ConsumerWidget {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       decoration: const BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
@@ -95,7 +95,7 @@ class PlanSelectionSheet extends ConsumerWidget {
       return const Center(
         child: Padding(
           padding: EdgeInsets.all(48.0),
-          child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+          child: CircularProgressIndicator(color: AppTokens.colorBrand),
         ),
       );
     }
@@ -155,7 +155,7 @@ class PlanSelectionSheet extends ConsumerWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         boxShadow: [
@@ -194,13 +194,13 @@ class PlanSelectionSheet extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                                color: AppTokens.colorBrand.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Text(
                                 'BEST VALUE',
                                 style: TextStyle(
-                                  color: AppTheme.primaryBrand,
+                                  color: AppTokens.colorBrand,
                                   fontSize: 9,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.5,
@@ -223,7 +223,7 @@ class PlanSelectionSheet extends ConsumerWidget {
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Row(
                           children: [
-                            const Icon(Icons.check, color: AppTheme.primaryBrand, size: 14),
+                            const Icon(Icons.check, color: AppTokens.colorBrand, size: 14),
                             const SizedBox(width: 8),
                             Text(
                               f,

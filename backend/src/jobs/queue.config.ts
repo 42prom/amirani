@@ -49,6 +49,16 @@ export const pushNotificationQueue = new Queue('push-notifications', {
   },
 });
 
+export const langPackGenerateQueue = new Queue('lang-pack-generate', {
+  connection: redisConnection,
+  defaultJobOptions: {
+    attempts: 2,
+    backoff: { type: 'fixed', delay: 10_000 },
+    removeOnComplete: { count: 50 },
+    removeOnFail: { count: 50 },
+  },
+});
+
 export const leaderboardResetQueue = new Queue('leaderboard-reset', {
   connection: redisConnection,
   defaultJobOptions: {

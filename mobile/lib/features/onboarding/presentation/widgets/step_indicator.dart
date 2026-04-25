@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class StepIndicator extends StatelessWidget {
   final int totalSteps;
@@ -27,7 +27,7 @@ class StepIndicator extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
             color: active
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.15),
           ),
         );

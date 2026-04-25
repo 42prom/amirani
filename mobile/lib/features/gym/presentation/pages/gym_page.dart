@@ -10,7 +10,7 @@ import '../providers/gym_provider.dart';
 import '../providers/gym_access_provider.dart';
 import '../providers/membership_provider.dart';
 import 'gym_entry_page.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
@@ -36,6 +36,7 @@ import 'package:intl/intl.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../widgets/trainer_dashboard.dart';
 import '../widgets/plan_selection_sheet.dart';
+import '../../domain/entities/branch_info.dart';
 
 class GymPage extends ConsumerStatefulWidget {
   const GymPage({super.key});
@@ -145,7 +146,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     });
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: Stack(
         children: [
           SafeArea(
@@ -185,8 +186,8 @@ class _GymPageState extends ConsumerState<GymPage> {
                               await mFuture;
                             }
                           },
-                          backgroundColor: AppTheme.surfaceDark,
-                          color: AppTheme.primaryBrand,
+                          backgroundColor: AppTokens.colorBgSurface,
+                          color: AppTokens.colorBrand,
                           child: membershipState is MembershipInitial || membershipState is MembershipLoading
                               ? _buildLoadingShimmer()
                               : (isMember && (membershipState is MembershipLoaded && 
@@ -205,7 +206,7 @@ class _GymPageState extends ConsumerState<GymPage> {
               blastDirectionality: BlastDirectionality.explosive,
               shouldLoop: false,
               colors: const [
-                AppTheme.primaryBrand,
+                AppTokens.colorBrand,
                 Colors.white,
                 Colors.amber,
                 Colors.orange,
@@ -228,7 +229,7 @@ class _GymPageState extends ConsumerState<GymPage> {
         child: Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: AppTheme.surfaceDark.withValues(alpha: 0.95),
+            color: AppTokens.colorBgSurface.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(32),
             border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             boxShadow: [
@@ -247,13 +248,13 @@ class _GymPageState extends ConsumerState<GymPage> {
                 width: 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.12),
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.35),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.35),
                       width: 1.5),
                 ),
                 child: Icon(Icons.fitness_center,
-                    color: AppTheme.primaryBrand, size: 32),
+                    color: AppTokens.colorBrand, size: 32),
               ),
               const SizedBox(height: 20),
               const Text(
@@ -282,7 +283,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                       style: TextStyle(
                           fontSize: 15, fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -428,7 +429,7 @@ class _GymPageState extends ConsumerState<GymPage> {
             Container(
               padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
+                color: AppTokens.colorBgSurface,
                 borderRadius: BorderRadius.circular(32),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                 boxShadow: [
@@ -489,7 +490,7 @@ class _GymPageState extends ConsumerState<GymPage> {
             const SizedBox(height: 48),
             const Text(
               'While you wait...',
-              style: TextStyle(color: AppTheme.primaryBrand, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+              style: TextStyle(color: AppTokens.colorBrand, fontSize: 12, fontWeight: FontWeight.w900, letterSpacing: 1.5),
             ),
             const SizedBox(height: 20),
             _buildPendingTipRow(Icons.person_outline, 'Complete your fitness profile'),
@@ -571,6 +572,10 @@ class _GymPageState extends ConsumerState<GymPage> {
           ],
           const SizedBox(height: 32),
           _buildTrainersSection(),
+          if (gymId != null) ...[
+            const SizedBox(height: 32),
+            _buildBranchLocations(gymId),
+          ],
           const SizedBox(height: 32),
           _buildGymUtilities(gymId, gymName),
           if (gymId != null && gymName != null) ...[
@@ -663,7 +668,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Exit Gym Session?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -680,7 +685,7 @@ class _GymPageState extends ConsumerState<GymPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBrand,
+              backgroundColor: AppTokens.colorBrand,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -720,9 +725,9 @@ class _GymPageState extends ConsumerState<GymPage> {
                         width: 12,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           border: Border.all(
-                              color: AppTheme.backgroundDark, width: 2),
+                              color: AppTokens.colorBgPrimary, width: 2),
                         ),
                       ),
                     ),
@@ -755,7 +760,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                 width: 40,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+                    color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
                     border:
                         Border.all(color: Colors.white.withValues(alpha: 0.05))),
                 child:
@@ -952,8 +957,8 @@ class _GymPageState extends ConsumerState<GymPage> {
 
   /// Returns a colour that reflects urgency: green → amber → red.
   Color _subscriptionColor(int? days) {
-    if (days == null) return AppTheme.primaryBrand;
-    if (days > 14) return AppTheme.primaryBrand;
+    if (days == null) return AppTokens.colorBrand;
+    if (days > 14) return AppTokens.colorBrand;
     if (days > 7) return const Color(0xFFF39C12);
     return const Color(0xFFE74C3C);
   }
@@ -973,7 +978,7 @@ class _GymPageState extends ConsumerState<GymPage> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: isUrgent
@@ -1152,7 +1157,7 @@ class _GymPageState extends ConsumerState<GymPage> {
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -1196,7 +1201,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: borderColor),
       ),
@@ -1401,7 +1406,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Leave Gym?',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -1458,7 +1463,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                 height: 2,
                 child: LinearProgressIndicator(
                   backgroundColor: Colors.transparent,
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                 ),
               ),
             )
@@ -1483,12 +1488,12 @@ class _GymPageState extends ConsumerState<GymPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBrand.withValues(alpha: 0.12),
-            AppTheme.primaryBrand.withValues(alpha: 0.04),
+            AppTokens.colorBrand.withValues(alpha: 0.12),
+            AppTokens.colorBrand.withValues(alpha: 0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.25)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.25)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1498,13 +1503,13 @@ class _GymPageState extends ConsumerState<GymPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'YOUR TRAINER',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 9,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1),
@@ -1521,7 +1526,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.4), width: 2),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.4), width: 2),
                 ),
                 child: ClipOval(
                   child: (trainer.avatarUrl?.isNotEmpty == true)
@@ -1550,7 +1555,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                       Text(
                         trainer.specialization!,
                         style: const TextStyle(
-                            color: AppTheme.primaryBrand,
+                            color: AppTokens.colorBrand,
                             fontSize: 11,
                             fontWeight: FontWeight.bold),
                       ),
@@ -1578,7 +1583,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                 child: _trainerActionButton(
                   icon: Icons.chat_bubble_outline_rounded,
                   label: 'Chat',
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   onTap: gymId != null
                       ? () => _openTrainerChat(gymId, trainer, membership)
                       : null,
@@ -1721,7 +1726,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Remove Trainer?',
             style: TextStyle(color: Colors.white)),
@@ -1785,7 +1790,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                     fontWeight: FontWeight.bold)),
             Text("View All",
                 style: TextStyle(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.bold)),
           ],
@@ -1818,7 +1823,7 @@ class _GymPageState extends ConsumerState<GymPage> {
         margin: const EdgeInsets.only(right: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -1830,7 +1835,7 @@ class _GymPageState extends ConsumerState<GymPage> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.3), width: 2),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.3), width: 2),
               ),
               child: ClipOval(
                 child: (trainer.avatarUrl?.isNotEmpty == true)
@@ -1856,7 +1861,7 @@ class _GymPageState extends ConsumerState<GymPage> {
             Text(
               trainer.specialization ?? 'General Trainer',
               style: const TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5),
@@ -1869,14 +1874,14 @@ class _GymPageState extends ConsumerState<GymPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                 ),
                 child: const Text(
                   'Request',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 11,
                       fontWeight: FontWeight.bold),
                 ),
@@ -1893,7 +1898,7 @@ class _GymPageState extends ConsumerState<GymPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text('Request ${trainer.fullName}',
             style: const TextStyle(color: Colors.white, fontSize: 16)),
@@ -1924,7 +1929,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryBrand),
+                  borderSide: const BorderSide(color: AppTokens.colorBrand),
                 ),
               ),
             ),
@@ -1940,7 +1945,7 @@ class _GymPageState extends ConsumerState<GymPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryBrand,
+              backgroundColor: AppTokens.colorBrand,
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
@@ -1974,6 +1979,71 @@ class _GymPageState extends ConsumerState<GymPage> {
     AppNotifications.showInfo(context, '$feature — coming soon');
   }
 
+  Widget _buildBranchLocations(String gymId) {
+    final branchAsync = ref.watch(gymBranchesProvider(gymId));
+    return branchAsync.when(
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+      data: (branches) {
+        if (branches.isEmpty) return const SizedBox.shrink();
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Gym Locations',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('${branches.length} branch${branches.length == 1 ? '' : 'es'}',
+                    style: TextStyle(color: AppTokens.colorBrand.withValues(alpha: 0.8), fontSize: 12, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ...branches.map((BranchInfo branch) => Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppTokens.colorBgSurface,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36, height: 36,
+                        decoration: BoxDecoration(
+                          color: AppTokens.colorBrand.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.store_outlined, color: AppTokens.colorBrand, size: 18),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(branch.name,
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+                            if (branch.locationLabel.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(branch.locationLabel,
+                                  style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 11)),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (branch.hoursLabel.isNotEmpty)
+                        Text(branch.hoursLabel,
+                            style: TextStyle(color: AppTokens.colorBrand.withValues(alpha: 0.8), fontSize: 11, fontWeight: FontWeight.w500)),
+                    ],
+                  ),
+                )),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildGymUtilities(String? gymId, String? gymName) {
     return Column(
       children: [
@@ -1987,7 +2057,7 @@ class _GymPageState extends ConsumerState<GymPage> {
                     fontWeight: FontWeight.bold)),
             Text("View All",
                 style: TextStyle(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.8),
                     fontSize: 12,
                     fontWeight: FontWeight.bold)),
           ],
@@ -2051,7 +2121,7 @@ class _GymPageState extends ConsumerState<GymPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -2065,7 +2135,7 @@ class _GymPageState extends ConsumerState<GymPage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.white10),
             ),
-            child: Icon(icon, color: AppTheme.primaryBrand, size: 24),
+            child: Icon(icon, color: AppTokens.colorBrand, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -2122,12 +2192,12 @@ class _GymPageState extends ConsumerState<GymPage> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isActive
-                        ? AppTheme.primaryBrand
+                        ? AppTokens.colorBrand
                         : Colors.transparent,
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                                color: AppTheme.primaryBrand
+                                color: AppTokens.colorBrand
                                     .withValues(alpha: 0.8),
                                 blurRadius: 10)
                           ]
@@ -2173,7 +2243,7 @@ class _GymPageState extends ConsumerState<GymPage> {
               padding: EdgeInsets.symmetric(vertical: 24),
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
               ),
             ),
           ),
@@ -2219,11 +2289,11 @@ class _GymPageState extends ConsumerState<GymPage> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.backgroundDark,
+                color: AppTokens.colorBgPrimary,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: session.isBooked
-                      ? AppTheme.primaryBrand.withValues(alpha: 0.5)
+                      ? AppTokens.colorBrand.withValues(alpha: 0.5)
                       : Colors.white.withValues(alpha: 0.07),
                 ),
               ),
@@ -2272,14 +2342,14 @@ class _GymPageState extends ConsumerState<GymPage> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                            color: AppTokens.colorBrand.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                            border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                           ),
                           child: const Text(
                             'Booked',
                             style: TextStyle(
-                              color: AppTheme.primaryBrand,
+                              color: AppTokens.colorBrand,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                             ),
@@ -2316,7 +2386,7 @@ class _GymPageState extends ConsumerState<GymPage> {
   Color _sessionTypeColor(String type) {
     switch (type) {
       case 'GROUP_CLASS': return Colors.blue.shade600;
-      case 'ONE_ON_ONE': return AppTheme.primaryBrand;
+      case 'ONE_ON_ONE': return AppTokens.colorBrand;
       case 'WORKSHOP': return Colors.purple.shade500;
       default: return Colors.grey;
     }
@@ -2352,11 +2422,11 @@ class _GymPageState extends ConsumerState<GymPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(16),
         border: announcement.isPinned
             ? const Border(
-                left: BorderSide(color: AppTheme.primaryBrand, width: 3),
+                left: BorderSide(color: AppTokens.colorBrand, width: 3),
               )
             : Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
@@ -2369,12 +2439,12 @@ class _GymPageState extends ConsumerState<GymPage> {
               child: Row(
                 children: [
                   const Icon(Icons.push_pin_rounded,
-                      size: 11, color: AppTheme.primaryBrand),
+                      size: 11, color: AppTokens.colorBrand),
                   const SizedBox(width: 4),
                   const Text(
                     'PINNED',
                     style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
@@ -2559,7 +2629,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
@@ -2624,7 +2694,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundDark,
+                  color: AppTokens.colorBgPrimary,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                       color: const Color(0xFF2D9CDB).withValues(alpha: 0.2)),
@@ -2717,7 +2787,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundDark,
+                  color: AppTokens.colorBgPrimary,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
                 ),
@@ -2740,7 +2810,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
                       child: ElevatedButton(
                         onPressed: widget.onScanQr,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryBrand,
+                          backgroundColor: AppTokens.colorBrand,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -2776,7 +2846,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDark,
+          color: AppTokens.colorBgPrimary,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -2796,7 +2866,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDark,
+          color: AppTokens.colorBgPrimary,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -2891,7 +2961,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDark,
+          color: AppTokens.colorBgPrimary,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
               color: Colors.orange.withValues(alpha: 0.3)),
@@ -2919,7 +2989,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.07)),
       ),
@@ -2961,7 +3031,7 @@ class _DoorAccessSheetState extends ConsumerState<_DoorAccessSheet> {
                   : const Icon(Icons.add_card, size: 18),
               label: Text(_enrolling ? 'Activating…' : 'Add Phone as NFC Key'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBrand,
+                backgroundColor: AppTokens.colorBrand,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -3122,8 +3192,8 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.modalBackground,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         border: Border(
           top: BorderSide(
             color: Colors.white.withValues(alpha: 0.1),
@@ -3133,9 +3203,9 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
       ),
       padding: EdgeInsets.only(bottom: bottom),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: AppTheme.modalBlur, sigmaY: AppTheme.modalBlur),
+          filter: ImageFilter.blur(sigmaX: AppTokens.blurStandard, sigmaY: AppTokens.blurStandard),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -3145,7 +3215,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
                 height: 4,
                 width: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.modalHandleColor,
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -3219,16 +3289,16 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                  border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add, color: AppTheme.primaryBrand, size: 14),
+                    Icon(Icons.add, color: AppTokens.colorBrand, size: 14),
                     const SizedBox(width: 4),
-                    Text('New', style: TextStyle(color: AppTheme.primaryBrand, fontSize: 13, fontWeight: FontWeight.w600)),
+                    Text('New', style: TextStyle(color: AppTokens.colorBrand, fontSize: 13, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ),
@@ -3254,7 +3324,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
     if (state is SupportLoading) {
       return const Padding(
         padding: EdgeInsets.all(40),
-        child: Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand, strokeWidth: 2)),
+        child: Center(child: CircularProgressIndicator(color: AppTokens.colorBrand, strokeWidth: 2)),
       );
     }
     if (state is SupportError) {
@@ -3378,7 +3448,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
             child: ElevatedButton(
               onPressed: _submitting ? null : _submitTicket,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBrand,
+                backgroundColor: AppTokens.colorBrand,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -3492,12 +3562,12 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
           if (isStaff) ...[
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryBrand.withValues(alpha: 0.2),
+              backgroundColor: AppTokens.colorBrand.withValues(alpha: 0.2),
               backgroundImage: msg.senderAvatarUrl != null
                   ? CachedNetworkImageProvider(AppConfig.resolveMediaUrl(msg.senderAvatarUrl) ?? '')
                   : null,
               child: msg.senderAvatarUrl == null
-                  ? Icon(Icons.support_agent, color: AppTheme.primaryBrand, size: 16)
+                  ? Icon(Icons.support_agent, color: AppTokens.colorBrand, size: 16)
                   : null,
             ),
             const SizedBox(width: 8),
@@ -3528,7 +3598,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: isStaff
-                        ? AppTheme.primaryBrand.withValues(alpha: 0.12)
+                        ? AppTokens.colorBrand.withValues(alpha: 0.12)
                         : Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.only(
                       topLeft:     const Radius.circular(14),
@@ -3538,7 +3608,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
                     ),
                     border: Border.all(
                       color: isStaff
-                          ? AppTheme.primaryBrand.withValues(alpha: 0.2)
+                          ? AppTokens.colorBrand.withValues(alpha: 0.2)
                           : Colors.white.withValues(alpha: 0.06),
                     ),
                   ),
@@ -3587,7 +3657,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 shape: BoxShape.circle,
               ),
               child: _replying
@@ -3646,7 +3716,7 @@ class _SupportSheetState extends ConsumerState<_SupportSheet> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppTheme.primaryBrand.withValues(alpha: 0.6)),
+          borderSide: BorderSide(color: AppTokens.colorBrand.withValues(alpha: 0.6)),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       ),
@@ -3665,9 +3735,9 @@ class _CloudSyncIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+        color: AppTokens.colorBrand.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -3678,7 +3748,7 @@ class _CloudSyncIndicator extends ConsumerWidget {
             child: CircularProgressIndicator(
               strokeWidth: 2,
               valueColor: AlwaysStoppedAnimation<Color>(
-                AppTheme.primaryBrand.withValues(alpha: 0.8),
+                AppTokens.colorBrand.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -3686,7 +3756,7 @@ class _CloudSyncIndicator extends ConsumerWidget {
           Text(
             'Syncing...',
             style: TextStyle(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.9),
+              color: AppTokens.colorBrand.withValues(alpha: 0.9),
               fontSize: 10,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,

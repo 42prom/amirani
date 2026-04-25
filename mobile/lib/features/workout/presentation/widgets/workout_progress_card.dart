@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 
 class WorkoutProgressCard extends StatelessWidget {
@@ -16,7 +16,7 @@ class WorkoutProgressCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
@@ -86,7 +86,7 @@ class WorkoutProgressCard extends StatelessWidget {
                         ? const Color(0xFF2ECC71)
                         : progress >= 0.5
                             ? const Color(0xFF1877F2)
-                            : AppTheme.primaryBrand,
+                            : AppTokens.colorBrand,
                     strokeCap: StrokeCap.round),
                 Center(
                     child: Text("${(progress * 100).round()}%",
@@ -106,7 +106,7 @@ class WorkoutProgressCard extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: AppTheme.primaryBrand),
+        Icon(icon, size: 14, color: AppTokens.colorBrand),
         const SizedBox(width: 4),
         Text(
           label,
@@ -139,7 +139,7 @@ class WorkoutTodayProgressCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
@@ -202,7 +202,7 @@ class WorkoutTodayProgressCard extends StatelessWidget {
                       ? const Color(0xFF2ECC71)
                       : progress >= 0.5
                           ? const Color(0xFF1877F2)
-                          : AppTheme.primaryBrand,
+                          : AppTokens.colorBrand,
                   strokeCap: StrokeCap.round,
                 ),
                 Center(

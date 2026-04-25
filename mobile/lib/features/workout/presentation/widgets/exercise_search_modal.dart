@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/data/exercise_database.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
@@ -74,7 +74,7 @@ class _ExerciseSearchModalState extends ConsumerState<ExerciseSearchModal> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
@@ -123,7 +123,7 @@ class _ExerciseSearchModalState extends ConsumerState<ExerciseSearchModal> {
               decoration: InputDecoration(
                 hintText: "Search exercises...",
                 hintStyle: const TextStyle(color: Colors.white24),
-                prefixIcon: const Icon(Icons.search, color: AppTheme.primaryBrand),
+                prefixIcon: const Icon(Icons.search, color: AppTokens.colorBrand),
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.05),
                 border: OutlineInputBorder(
@@ -167,10 +167,10 @@ class _ExerciseSearchModalState extends ConsumerState<ExerciseSearchModal> {
             height: 40,
             width: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+              color: AppTokens.colorBrand.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.fitness_center, color: AppTheme.primaryBrand, size: 20),
+            child: const Icon(Icons.fitness_center, color: AppTokens.colorBrand, size: 20),
           ),
           title: Text(
             ex.name,
@@ -200,7 +200,7 @@ class _ExerciseSearchModalState extends ConsumerState<ExerciseSearchModal> {
                     child: ElevatedButton(
                       onPressed: () => _performSwap(ex),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryBrand,
+                        backgroundColor: AppTokens.colorBrand,
                         foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -225,10 +225,10 @@ class _ExerciseSearchModalState extends ConsumerState<ExerciseSearchModal> {
       decoration: BoxDecoration(
         color: Colors.black,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+            color: AppTokens.colorBrand.withValues(alpha: 0.1),
             blurRadius: 15,
             spreadRadius: -2,
           ),

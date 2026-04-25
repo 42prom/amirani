@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import 'package:amirani_app/core/localization/l10n_provider.dart';
 import 'package:amirani_app/core/localization/l10n_keys.dart';
 import 'package:amirani_app/core/localization/l10n_state.dart';
@@ -45,7 +45,7 @@ class LanguageToggleSection extends ConsumerWidget {
           child: Text(
             L10n.settingsLanguage,
             style: const TextStyle(
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -90,7 +90,7 @@ class _LanguageToggleTile extends StatelessWidget {
               height: 22,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBrand),
+                valueColor: AlwaysStoppedAnimation<Color>(AppTokens.colorBrand),
               ),
             )
           else
@@ -158,7 +158,7 @@ class _Chip extends StatelessWidget {
       curve: Curves.easeInOut,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: active ? AppTheme.primaryBrand : Colors.transparent,
+        color: active ? AppTokens.colorBrand : Colors.transparent,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(

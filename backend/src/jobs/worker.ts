@@ -11,6 +11,7 @@ import {
 import { processAiJob } from './processors/ai-job.processor';
 import { processPushNotification } from './processors/push-notification.processor';
 import { processLeaderboardReset } from './processors/leaderboard-reset.processor';
+import { processLangPackGenerate } from './processors/lang-pack-generate.processor';
 import { processAutomationHourly } from './processors/automation-hourly.processor';
 import { processNotificationCron } from './processors/notification-cron.processor';
 import { processQrCleanup } from './processors/qr-cleanup.processor';
@@ -34,6 +35,14 @@ export function startAiWorkers() {
     async (job) => processPushNotification(job as any),
     { connection: redisConnection, concurrency: 5 }
   );
+
+  const langPackWorker = new Worker(
+    'lang-pack-generate',
+    async (job) => processLangPackGenerate(job as any),
+    { connection: redisConnection, concurrency: 1, lockDuration: 120_000 }
+  );
+  langPackWorker.on('completed', (job) => logger.info('[LangPack] Generated', { language: job.data.language }));
+  langPackWorker.on('failed', (job, err) => logger.error('[LangPack] Failed', { jobId: job?.id, err: err.message }));
 
   const leaderboardResetWorker = new Worker(
     'leaderboard-reset',
@@ -76,5 +85,5 @@ export function startAiWorkers() {
 
   logger.info('Workers started', { concurrency: { workout: 1, diet: 1, push: 5, crons: 5 } });
 
-  return { workoutWorker, dietWorker, pushWorker, leaderboardResetWorker, automationWorker, notificationCronWorker, qrCleanupWorker, reminderScanWorker };
+  return { workoutWorker, dietWorker, pushWorker, leaderboardResetWorker, automationWorker, notificationCronWorker, qrCleanupWorker, reminderScanWorker, langPackWorker };
 }

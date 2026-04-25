@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/utils/app_notifications.dart';
 import '../../data/models/session_model.dart';
 import '../providers/sessions_provider.dart';
@@ -27,8 +27,8 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTheme.modalRadius)),
+        color: AppTokens.colorBgSurface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppTokens.radius32)),
       ),
       padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
       child: Column(
@@ -40,7 +40,7 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
             child: Container(
               width: 40, height: 4,
               decoration: BoxDecoration(
-                color: AppTheme.modalHandleColor,
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -127,7 +127,7 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
                 ? const Center(
                     child: SizedBox(
                       width: 24, height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTheme.primaryBrand),
+                      child: CircularProgressIndicator(strokeWidth: 2.5, color: AppTokens.colorBrand),
                     ),
                   )
                 : session.isBooked
@@ -146,7 +146,7 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
                         icon: const Icon(Icons.event_available_rounded, size: 18),
                         label: Text(session.isFull ? 'Session Full' : 'Book Session'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: session.isFull ? Colors.grey.shade800 : AppTheme.primaryBrand,
+                          backgroundColor: session.isFull ? Colors.grey.shade800 : AppTokens.colorBrand,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           disabledBackgroundColor: Colors.grey.shade800,
@@ -179,7 +179,7 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         title: const Text('Cancel Booking', style: TextStyle(color: Colors.white)),
         content: const Text(
           'Are you sure you want to cancel your booking for this session?',
@@ -215,7 +215,7 @@ class _SessionBookingSheetState extends ConsumerState<SessionBookingSheet> {
   Color _typeColor(String type) {
     switch (type) {
       case 'GROUP_CLASS': return Colors.blue.shade600;
-      case 'ONE_ON_ONE': return AppTheme.primaryBrand;
+      case 'ONE_ON_ONE': return AppTokens.colorBrand;
       case 'WORKSHOP': return Colors.purple.shade500;
       default: return Colors.grey;
     }

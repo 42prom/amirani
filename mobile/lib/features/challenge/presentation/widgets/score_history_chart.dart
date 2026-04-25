@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/services/daily_snapshot_service.dart';
 
 class ScoreHistoryChart extends ConsumerStatefulWidget {
@@ -26,7 +26,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
       controller: _screenshotController,
       child: Container(
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -64,21 +64,21 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+              color: AppTokens.colorBrand.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.download_outlined,
-                    size: 13, color: AppTheme.primaryBrand),
+                    size: 13, color: AppTokens.colorBrand),
                 const SizedBox(width: 5),
                 Text(
                   'Save',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 11,
                       fontWeight: FontWeight.w600),
                 ),
@@ -94,7 +94,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
     return Container(
       height: 34,
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -116,19 +116,19 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
                 margin: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? AppTheme.primaryBrand.withValues(alpha: 0.18)
+                      ? AppTokens.colorBrand.withValues(alpha: 0.18)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                   border: isActive
                       ? Border.all(
-                          color: AppTheme.primaryBrand.withValues(alpha: 0.5))
+                          color: AppTokens.colorBrand.withValues(alpha: 0.5))
                       : null,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: isActive ? AppTheme.primaryBrand : Colors.white38,
+                    color: isActive ? AppTokens.colorBrand : Colors.white38,
                     fontSize: 12,
                     fontWeight:
                         isActive ? FontWeight.bold : FontWeight.normal,
@@ -171,7 +171,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
               }
             },
             touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (_) => AppTheme.surfaceDark,
+              getTooltipColor: (_) => AppTokens.colorBgSurface,
               tooltipPadding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               tooltipRoundedRadius: 10,
@@ -209,7 +209,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
                       history.bars[i].label,
                       style: TextStyle(
                         color: i == _touchedIndex
-                            ? AppTheme.primaryBrand
+                            ? AppTokens.colorBrand
                             : Colors.white38,
                         fontSize: 10,
                         fontWeight: i == _touchedIndex
@@ -286,7 +286,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
           icon: Icons.emoji_events_outlined,
           label: 'Best',
           value: '${history.bestScore}%',
-          color: AppTheme.primaryBrand,
+          color: AppTokens.colorBrand,
         ),
         const SizedBox(width: 10),
         _statChip(
@@ -340,7 +340,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
 
   Color _scoreColor(int score, bool hasData) {
     if (!hasData) return Colors.white12;
-    if (score >= 70) return AppTheme.primaryBrand;
+    if (score >= 70) return AppTokens.colorBrand;
     if (score >= 40) return const Color(0xFFF59E0B);
     return const Color(0xFFF43F5E);
   }
@@ -364,7 +364,7 @@ class _ScoreHistoryChartState extends ConsumerState<ScoreHistoryChart> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: AppTheme.surfaceDark,
+            backgroundColor: AppTokens.colorBgSurface,
             content: Row(
               children: [
                 Icon(Icons.check_circle,

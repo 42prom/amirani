@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/lib/auth-store";
 import {
   revenueApi,
-  RevenueIntelligence,
   MonthlyRevenue,
   PlanRevenue,
   PeakHourBucket,
@@ -22,6 +21,7 @@ import {
   ArrowDownRight,
   Minus,
 } from "lucide-react";
+// import { RevenueIntelligence } from "@/components/analytics/RevenueIntelligence";
 import { PageHeader } from "@/components/ui/PageHeader";
 import clsx from "clsx";
 
@@ -287,7 +287,7 @@ export default function RevenuePage() {
     staleTime: 5 * 60 * 1000, // 5 min cache
   });
 
-  const intel = (data as { data: RevenueIntelligence })?.data ?? null;
+  const intel = data ?? null;
   const kpis = intel?.kpis;
 
   if (isLoading || !intel || !kpis) {

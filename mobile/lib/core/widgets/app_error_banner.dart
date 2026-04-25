@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Amber left-border error container with icon, message, and optional retry.
 ///
@@ -53,7 +53,7 @@ class AppErrorBanner extends StatelessWidget {
               child: Text(
                 retryLabel!,
                 style: const TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),

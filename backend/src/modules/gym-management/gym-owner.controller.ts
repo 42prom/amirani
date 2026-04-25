@@ -769,4 +769,204 @@ router.post('/gyms/:gymId/equipment/from-catalog/:catalogItemId', validateBranch
   }
 });
 
+// ─── Branch Management (Gym Owner Only) ──────────────────────────────────────
+
+async function assertGymOwnership(gymId: string, userId: string, role: Role) {
+  const gym = await prisma.gym.findUnique({ where: { id: gymId } });
+  if (!gym) throw Object.assign(new Error('Gym not found'), { status: 404 });
+  if (role !== Role.SUPER_ADMIN && gym.ownerId !== userId) {
+    throw Object.assign(new Error('Access denied'), { status: 403 });
+  }
+  return gym;
+}
+
+/**
+ * GET /gym-owner/gyms/:gymId/branches
+ * List all branches for a gym with live member/trainer/checkin counts.
+ */
+router.get('/gyms/:gymId/branches', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId } = req.params;
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const branches = await prisma.branch.findMany({
+      where: { gymId },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        admins: { select: { id: true, fullName: true, email: true, avatarUrl: true } },
+      },
+    });
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const branchesWithStats = await Promise.all(
+      branches.map(async (branch) => {
+        const [activeMembers, trainerCount, todayCheckins] = await Promise.all([
+          prisma.gymMembership.count({ where: { gymId, status: 'ACTIVE' } }),
+          prisma.trainerProfile.count({ where: { gymId } }),
+          prisma.attendance.count({ where: { gymId, checkIn: { gte: todayStart } } }),
+        ]);
+        return { ...branch, activeMembers, trainerCount, todayCheckins };
+      }),
+    );
+
+    return success(res, branchesWithStats);
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /gym-owner/gyms/:gymId/branches
+ * Create a new branch.
+ */
+router.post('/gyms/:gymId/branches', gymOwnerOrAbove, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId } = req.params;
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const { name, address, city, phone, maxCapacity, openTime, closeTime } = req.body;
+    if (!name) return badRequest(res, 'name is required');
+
+    const branch = await prisma.branch.create({
+      data: { gymId, name, address, city, phone, maxCapacity: maxCapacity ?? 50, openTime, closeTime },
+    });
+    return created(res, branch);
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
+ * PATCH /gym-owner/gyms/:gymId/branches/:branchId
+ * Update branch details.
+ */
+router.patch('/gyms/:gymId/branches/:branchId', gymOwnerOrAbove, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId, branchId } = req.params;
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+    if (!branch || branch.gymId !== gymId) return notFound(res, 'Branch not found');
+
+    const { name, address, city, phone, maxCapacity, openTime, closeTime, isActive } = req.body;
+    const updated = await prisma.branch.update({
+      where: { id: branchId },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(address !== undefined && { address }),
+        ...(city !== undefined && { city }),
+        ...(phone !== undefined && { phone }),
+        ...(maxCapacity !== undefined && { maxCapacity }),
+        ...(openTime !== undefined && { openTime }),
+        ...(closeTime !== undefined && { closeTime }),
+        ...(isActive !== undefined && { isActive }),
+      },
+    });
+    return success(res, updated);
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
+ * DELETE /gym-owner/gyms/:gymId/branches/:branchId
+ * Deactivate (soft-delete) a branch.
+ */
+router.delete('/gyms/:gymId/branches/:branchId', gymOwnerOrAbove, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId, branchId } = req.params;
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+    if (!branch || branch.gymId !== gymId) return notFound(res, 'Branch not found');
+
+    await prisma.branch.update({ where: { id: branchId }, data: { isActive: false } });
+    return success(res, { message: 'Branch deactivated' });
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /gym-owner/gyms/:gymId/branches/:branchId/assign-admin
+ * Assign a BRANCH_ADMIN user to this branch.
+ * Body: { adminId: string }
+ */
+router.post('/gyms/:gymId/branches/:branchId/assign-admin', gymOwnerOrAbove, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId, branchId } = req.params;
+    const { adminId } = req.body;
+    if (!adminId) return badRequest(res, 'adminId is required');
+
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const [branch, admin] = await Promise.all([
+      prisma.branch.findUnique({ where: { id: branchId } }),
+      prisma.user.findUnique({ where: { id: adminId } }),
+    ]);
+    if (!branch || branch.gymId !== gymId) return notFound(res, 'Branch not found');
+    if (!admin) return notFound(res, 'Admin user not found');
+
+    // Connect user to branch + set managedGymId to the gym
+    await prisma.$transaction([
+      prisma.branch.update({
+        where: { id: branchId },
+        data: { admins: { connect: { id: adminId } } },
+      }),
+      prisma.user.update({
+        where: { id: adminId },
+        data: { managedGymId: gymId, role: 'BRANCH_ADMIN' },
+      }),
+    ]);
+
+    return success(res, { message: 'Admin assigned to branch' });
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /gym-owner/gyms/:gymId/branches/:branchId/stats
+ * Detailed stats for a single branch.
+ */
+router.get('/gyms/:gymId/branches/:branchId/stats', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { gymId, branchId } = req.params;
+    await assertGymOwnership(gymId, req.user!.userId, req.user!.role);
+
+    const branch = await prisma.branch.findUnique({
+      where: { id: branchId },
+      include: { admins: { select: { id: true, fullName: true, email: true, avatarUrl: true } } },
+    });
+    if (!branch || branch.gymId !== gymId) return notFound(res, 'Branch not found');
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [activeMembers, trainerCount, todayCheckins, monthCheckins, expiringSoon] = await Promise.all([
+      prisma.gymMembership.count({ where: { gymId, status: 'ACTIVE' } }),
+      prisma.trainerProfile.count({ where: { gymId } }),
+      prisma.attendance.count({ where: { gymId, checkIn: { gte: todayStart } } }),
+      prisma.attendance.count({ where: { gymId, checkIn: { gte: monthStart } } }),
+      prisma.gymMembership.count({
+        where: {
+          gymId,
+          status: 'ACTIVE',
+          endDate: { lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) },
+        },
+      }),
+    ]);
+
+    return success(res, {
+      branch,
+      stats: { activeMembers, trainerCount, todayCheckins, monthCheckins, expiringSoon },
+    });
+  } catch (err: any) {
+    return res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
 export default router;

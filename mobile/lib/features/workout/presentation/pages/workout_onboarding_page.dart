@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/workout_onboarding_provider.dart';
 import '../../domain/entities/workout_preferences_entity.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
@@ -29,7 +29,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
       height: screenHeight * 0.85 + bottomInset,
       margin: const EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark.withValues(alpha: 0.7),
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         border: Border(
           top: BorderSide(
@@ -114,7 +114,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(
           top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -206,12 +206,12 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               color: isActive
-                  ? AppTheme.primaryBrand
+                  ? AppTokens.colorBrand
                   : Colors.white.withValues(alpha: 0.1),
               boxShadow: isCurrent
                   ? [
                       BoxShadow(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.5),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.5),
                         blurRadius: 8,
                       )
                     ]
@@ -274,7 +274,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
           if (hasData) ...[
             _buildInfoCard(
               icon: Icons.fitness_center,
-              iconColor: AppTheme.primaryBrand,
+              iconColor: AppTokens.colorBrand,
               title: 'We found in your profile:',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,7 +366,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -414,7 +414,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.primaryBrand),
+                    borderSide: const BorderSide(color: AppTokens.colorBrand),
                   ),
                 ),
               ),
@@ -432,7 +432,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -606,7 +606,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             style: TextStyle(
               color: state.selectedMuscles.isEmpty
                   ? Colors.white38
-                  : AppTheme.primaryBrand,
+                  : AppTokens.colorBrand,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -631,18 +631,18 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.2),
                     blurRadius: 20,
                   )
                 ]
@@ -654,13 +654,13 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppTheme.primaryBrand.withValues(alpha: 0.15)
+                    ? AppTokens.colorBrand.withValues(alpha: 0.15)
                     : Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppTheme.primaryBrand : Colors.white54,
+                color: isSelected ? AppTokens.colorBrand : Colors.white54,
                 size: 28,
               ),
             ),
@@ -772,19 +772,19 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? AppTheme.primaryBrand.withValues(alpha: 0.15)
-                        : AppTheme.surfaceDark,
+                        ? AppTokens.colorBrand.withValues(alpha: 0.15)
+                        : AppTokens.colorBgSurface,
                     borderRadius: BorderRadius.circular(28),
                     border: Border.all(
                       color: isSelected
-                          ? AppTheme.primaryBrand
+                          ? AppTokens.colorBrand
                           : Colors.white.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Text(
                     _getEquipmentName(equipment),
                     style: TextStyle(
-                      color: isSelected ? AppTheme.primaryBrand : Colors.white70,
+                      color: isSelected ? AppTokens.colorBrand : Colors.white70,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -913,11 +913,11 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
@@ -926,7 +926,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppTheme.primaryBrand : Colors.white54,
+              color: isSelected ? AppTokens.colorBrand : Colors.white54,
               size: 32,
             ),
             const SizedBox(height: 8),
@@ -958,11 +958,11 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
@@ -994,7 +994,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
               width: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? AppTheme.primaryBrand : Colors.transparent,
+                color: isSelected ? AppTokens.colorBrand : Colors.transparent,
                 border: isSelected
                     ? null
                     : Border.all(color: Colors.white38, width: 2),
@@ -1052,7 +1052,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                   margin: const EdgeInsets.symmetric(horizontal: 48),
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: AppTokens.colorBgSurface,
                     borderRadius: BorderRadius.circular(28),
                     border:
                         Border.all(color: Colors.white.withValues(alpha: 0.05)),
@@ -1107,7 +1107,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                       _buildExerciseActionButton(
                         icon: Icons.favorite,
                         label: 'Love',
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         onTap: () {
                           ref
                               .read(workoutOnboardingProvider.notifier)
@@ -1128,7 +1128,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                         value: _currentExerciseIndex / exercises.length,
                         backgroundColor: Colors.white.withValues(alpha: 0.1),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryBrand),
+                            AppTokens.colorBrand),
                         minHeight: 4,
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -1154,7 +1154,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                            color: AppTokens.colorBrand.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: Row(
@@ -1168,7 +1168,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                               Text(
                                 exercise,
                                 style: const TextStyle(
-                                  color: AppTheme.primaryBrand,
+                                  color: AppTokens.colorBrand,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1186,7 +1186,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.check_circle,
-                    color: AppTheme.primaryBrand, size: 64),
+                    color: AppTokens.colorBrand, size: 64),
                 const SizedBox(height: 16),
                 const Text(
                   'All done!',
@@ -1316,7 +1316,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.primaryBrand
+                                ? AppTokens.colorBrand
                                 : Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -1360,7 +1360,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isSelected
-                          ? AppTheme.primaryBrand
+                          ? AppTokens.colorBrand
                           : Colors.white.withValues(alpha: 0.05),
                     ),
                     child: Center(
@@ -1390,7 +1390,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                   min: 15,
                   max: 90,
                   divisions: 15,
-                  activeColor: AppTheme.primaryBrand,
+                  activeColor: AppTokens.colorBrand,
                   inactiveColor: Colors.white.withValues(alpha: 0.1),
                   onChanged: (value) {
                     ref
@@ -1401,7 +1401,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                 Text(
                   '${state.sessionDurationMinutes} minutes',
                   style: const TextStyle(
-                    color: AppTheme.primaryBrand,
+                    color: AppTokens.colorBrand,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1421,10 +1421,10 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                     .read(workoutOnboardingProvider.notifier)
                     .toggleReminders(value);
               },
-              activeTrackColor: AppTheme.primaryBrand.withValues(alpha: 0.5),
+              activeTrackColor: AppTokens.colorBrand.withValues(alpha: 0.5),
               thumbColor: WidgetStateProperty.resolveWith((states) {
                 if (states.contains(WidgetState.selected)) {
-                  return AppTheme.primaryBrand;
+                  return AppTokens.colorBrand;
                 }
                 return Colors.white54;
               }),
@@ -1450,7 +1450,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -1459,10 +1459,10 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                color: AppTokens.colorBrand.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.alarm, color: AppTheme.primaryBrand, size: 20),
+              child: const Icon(Icons.alarm, color: AppTokens.colorBrand, size: 20),
             ),
             const SizedBox(width: 16),
             const Expanded(
@@ -1478,7 +1478,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             Text(
               state.reminderTime,
               style: const TextStyle(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -1505,8 +1505,8 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: AppTheme.primaryBrand,
-              surface: AppTheme.surfaceDark,
+              primary: AppTokens.colorBrand,
+              surface: AppTokens.colorBgSurface,
             ),
           ),
           child: child!,
@@ -1529,7 +1529,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -1571,12 +1571,12 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                color: AppTokens.colorBrand.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.auto_awesome,
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 size: 48,
               ),
             ),
@@ -1591,8 +1591,8 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
             ),
             const SizedBox(height: 16),
             const LinearProgressIndicator(
-              backgroundColor: AppTheme.surfaceDark,
-              valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryBrand),
+              backgroundColor: AppTokens.colorBgSurface,
+              valueColor: AlwaysStoppedAnimation<Color>(AppTokens.colorBrand),
               minHeight: 6,
             ),
             const SizedBox(height: 24),
@@ -1650,7 +1650,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark,
+              color: AppTokens.colorBgSurface,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -1676,7 +1676,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                       ),
                       child: const Icon(
                         Icons.fitness_center,
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         size: 24,
                       ),
                     ),
@@ -1714,7 +1714,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
                     _buildStatSummary(
                       'Workouts',
                       '${plan.totalWorkouts}',
-                      AppTheme.primaryBrand,
+                      AppTokens.colorBrand,
                     ),
                     _buildStatSummary(
                       'Exercises',
@@ -1790,7 +1790,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -1838,11 +1838,11 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
@@ -1897,7 +1897,7 @@ class _WorkoutOnboardingPageState extends ConsumerState<WorkoutOnboardingPage> {
         onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: enabled
-              ? AppTheme.primaryBrand
+              ? AppTokens.colorBrand
               : Colors.white.withValues(alpha: 0.1),
           foregroundColor: enabled ? Colors.black : Colors.white38,
           padding: const EdgeInsets.symmetric(vertical: 16),

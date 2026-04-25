@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../providers/trainer_platform_provider.dart';
 
@@ -47,7 +47,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
       decoration: const BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
@@ -76,7 +76,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
                         const SizedBox(height: 32),
                         
                         if (statsData == null)
-                          const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand))
+                          const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand))
                         else
                           _buildStatsGrid(statsData['stats'] as Map<String, dynamic>? ?? {}),
                         
@@ -123,7 +123,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -131,7 +131,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(children: [Icon(icon, color: AppTheme.primaryBrand, size: 16), const SizedBox(width: 8), Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12))]),
+          Row(children: [Icon(icon, color: AppTokens.colorBrand, size: 16), const SizedBox(width: 8), Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12))]),
           const SizedBox(height: 8),
           Text(value, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
         ],
@@ -149,7 +149,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: AppTheme.surfaceDark.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(color: AppTokens.colorBgSurface.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(16)),
           child: Row(
             children: [
               const Icon(Icons.check_circle, color: Color(0xFF2ECC71), size: 20),
@@ -167,7 +167,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
       ),
       child: Row(
@@ -177,7 +177,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
               onPressed: () => Navigator.pop(context),
               icon: const Icon(Icons.chat_bubble_outline),
               label: const Text('Message Client'),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.surfaceDark, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTokens.colorBgSurface, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
             ),
           ),
           const SizedBox(width: 16),
@@ -186,7 +186,7 @@ class _ClientDetailSheetState extends ConsumerState<ClientDetailSheet> {
               onPressed: () {}, // Future: Manage Plan
               icon: const Icon(Icons.edit_note),
               label: const Text('Manage Plan'),
-              style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryBrand, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
+              style: ElevatedButton.styleFrom(backgroundColor: AppTokens.colorBrand, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), padding: const EdgeInsets.symmetric(vertical: 16)),
             ),
           ),
         ],

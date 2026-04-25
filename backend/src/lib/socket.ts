@@ -254,7 +254,7 @@ export const initSocket = (server: HttpServer) => {
         }
 
         const { SupportService } = require('../modules/support/support.service');
-        const message = await SupportService.replyToTicket(
+        const message = await SupportService.reply(
           data.ticketId, data.gymId, userId, socket.data.user.role, null, data.body
         );
         trainerChatNs.to(`ticket:${data.ticketId}`).emit('new_message', message);

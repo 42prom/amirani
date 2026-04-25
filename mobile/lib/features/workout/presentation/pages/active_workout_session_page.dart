@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/points_provider.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import '../providers/active_workout_session_provider.dart';
 
 class ActiveWorkoutSessionPage extends ConsumerStatefulWidget {
@@ -85,18 +86,18 @@ class _ActiveWorkoutSessionPageState
     final result = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         title: const Text('Quit Workout?',
             style: TextStyle(color: Colors.white)),
         content: const Text(
           'Your progress for this session will be lost.',
-          style: TextStyle(color: AppTheme.textSecondary),
+          style: TextStyle(color: AppTokens.colorTextSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('Keep Going',
-                style: TextStyle(color: AppTheme.textSecondary)),
+                style: TextStyle(color: AppTokens.colorTextSecondary)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
@@ -156,7 +157,7 @@ class _ActiveWorkoutSessionPageState
         }
       },
       child: Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: IconButton(
@@ -196,14 +197,14 @@ class _ActiveWorkoutSessionPageState
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                          color: AppTokens.colorBrand.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
                           child: Text(
                             '${session.currentExerciseIndex + 1}',
                             style: const TextStyle(
-                              color: AppTheme.primaryBrand,
+                              color: AppTokens.colorBrand,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -227,7 +228,7 @@ class _ActiveWorkoutSessionPageState
                             Text(
                               'Target: $totalSets × ${exercise.entity.targetReps} reps  •  Rest: ${exercise.entity.restSeconds}s',
                               style: const TextStyle(
-                                  color: AppTheme.textSecondary, fontSize: 13),
+                                  color: AppTokens.colorTextSecondary, fontSize: 13),
                             ),
                           ],
                         ),
@@ -251,7 +252,7 @@ class _ActiveWorkoutSessionPageState
                     Text(
                       'Log Set ${completedSets + 1} of $totalSets',
                       style: const TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: AppTokens.colorTextSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.2,
@@ -273,7 +274,7 @@ class _ActiveWorkoutSessionPageState
                         Expanded(
                           child: _InputField(
                             controller: _repsController,
-                            label: 'Reps',
+                            label: L10n.workoutReps,
                             hint: exercise.entity.targetReps.toString(),
                             keyboardType: TextInputType.number,
                           ),
@@ -297,7 +298,7 @@ class _ActiveWorkoutSessionPageState
                       height: 56,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryBrand,
+                          backgroundColor: AppTokens.colorBrand,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
                         ),
@@ -348,7 +349,7 @@ class _ActiveWorkoutSessionPageState
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: session.isLastExercise
-                              ? AppTheme.primaryBrand
+                              ? AppTokens.colorBrand
                               : Colors.white12,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16)),
@@ -390,7 +391,7 @@ class _ActiveWorkoutSessionPageState
                       child: const Text(
                         'Skip Exercise',
                         style:
-                            TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                            TextStyle(color: AppTokens.colorTextSecondary, fontSize: 13),
                       ),
                     ),
 
@@ -427,7 +428,7 @@ class _SessionProgressBar extends StatelessWidget {
       child: FractionallySizedBox(
         alignment: Alignment.centerLeft,
         widthFactor: progress,
-        child: Container(color: AppTheme.primaryBrand),
+        child: Container(color: AppTokens.colorBrand),
       ),
     );
   }
@@ -455,7 +456,7 @@ class _ElapsedTimerState extends State<_ElapsedTimer> {
         return Text(
           '$m:$s',
           style: const TextStyle(
-            color: AppTheme.textSecondary,
+            color: AppTokens.colorTextSecondary,
             fontSize: 13,
             fontFeatures: [FontFeature.tabularFigures()],
           ),
@@ -526,7 +527,7 @@ class _SetIndicators extends StatelessWidget {
                     Text(
                       '${set.reps} reps',
                       style: const TextStyle(
-                        color: AppTheme.textSecondary,
+                        color: AppTokens.colorTextSecondary,
                         fontSize: 11,
                       ),
                     ),
@@ -563,7 +564,7 @@ class _InputField extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppTheme.textSecondary,
+            color: AppTokens.colorTextSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 1,
@@ -592,7 +593,7 @@ class _InputField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(
-                  color: AppTheme.primaryBrand, width: 1.5),
+                  color: AppTokens.colorBrand, width: 1.5),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
@@ -620,7 +621,7 @@ class _RpeSelector extends StatelessWidget {
             const Text(
               'RPE (Effort Level)',
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: AppTokens.colorTextSecondary,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1,
@@ -629,7 +630,7 @@ class _RpeSelector extends StatelessWidget {
             Text(
               '$value/10  ${_rpeLabel(value)}',
               style: const TextStyle(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -719,7 +720,7 @@ class _UpcomingExercises extends StatelessWidget {
         const Text(
           'UP NEXT',
           style: TextStyle(
-            color: AppTheme.textSecondary,
+            color: AppTokens.colorTextSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.5,
@@ -768,7 +769,7 @@ class _UpcomingExercises extends StatelessWidget {
                   Text(
                     '${ex.entity.targetSets}×${ex.entity.targetReps}',
                     style: const TextStyle(
-                      color: AppTheme.textSecondary,
+                      color: AppTokens.colorTextSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -797,7 +798,7 @@ class _RestTimerScreen extends StatelessWidget {
         : 0.0;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -806,7 +807,7 @@ class _RestTimerScreen extends StatelessWidget {
               const Text(
                 'REST',
                 style: TextStyle(
-                  color: AppTheme.textSecondary,
+                  color: AppTokens.colorTextSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 4,
@@ -828,7 +829,7 @@ class _RestTimerScreen extends StatelessWidget {
                         backgroundColor:
                             Colors.white.withValues(alpha: 0.1),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryBrand),
+                            AppTokens.colorBrand),
                       ),
                     ),
                     Column(
@@ -846,7 +847,7 @@ class _RestTimerScreen extends StatelessWidget {
                         const Text(
                           'seconds',
                           style: TextStyle(
-                            color: AppTheme.textSecondary,
+                            color: AppTokens.colorTextSecondary,
                             fontSize: 14,
                           ),
                         ),
@@ -860,7 +861,7 @@ class _RestTimerScreen extends StatelessWidget {
                 const Text(
                   'NEXT SET',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppTokens.colorTextSecondary,
                     fontSize: 11,
                     letterSpacing: 2,
                   ),
@@ -878,14 +879,14 @@ class _RestTimerScreen extends StatelessWidget {
                 Text(
                   'Set ${session.currentExercise!.loggedSets.length + 1} of ${session.currentExercise!.entity.targetSets}',
                   style: const TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 14),
+                      color: AppTokens.colorTextSecondary, fontSize: 14),
                 ),
               ],
               const SizedBox(height: 48),
               OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(
-                      color: AppTheme.primaryBrand, width: 1.5),
+                      color: AppTokens.colorBrand, width: 1.5),
                   padding: const EdgeInsets.symmetric(
                       horizontal: 40, vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -895,7 +896,7 @@ class _RestTimerScreen extends StatelessWidget {
                 child: const Text(
                   'Skip Rest',
                   style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontWeight: FontWeight.bold),
                 ),
               ),
@@ -938,7 +939,7 @@ class _WorkoutCompletedScreenState
     final seconds = duration.inSeconds % 60;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -946,7 +947,7 @@ class _WorkoutCompletedScreenState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.emoji_events,
-                  color: AppTheme.primaryBrand, size: 64),
+                  color: AppTokens.colorBrand, size: 64),
               const SizedBox(height: 20),
               const Text(
                 'WORKOUT COMPLETE',
@@ -961,7 +962,7 @@ class _WorkoutCompletedScreenState
               Text(
                 widget.session.routineName,
                 style: const TextStyle(
-                    color: AppTheme.textSecondary, fontSize: 15),
+                    color: AppTokens.colorTextSecondary, fontSize: 15),
               ),
               const SizedBox(height: 48),
 
@@ -1008,21 +1009,21 @@ class _WorkoutCompletedScreenState
                   padding: const EdgeInsets.symmetric(
                       horizontal: 20, vertical: 12),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.bolt,
-                          color: AppTheme.primaryBrand, size: 20),
+                          color: AppTokens.colorBrand, size: 20),
                       const SizedBox(width: 6),
                       Text(
                         '+$earned pts  •  Total: ${pts.totalPoints}',
                         style: const TextStyle(
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -1039,12 +1040,11 @@ class _WorkoutCompletedScreenState
                 height: 56,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: () {
-                    ref.read(pointsProvider.notifier).clearLastAwarded();
                     ref
                         .read(activeWorkoutSessionProvider.notifier)
                         .reset();
@@ -1091,7 +1091,7 @@ class _StatCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppTheme.primaryBrand, size: 22),
+          Icon(icon, color: AppTokens.colorBrand, size: 22),
           const SizedBox(height: 8),
           Text(
             value,
@@ -1104,7 +1104,7 @@ class _StatCard extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-                color: AppTheme.textSecondary, fontSize: 11),
+                color: AppTokens.colorTextSecondary, fontSize: 11),
           ),
         ],
       ),

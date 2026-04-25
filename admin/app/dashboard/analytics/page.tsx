@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAuthStore, isSuperAdmin } from "@/lib/auth-store";
 import { useQuery } from "@tanstack/react-query";
-import { platformApi, gymsApi, adminApi } from "@/lib/api";
+import { platformApi, gymsApi, adminApi, analyticsApi } from "@/lib/api";
 import {
   BarChart3,
   RefreshCw,
@@ -12,6 +12,10 @@ import {
   Zap,
   TrendingUp,
   Activity,
+  Dumbbell,
+  Apple,
+  Trophy,
+  UserCheck,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -87,6 +91,36 @@ export default function AnalyticsPage() {
     queryKey: ["tier-limits"],
     queryFn: () => platformApi.getAllTierLimits(token!),
     enabled: !!token,
+  });
+
+  const { data: memberGrowth } = useQuery({
+    queryKey: ["member-growth"],
+    queryFn: () => analyticsApi.getMemberGrowth(token!),
+    enabled: !!token && isStaff,
+  });
+
+  const { data: engagement } = useQuery({
+    queryKey: ["engagement"],
+    queryFn: () => analyticsApi.getEngagement(token!),
+    enabled: !!token && isStaff,
+  });
+
+  const { data: workoutCompletion } = useQuery({
+    queryKey: ["workout-completion"],
+    queryFn: () => analyticsApi.getWorkoutCompletion(token!),
+    enabled: !!token && isStaff,
+  });
+
+  const { data: dietAdherence } = useQuery({
+    queryKey: ["diet-adherence"],
+    queryFn: () => analyticsApi.getDietAdherence(token!),
+    enabled: !!token && isStaff,
+  });
+
+  const { data: leaderboardHealth } = useQuery({
+    queryKey: ["leaderboard-health"],
+    queryFn: () => analyticsApi.getLeaderboardHealth(token!),
+    enabled: !!token && isStaff,
   });
 
   const isLoading = gymsLoading || ownersLoading || usageLoading;
@@ -367,6 +401,228 @@ export default function AnalyticsPage() {
           <p className="text-zinc-500">No gyms found</p>
         )}
       </div>
+
+      {/* Member Growth */}
+      {memberGrowth && (
+        <div className="bg-[#121721] border border-zinc-800 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+            <TrendingUp className="text-[#F1C40F]" size={20} />
+            Member Growth (Last 30 Days)
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">New Memberships</p>
+              <p className="text-2xl font-bold text-white">{memberGrowth.totalNewThisPeriod.toLocaleString()}</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">Retention Rate</p>
+              <p className="text-2xl font-bold text-green-400">{memberGrowth.retentionRate}%</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">Monthly Breakdown</p>
+              <p className="text-2xl font-bold text-white">{memberGrowth.byMonth.length} months</p>
+            </div>
+          </div>
+          {memberGrowth.byMonth.length > 0 && (
+            <div>
+              <p className="text-sm text-zinc-400 mb-3">Monthly New Memberships</p>
+              <div className="space-y-2">
+                {memberGrowth.byMonth.map((m) => {
+                  const max = Math.max(...memberGrowth.byMonth.map(x => x.count), 1);
+                  const pct = Math.round((m.count / max) * 100);
+                  return (
+                    <div key={m.month} className="flex items-center gap-4">
+                      <span className="text-zinc-400 w-20 text-sm">{m.month}</span>
+                      <div className="flex-1 bg-zinc-800 rounded-full h-2">
+                        <div className="bg-[#F1C40F] h-2 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                      <span className="text-white text-sm w-10 text-right">{m.count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Engagement */}
+      {engagement && (
+        <div className="bg-[#121721] border border-zinc-800 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+            <UserCheck className="text-blue-400" size={20} />
+            Platform Engagement
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">DAU</p>
+              <p className="text-2xl font-bold text-white">{engagement.dau.toLocaleString()}</p>
+              <p className="text-xs text-zinc-500 mt-1">active today</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">MAU</p>
+              <p className="text-2xl font-bold text-white">{engagement.mau.toLocaleString()}</p>
+              <p className="text-xs text-zinc-500 mt-1">active this month</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">DAU / MAU</p>
+              <p className="text-2xl font-bold text-blue-400">{engagement.dauMauRatio}%</p>
+              <p className="text-xs text-zinc-500 mt-1">stickiness</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-4">
+              <p className="text-sm text-zinc-400">Avg Workouts / Week</p>
+              <p className="text-2xl font-bold text-[#F1C40F]">{engagement.avgWorkoutsPerWeek}</p>
+              <p className="text-xs text-zinc-500 mt-1">per active user</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-zinc-800/50 rounded-lg p-3 text-center">
+              <p className="text-xs text-zinc-500 uppercase tracking-wide">Workouts Today</p>
+              <p className="text-xl font-semibold text-white mt-1">{engagement.featureUsage.workoutsToday.toLocaleString()}</p>
+              <p className="text-xs text-zinc-500">{engagement.featureUsage.workoutUsersThisMonth.toLocaleString()} users this month</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-3 text-center">
+              <p className="text-xs text-zinc-500 uppercase tracking-wide">Food Logs Today</p>
+              <p className="text-xl font-semibold text-white mt-1">{engagement.featureUsage.foodLogsToday.toLocaleString()}</p>
+              <p className="text-xs text-zinc-500">{engagement.featureUsage.foodLogUsersThisMonth.toLocaleString()} users this month</p>
+            </div>
+            <div className="bg-zinc-800/50 rounded-lg p-3 text-center">
+              <p className="text-xs text-zinc-500 uppercase tracking-wide">Check-ins Today</p>
+              <p className="text-xl font-semibold text-white mt-1">{engagement.featureUsage.checkinsToday.toLocaleString()}</p>
+              <p className="text-xs text-zinc-500">{engagement.featureUsage.checkinUsersThisMonth.toLocaleString()} users this month</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Workout Completion & Diet Adherence */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {workoutCompletion && (
+          <div className="bg-[#121721] border border-zinc-800 rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+              <Dumbbell className="text-orange-400" size={20} />
+              Workout Completion (30 days)
+            </h2>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <p className="text-sm text-zinc-400">Sessions Logged</p>
+                <p className="text-2xl font-bold text-white">{workoutCompletion.completionsInPeriod.toLocaleString()}</p>
+              </div>
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <p className="text-sm text-zinc-400">Avg Duration</p>
+                <p className="text-2xl font-bold text-orange-400">{workoutCompletion.avgSessionDurationMinutes} min</p>
+              </div>
+            </div>
+            <p className="text-sm text-zinc-400 mb-3">Sessions by Day of Week</p>
+            <div className="space-y-2">
+              {workoutCompletion.byDayOfWeek.map((d) => {
+                const max = Math.max(...workoutCompletion.byDayOfWeek.map(x => x.count), 1);
+                return (
+                  <div key={d.day} className="flex items-center gap-3">
+                    <span className="text-zinc-400 w-8 text-sm">{d.day}</span>
+                    <div className="flex-1 bg-zinc-800 rounded-full h-2">
+                      <div
+                        className="bg-orange-400 h-2 rounded-full"
+                        style={{ width: `${Math.round((d.count / max) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-white text-sm w-8 text-right">{d.count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {dietAdherence && (
+          <div className="bg-[#121721] border border-zinc-800 rounded-xl p-6">
+            <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+              <Apple className="text-green-400" size={20} />
+              Diet Adherence (30 days)
+            </h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-400">Active Diet Plan Users</span>
+                <span className="text-white font-semibold">{dietAdherence.activeDietPlanUsers.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-400">Users Who Logged Meals</span>
+                <span className="text-white font-semibold">{dietAdherence.usersLoggedMeals.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-400">Meal Log Rate</span>
+                <span className={`font-semibold ${dietAdherence.mealLogRate >= 70 ? 'text-green-400' : dietAdherence.mealLogRate >= 40 ? 'text-[#F1C40F]' : 'text-red-400'}`}>
+                  {dietAdherence.mealLogRate}%
+                </span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-400">Total Meal Logs</span>
+                <span className="text-white font-semibold">{dietAdherence.totalMealLogsInPeriod.toLocaleString()}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                <span className="text-zinc-400">Avg Daily Calories Logged</span>
+                <span className="text-white font-semibold">{dietAdherence.avgDailyCaloriesLogged.toLocaleString()} kcal</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Leaderboard Health */}
+      {leaderboardHealth && (
+        <div className="bg-[#121721] border border-zinc-800 rounded-xl p-6">
+          <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+            <Trophy className="text-[#F1C40F]" size={20} />
+            Leaderboard Health
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm text-zinc-400 mb-3">Points Tier Distribution</p>
+              <div className="space-y-3">
+                {[
+                  { label: 'Beginner (0–99 pts)', value: leaderboardHealth.pointsBuckets.beginner, color: 'bg-zinc-500' },
+                  { label: 'Active (100–999 pts)', value: leaderboardHealth.pointsBuckets.active, color: 'bg-blue-500' },
+                  { label: 'Champion (1000+ pts)', value: leaderboardHealth.pointsBuckets.champion, color: 'bg-[#F1C40F]' },
+                ].map((tier) => {
+                  const total = leaderboardHealth.pointsBuckets.beginner + leaderboardHealth.pointsBuckets.active + leaderboardHealth.pointsBuckets.champion || 1;
+                  return (
+                    <div key={tier.label}>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-zinc-400">{tier.label}</span>
+                        <span className="text-white">{tier.value.toLocaleString()} ({Math.round((tier.value / total) * 100)}%)</span>
+                      </div>
+                      <div className="w-full bg-zinc-800 rounded-full h-2">
+                        <div className={`${tier.color} h-2 rounded-full`} style={{ width: `${Math.round((tier.value / total) * 100)}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-zinc-400 mb-3">User Activity Recency</p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-400">Inactive &gt; 7 days</span>
+                  <span className="text-yellow-400 font-semibold">{leaderboardHealth.inactiveLast7d.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-400">Inactive &gt; 30 days</span>
+                  <span className="text-red-400 font-semibold">{leaderboardHealth.inactiveLast30d.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-400">Never active</span>
+                  <span className="text-zinc-500 font-semibold">{leaderboardHealth.neverActive.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
+                  <span className="text-zinc-400">Users with points</span>
+                  <span className="text-green-400 font-semibold">{leaderboardHealth.totalUsersWithPoints.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

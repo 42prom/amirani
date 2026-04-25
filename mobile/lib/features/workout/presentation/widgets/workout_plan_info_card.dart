@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import 'package:amirani_app/core/widgets/plan_source_badge.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
 import '../../domain/entities/workout_preferences_entity.dart';
@@ -123,13 +123,13 @@ class WorkoutPlanInfoCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBrand.withValues(alpha: 0.15),
-            AppTheme.primaryBrand.withValues(alpha: 0.05),
+            AppTokens.colorBrand.withValues(alpha: 0.15),
+            AppTokens.colorBrand.withValues(alpha: 0.05),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.3),
+          color: AppTokens.colorBrand.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -140,12 +140,12 @@ class WorkoutPlanInfoCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.fitness_center,
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   size: 24,
                 ),
               ),

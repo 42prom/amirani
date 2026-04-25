@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/data/exercise_database.dart';
 import '../../domain/entities/workout_preferences_entity.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
@@ -437,7 +437,7 @@ class _InteractiveMuscleSelectorState
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
       child: Row(children: [
         const Icon(Icons.accessibility_new,
-            color: AppTheme.primaryBrand, size: 20),
+            color: AppTokens.colorBrand, size: 20),
         const SizedBox(width: 10),
         Expanded(
           child:
@@ -529,7 +529,7 @@ class _InteractiveMuscleSelectorState
                     if (_images == null)
                       const Center(
                           child: CircularProgressIndicator(
-                              color: AppTheme.primaryBrand, strokeWidth: 2)),
+                              color: AppTokens.colorBrand, strokeWidth: 2)),
                     Positioned(
                       bottom: 8,
                       left: 0,
@@ -633,10 +633,10 @@ class _FlipPill extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
-          color: AppTheme.primaryBrand.withValues(alpha: 0.13),
+          color: AppTokens.colorBrand.withValues(alpha: 0.13),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-              color: AppTheme.primaryBrand.withValues(alpha: 0.65), width: 1.1),
+              color: AppTokens.colorBrand.withValues(alpha: 0.65), width: 1.1),
         ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
@@ -644,7 +644,7 @@ class _FlipPill extends StatelessWidget {
           child: Text(isFront ? 'FRONT' : 'BACK',
               key: ValueKey(isFront),
               style: const TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 10,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.8)),

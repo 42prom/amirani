@@ -91,12 +91,12 @@ export default function MarketingPage() {
     queryFn: () => marketingApi.list(gymId, token!),
     enabled: !!token && !!gymId,
     refetchInterval: (query) => {
-      const campaigns = (query.state.data as { data: MarketingCampaign[] } | undefined)?.data;
+      const campaigns = query.state.data as MarketingCampaign[] | undefined;
       return campaigns?.some((c) => c.status === "SENDING") ? 3000 : false;
     },
   });
 
-  const campaigns = data?.data ?? [];
+  const campaigns = data ?? [];
 
   const sendMutation = useMutation({
     mutationFn: (campaignId: string) => marketingApi.send(gymId, campaignId, token!),
@@ -151,9 +151,9 @@ export default function MarketingPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { label: "Total Campaigns", value: campaigns.length, icon: Megaphone, color: "blue" },
-            { label: "Sent", value: campaigns.filter((c) => c.status === "SENT").length, icon: CheckCircle2, color: "green" },
-            { label: "Total Reached", value: campaigns.reduce((s, c) => s + c.totalDelivered, 0).toLocaleString(), icon: Send, color: "yellow" },
-            { label: "Drafts", value: campaigns.filter((c) => c.status === "DRAFT").length, icon: Clock, color: "red" },
+            { label: "Sent", value: campaigns.filter((c: MarketingCampaign) => c.status === "SENT").length, icon: CheckCircle2, color: "green" },
+            { label: "Total Reached", value: campaigns.reduce((s: number, c: MarketingCampaign) => s + c.totalDelivered, 0).toLocaleString(), icon: Send, color: "yellow" },
+            { label: "Drafts", value: campaigns.filter((c: MarketingCampaign) => c.status === "DRAFT").length, icon: Clock, color: "red" },
           ].map((s) => {
             const Icon = s.icon;
             const colorClass = s.color === "blue" ? "text-blue-400" : s.color === "green" ? "text-green-400" : s.color === "yellow" ? "text-yellow-400" : "text-red-400";
@@ -199,7 +199,7 @@ export default function MarketingPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {campaigns.map((campaign) => (
+          {campaigns.map((campaign: MarketingCampaign) => (
             <div
               key={campaign.id}
               className="group relative overflow-hidden bg-[#121721] border border-white/5 rounded-3xl p-6 flex flex-col md:flex-row md:items-center gap-6 hover:border-white/10 transition-all shadow-xl"
@@ -251,7 +251,7 @@ export default function MarketingPage() {
                   </div>
                   
                   <div className="flex gap-1.5 ml-auto">
-                    {campaign.channels.map((ch) => (
+                    {campaign.channels.map((ch: string) => (
                       <ChannelBadge key={ch} channel={ch} />
                     ))}
                   </div>
@@ -301,7 +301,7 @@ export default function MarketingPage() {
       {/* Send Confirmation Modal */}
       {confirmSendId && (
         <SendConfirmModal
-          campaign={campaigns.find((c) => c.id === confirmSendId)!}
+          campaign={campaigns.find((c: MarketingCampaign) => c.id === confirmSendId)!}
           gymId={gymId}
           token={token!}
           isSending={sendMutation.isPending}
@@ -349,7 +349,7 @@ function CampaignComposer({
       setIsPreviewing(true);
       try {
         const res = await marketingApi.previewAudience(gymId, form.targetAudience, token);
-        setPreviewCount(res.data.count);
+        setPreviewCount(res.count);
       } catch {
         setPreviewCount(null);
       } finally {
@@ -363,7 +363,7 @@ function CampaignComposer({
     setForm((prev) => ({
       ...prev,
       channels: prev.channels.includes(channel)
-        ? prev.channels.filter((c) => c !== channel)
+        ? prev.channels.filter((c: string) => c !== channel)
         : [...prev.channels, channel],
     }));
   };
@@ -560,7 +560,7 @@ function SendConfirmModal({
   useEffect(() => {
     marketingApi
       .previewAudience(gymId, campaign.targetAudience, token)
-      .then((res) => setRecipientCount(res.data.count))
+      .then((res) => setRecipientCount(res.count))
       .catch(() => {});
   }, [gymId, campaign.targetAudience, token]);
 

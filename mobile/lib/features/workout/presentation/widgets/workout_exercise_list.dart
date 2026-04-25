@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
@@ -41,7 +41,7 @@ class _InteractiveExercisePillState extends ConsumerState<InteractiveExercisePil
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark.withValues(alpha: 0.9),
+        color: AppTokens.colorBgSurface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: status == SetStatus.completed
@@ -284,7 +284,7 @@ class _InteractiveExercisePillState extends ConsumerState<InteractiveExercisePil
                     const Text(
                       "TRAINER NOTES",
                       style: TextStyle(
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -757,7 +757,7 @@ class _RealExercisePillState extends ConsumerState<RealExercisePill> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isToday ? AppTheme.surfaceDark : AppTheme.backgroundDark.withValues(alpha: 0.5),
+        color: isToday ? AppTokens.colorBgSurface : AppTokens.colorBgPrimary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: isCompleted
@@ -868,13 +868,13 @@ class _RealExercisePillState extends ConsumerState<RealExercisePill> {
                                         margin: const EdgeInsets.only(left: 6),
                                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
-                                          color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                                          color: AppTokens.colorBrand.withValues(alpha: 0.2),
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: const Text(
                                           "SWAPPED",
                                           style: TextStyle(
-                                            color: AppTheme.primaryBrand,
+                                            color: AppTokens.colorBrand,
                                             fontSize: 8,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -1001,7 +1001,7 @@ class _RealExercisePillState extends ConsumerState<RealExercisePill> {
                       const Text(
                         "COACH TIPS",
                         style: TextStyle(
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,

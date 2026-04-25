@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class AppNotifications {
   static void showSuccess(BuildContext context, String message) {
@@ -25,7 +25,7 @@ class AppNotifications {
       context,
       message,
       icon: Icons.info_outline,
-      iconColor: AppTheme.primaryBrand,
+      iconColor: AppTokens.colorBrand,
     );
   }
 

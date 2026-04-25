@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../core/config/app_config.dart';
-import 'package:amirani_app/theme/app_theme.dart';
-import '../../../../core/utils/app_notifications.dart';
-import '../providers/support_provider.dart';
+import 'package:amirani_app/core/config/app_config.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
+import 'package:amirani_app/core/utils/app_notifications.dart';
+import '../providers/trainer_chat_provider.dart';
 import '../../data/datasources/support_remote_data_source.dart';
 
-/// Full-screen trainer conversation page — reuses the support ticket thread UI.
+/// Full-screen trainer conversation page with Socket.IO real-time messaging.
 class TrainerChatPage extends ConsumerStatefulWidget {
   final String gymId;
   final String trainerId;
   final String trainerName;
   final String? trainerAvatarUrl;
   final String? trainerSpecialization;
-  final String ticketId; // pre-opened ticket from assignment data source
+  final String ticketId;
 
   const TrainerChatPage({
     super.key,
@@ -33,14 +33,9 @@ class TrainerChatPage extends ConsumerStatefulWidget {
 class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
   final _replyCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
-  bool _sending = false;
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() =>
-        ref.read(supportProvider.notifier).loadDetail(widget.gymId, widget.ticketId));
-  }
+  TrainerChatParams get _params =>
+      TrainerChatParams(gymId: widget.gymId, ticketId: widget.ticketId);
 
   @override
   void dispose() {
@@ -63,35 +58,29 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
 
   Future<void> _sendReply() async {
     final body = _replyCtrl.text.trim();
-    if (body.isEmpty || _sending) return;
-    setState(() => _sending = true);
+    if (body.isEmpty) return;
     _replyCtrl.clear();
-    final ok = await ref.read(supportProvider.notifier).reply(
-          gymId: widget.gymId,
-          ticketId: widget.ticketId,
-          body: body,
-        );
-    setState(() => _sending = false);
-    if (ok) {
-      _scrollToBottom();
+    await ref.read(trainerChatProvider(_params).notifier).sendMessage(body);
+    final state = ref.read(trainerChatProvider(_params));
+    if (state.error != null && mounted) {
+      AppNotifications.showError(context, 'Failed to send message');
     } else {
-      if (mounted) AppNotifications.showError(context, 'Failed to send message');
+      _scrollToBottom();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final supportState = ref.watch(supportProvider);
+    final chatState = ref.watch(trainerChatProvider(_params));
 
-    SupportTicketModel? ticket;
-    if (supportState is SupportDetailLoaded) {
-      ticket = supportState.detail;
+    if (chatState.messages.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       appBar: AppBar(
-        backgroundColor: AppTheme.surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -99,24 +88,49 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
         ),
         title: Row(
           children: [
-            Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.4), width: 1.5),
-              ),
-              child: ClipOval(
-                child: (widget.trainerAvatarUrl?.isNotEmpty == true)
-                    ? CachedNetworkImage(
-                        imageUrl: AppConfig.resolveMediaUrl(widget.trainerAvatarUrl) ?? '',
-                        fit: BoxFit.cover,
-                        errorWidget: (_, __, ___) =>
-                            const Icon(Icons.person, color: Colors.white24, size: 18),
-                      )
-                    : const Icon(Icons.person, color: Colors.white24, size: 18),
-              ),
+            Stack(
+              children: [
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: AppTokens.colorBrand.withValues(alpha: 0.4),
+                        width: 1.5),
+                  ),
+                  child: ClipOval(
+                    child: (widget.trainerAvatarUrl?.isNotEmpty == true)
+                        ? CachedNetworkImage(
+                            imageUrl:
+                                AppConfig.resolveMediaUrl(widget.trainerAvatarUrl) ??
+                                    '',
+                            fit: BoxFit.cover,
+                            errorWidget: (_, __, ___) => const Icon(
+                                Icons.person,
+                                color: Colors.white24,
+                                size: 18),
+                          )
+                        : const Icon(Icons.person,
+                            color: Colors.white24, size: 18),
+                  ),
+                ),
+                if (chatState.isConnected)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.greenAccent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: AppTokens.colorBgSurface, width: 1.5),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 10),
             Column(
@@ -125,13 +139,17 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
                 Text(
                   widget.trainerName,
                   style: const TextStyle(
-                      color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold),
                 ),
                 if (widget.trainerSpecialization != null)
                   Text(
                     widget.trainerSpecialization!,
                     style: TextStyle(
-                        color: AppTheme.primaryBrand, fontSize: 10, fontWeight: FontWeight.bold),
+                        color: AppTokens.colorBrand,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold),
                   ),
               ],
             ),
@@ -141,20 +159,24 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
       body: Column(
         children: [
           Expanded(
-            child: ticket == null
-                ? const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand))
-                : ticket.messages.isEmpty
+            child: chatState.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                        color: AppTokens.colorBrand))
+                : chatState.messages.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.chat_bubble_outline,
-                                color: Colors.white.withValues(alpha: 0.2), size: 48),
+                                color: Colors.white.withValues(alpha: 0.2),
+                                size: 48),
                             const SizedBox(height: 12),
                             Text(
                               'Start a conversation with ${widget.trainerName}',
                               style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.4), fontSize: 13),
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontSize: 13),
                               textAlign: TextAlign.center,
                             ),
                           ],
@@ -162,12 +184,14 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
                       )
                     : ListView.builder(
                         controller: _scrollCtrl,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        itemCount: ticket.messages.length,
-                        itemBuilder: (_, i) => _buildBubble(ticket!.messages[i]),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 12),
+                        itemCount: chatState.messages.length,
+                        itemBuilder: (_, i) =>
+                            _buildBubble(chatState.messages[i]),
                       ),
           ),
-          _buildReplyBar(),
+          _buildReplyBar(chatState.isSending),
         ],
       ),
     );
@@ -185,14 +209,14 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
           if (isTrainer) ...[
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryBrand.withValues(alpha: 0.2),
+              backgroundColor: AppTokens.colorBrand.withValues(alpha: 0.2),
               backgroundImage: msg.senderAvatarUrl != null
                   ? CachedNetworkImageProvider(
                       AppConfig.resolveMediaUrl(msg.senderAvatarUrl) ?? '')
                   : null,
               child: msg.senderAvatarUrl == null
                   ? Icon(Icons.fitness_center,
-                      color: AppTheme.primaryBrand, size: 14)
+                      color: AppTokens.colorBrand, size: 14)
                   : null,
             ),
             const SizedBox(width: 8),
@@ -216,16 +240,18 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
                     Text(
                       _fmtDate(msg.createdAt),
                       style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.3), fontSize: 10),
+                          color: Colors.white.withValues(alpha: 0.3),
+                          fontSize: 10),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: isTrainer
-                        ? AppTheme.primaryBrand.withValues(alpha: 0.12)
+                        ? AppTokens.colorBrand.withValues(alpha: 0.12)
                         : Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(14),
@@ -235,7 +261,7 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
                     ),
                     border: Border.all(
                       color: isTrainer
-                          ? AppTheme.primaryBrand.withValues(alpha: 0.2)
+                          ? AppTokens.colorBrand.withValues(alpha: 0.2)
                           : Colors.white.withValues(alpha: 0.06),
                     ),
                   ),
@@ -254,7 +280,7 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
     );
   }
 
-  Widget _buildReplyBar() {
+  Widget _buildReplyBar(bool isSending) {
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 16),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -275,28 +301,32 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
                 border: InputBorder.none,
                 hintText: 'Message your trainer…',
                 hintStyle: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.35), fontSize: 14),
+                    color: Colors.white.withValues(alpha: 0.35),
+                    fontSize: 14),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 6),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 6),
               ),
             ),
           ),
           const SizedBox(width: 8),
           GestureDetector(
-            onTap: _sending ? null : _sendReply,
+            onTap: isSending ? null : _sendReply,
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: _sending ? 0.3 : 0.9),
+                color: AppTokens.colorBrand
+                    .withValues(alpha: isSending ? 0.3 : 0.9),
                 shape: BoxShape.circle,
               ),
-              child: _sending
+              child: isSending
                   ? const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.black))
-                  : const Icon(Icons.send_rounded, color: Colors.black, size: 16),
+                  : const Icon(Icons.send_rounded,
+                      color: Colors.black, size: 16),
             ),
           ),
         ],
@@ -306,7 +336,9 @@ class _TrainerChatPageState extends ConsumerState<TrainerChatPage> {
 
   String _fmtDate(DateTime dt) {
     final now = DateTime.now();
-    if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
+    if (dt.year == now.year &&
+        dt.month == now.month &&
+        dt.day == now.day) {
       return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
     return '${dt.day}/${dt.month}';

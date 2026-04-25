@@ -98,7 +98,8 @@ model User {
   rewardRedemptions        RewardRedemption[]
   createdFoodItems         FoodItem[]                 @relation("FoodItemCreator")
   createdExercises         ExerciseLibrary[]          @relation("ExerciseCreator")
-
+  referralCode             ReferralCode?
+  referralUse              ReferralUse?               @relation("ReferredUser")
 
   @@map("users")
 }
@@ -1297,6 +1298,7 @@ enum PointSourceType {
   MANUAL
   PERFECT_DAY
   TASK
+  REFERRAL
 }
 
 enum ExerciseMechanics {
@@ -1765,6 +1767,33 @@ model FoodItem {
   @@map("food_items")
 }
 
+// ─── Referral System ─────────────────────────────────────────────────────────
+
+model ReferralCode {
+  id           String        @id @default(uuid())
+  code         String        @unique
+  ownerId      String        @unique
+  usedCount    Int           @default(0)
+  pointsEarned Int           @default(0)
+  createdAt    DateTime      @default(now())
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  uses         ReferralUse[]
+
+  @@index([code])
+  @@map("referral_codes")
+}
+
+model ReferralUse {
+  id         String       @id @default(uuid())
+  codeId     String
+  newUserId  String       @unique
+  joinedAt   DateTime     @default(now())
+  code       ReferralCode @relation(fields: [codeId], references: [id])
+  newUser    User         @relation("ReferredUser", fields: [newUserId], references: [id])
+
+  @@map("referral_uses")
+}
+
 model FoodLog {
   id              String   @id @default(uuid())
   userId          String
@@ -1916,15 +1945,20 @@ model GymZone {
 // ─── NEW CORE ENTITIES ────────────────────────────────────────────────────────
 
 model Branch {
-  id        String   @id @default(uuid())
-  name      String
-  address   String?
-  gymId     String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  gym       Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
-  admins    User[]   @relation("BranchAdmins")
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  city        String?
+  phone       String?
+  maxCapacity Int      @default(50)
+  openTime    String?  // "08:00" 24-hour
+  closeTime   String?  // "22:00" 24-hour
+  gymId       String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  gym         Gym      @relation(fields: [gymId], references: [id], onDelete: Cascade)
+  admins      User[]   @relation("BranchAdmins")
 
   @@map("branches")
 }
@@ -1936,6 +1970,7 @@ model UserWeightHistory {
   date      DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, date])
   @@index([userId, date(sort: Desc)])
   @@map("user_weight_history")
 }

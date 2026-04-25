@@ -23,6 +23,7 @@ export interface RegisterInput {
   password: string;
   fullName: string;
   role?: string;
+  referralCode?: string;
 }
 
 export interface InvitedRegisterInput {
@@ -168,6 +169,11 @@ export class AuthService {
     const token = this.generateToken(user.id, user.role, user.managedGymId);
     const refreshToken = await this.issueRefreshToken(user.id);
 
+    // Process referral code (fire-and-forget — never block registration)
+    if (data.referralCode) {
+      this.processReferral(user.id, data.referralCode.trim().toUpperCase()).catch(() => {});
+    }
+
     return {
       user: {
         ...user,
@@ -177,6 +183,52 @@ export class AuthService {
       token,
       refreshToken,
     };
+  }
+
+  private static async processReferral(newUserId: string, code: string): Promise<void> {
+    const refCode = await prisma.referralCode.findUnique({ where: { code } });
+    if (!refCode || refCode.ownerId === newUserId) return; // not found or self-referral
+
+    const alreadyUsed = await prisma.referralUse.findUnique({ where: { newUserId } });
+    if (alreadyUsed) return;
+
+    const REFERRER_POINTS = 200;
+    const NEW_USER_POINTS = 100;
+
+    await prisma.$transaction([
+      prisma.referralUse.create({
+        data: {
+          id: crypto.randomUUID(),
+          codeId: refCode.id,
+          newUserId,
+        },
+      }),
+      prisma.referralCode.update({
+        where: { id: refCode.id },
+        data: {
+          usedCount: { increment: 1 },
+          pointsEarned: { increment: REFERRER_POINTS },
+        },
+      }),
+    ]);
+
+    const { awardPoints } = await import('../../utils/leaderboard.service');
+    await Promise.all([
+      awardPoints({
+        userId: refCode.ownerId,
+        sourceId: newUserId,
+        sourceType: 'REFERRAL',
+        delta: REFERRER_POINTS,
+        reason: `Referral bonus — new user joined with your code`,
+      }),
+      awardPoints({
+        userId: newUserId,
+        sourceId: refCode.id,
+        sourceType: 'REFERRAL',
+        delta: NEW_USER_POINTS,
+        reason: `Welcome bonus — joined via referral code`,
+      }),
+    ]);
   }
 
   /**

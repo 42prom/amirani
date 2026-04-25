@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
@@ -31,8 +31,8 @@ class WorkoutHeader extends ConsumerWidget {
                     width: 12,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primaryBrand,
-                      border: Border.all(color: AppTheme.backgroundDark, width: 2),
+                      color: AppTokens.colorBrand,
+                      border: Border.all(color: AppTokens.colorBgPrimary, width: 2),
                     ),
                   ),
                 ),
@@ -65,7 +65,7 @@ class WorkoutHeader extends ConsumerWidget {
             width: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+              color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child: const Icon(Icons.light_mode, color: Colors.white54, size: 20),

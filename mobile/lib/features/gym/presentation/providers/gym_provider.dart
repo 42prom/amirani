@@ -4,6 +4,7 @@ import '../../../../core/network/dio_provider.dart';
 
 import '../../domain/entities/gym_entity.dart';
 import '../../domain/entities/check_in_entity.dart';
+import '../../domain/entities/branch_info.dart';
 import '../../domain/usecases/gym_usecases.dart';
 import '../../data/datasources/gym_remote_data_source.dart';
 import '../../domain/repositories/gym_repository.dart';
@@ -82,4 +83,21 @@ final gymNotifierProvider = StateNotifierProvider<GymNotifier, GymState>((ref) {
     ref.watch(getGymDetailsUseCaseProvider),
     ref.watch(checkInNfcUseCaseProvider),
   );
+});
+
+// Fetches branch list from the gym detail response branches field.
+// Keyed by gymId; returns empty list on error (non-critical data).
+final gymBranchesProvider =
+    FutureProvider.family<List<BranchInfo>, String>((ref, gymId) async {
+  final dio = ref.watch(dioProvider);
+  try {
+    final res = await dio.get('/gym/details/$gymId');
+    final raw = res.data['data'];
+    final branchList = raw['branches'] as List<dynamic>? ?? [];
+    return branchList
+        .map((b) => BranchInfo.fromJson(b as Map<String, dynamic>))
+        .toList();
+  } catch (_) {
+    return [];
+  }
 });

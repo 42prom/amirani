@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Section title row with an optional amber trailing action.
 ///
@@ -44,7 +44,7 @@ class AppSectionHeader extends StatelessWidget {
               child: Text(
                 actionLabel!,
                 style: const TextStyle(
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),

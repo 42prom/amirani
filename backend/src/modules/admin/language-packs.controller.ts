@@ -2,8 +2,9 @@ import { Router, Response } from 'express';
 import prisma from '../../lib/prisma';
 import logger from '../../lib/logger';
 import { authenticate, superAdminOnly, AuthenticatedRequest } from '../../middleware/auth.middleware';
-import { success, badRequest, notFound, internalError, created } from '../../utils/response';
-import Anthropic from '@anthropic-ai/sdk';
+import { success, badRequest, notFound, internalError } from '../../utils/response';
+import { langPackGenerateQueue } from '../../jobs/queue.config';
+import { aiLimiter } from '../../lib/rate-limiters';
 
 const router = Router();
 router.use(authenticate, superAdminOnly);
@@ -208,7 +209,7 @@ router.get('/', async (_req: AuthenticatedRequest, res: Response) => {
 });
 
 // ── POST /admin/language-packs/ai-generate (before /:code) ───────────────────
-router.post('/ai-generate', async (req: AuthenticatedRequest, res: Response) => {
+router.post('/ai-generate', aiLimiter, async (req: AuthenticatedRequest, res: Response) => {
   const { targetLanguage, languageCode, countryCode } = req.body ?? {};
   if (!targetLanguage || !languageCode || String(languageCode).trim().length < 2) {
     return badRequest(res, 'targetLanguage and languageCode (min 2 chars) are required');
@@ -219,43 +220,45 @@ router.post('/ai-generate', async (req: AuthenticatedRequest, res: Response) => 
     const existing = await prisma.languagePack.findFirst({ where: { gymId: null, language: lang } });
     if (existing) return badRequest(res, `Pack for '${lang}' already exists. Edit it directly.`);
 
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    const aiRes = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 8192,
-      messages: [
-        {
-          role: 'user',
-          content: `Translate these English mobile app UI strings into ${targetLanguage}. Rules: keep translations SHORT and UI-friendly (buttons/labels/menus), do not add notes, return ONLY a valid JSON object with the same keys.\n\n${JSON.stringify(EN_STRINGS)}`,
-        },
-      ],
+    const resolvedCountryCode = String(
+      countryCode || LANG_TO_COUNTRY[String(languageCode).toLowerCase()] || languageCode
+    ).toLowerCase();
+
+    const job = await langPackGenerateQueue.add('generate', {
+      language: lang,
+      targetLanguage: String(targetLanguage).trim(),
+      countryCode: resolvedCountryCode,
+      requestedBy: req.user!.userId,
     });
 
-    const rawText = aiRes.content[0].type === 'text' ? aiRes.content[0].text : '';
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return internalError(res, 'AI returned unparseable response');
-
-    let translations: Record<string, string>;
-    try {
-      translations = JSON.parse(jsonMatch[0]);
-    } catch {
-      return internalError(res, 'AI returned invalid JSON');
-    }
-
-    const meta = {
-      displayName: String(targetLanguage).trim(),
-      englishName: String(targetLanguage).trim(),
-      countryCode: (String(countryCode || LANG_TO_COUNTRY[String(languageCode).toLowerCase()] || languageCode).toLowerCase()),
-    };
-
-    const pack = await prisma.languagePack.create({
-      data: { gymId: null, language: lang, data: { _meta: meta, ...translations }, version: 1, isSystemDefault: false },
-    });
-
-    logger.info('[LangPacks] AI pack created', { language: lang });
-    return success(res, packToDto(pack, 0), undefined, 201);
+    logger.info('[LangPacks] AI generation queued', { language: lang, jobId: job.id });
+    return success(res, { jobId: job.id, status: 'queued', language: lang });
   } catch (err: any) {
-    logger.error('[LangPacks] ai-generate error', { err: err.message });
+    logger.error('[LangPacks] ai-generate enqueue error', { err: err.message });
+    internalError(res);
+  }
+});
+
+// ── GET /admin/language-packs/jobs/:jobId — poll async generation status ──────
+router.get('/jobs/:jobId', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const job = await langPackGenerateQueue.getJob(req.params.jobId);
+    if (!job) return notFound(res, 'Job not found');
+
+    const state = await job.getState();
+    const pack = state === 'completed'
+      ? await prisma.languagePack.findFirst({ where: { gymId: null, language: job.data.language } })
+      : null;
+
+    return success(res, {
+      jobId: job.id,
+      status: state,
+      language: job.data.language,
+      packCode: pack ? job.data.language.toLowerCase() : undefined,
+      failReason: state === 'failed' ? job.failedReason : undefined,
+    });
+  } catch (err) {
+    logger.error('[LangPacks] job status error', { err });
     internalError(res);
   }
 });

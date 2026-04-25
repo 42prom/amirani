@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/recovery_provider.dart';
 
 class RecoveryCheckInSheet extends ConsumerStatefulWidget {
@@ -72,11 +72,11 @@ class _RecoveryCheckInSheetState extends ConsumerState<RecoveryCheckInSheet> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.self_improvement_rounded,
-                      color: AppTheme.primaryBrand, size: 20),
+                      color: AppTokens.colorBrand, size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Column(
@@ -103,7 +103,7 @@ class _RecoveryCheckInSheetState extends ConsumerState<RecoveryCheckInSheet> {
               min: 3,
               max: 12,
               divisions: 9,
-              activeColor: AppTheme.primaryBrand,
+              activeColor: AppTokens.colorBrand,
               inactiveColor: Colors.white12,
               onChanged: (v) => setState(() => _sleepHours = v.round()),
             ),
@@ -151,7 +151,7 @@ class _RecoveryCheckInSheetState extends ConsumerState<RecoveryCheckInSheet> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryBrand),
+                  borderSide: const BorderSide(color: AppTokens.colorBrand),
                 ),
                 contentPadding: const EdgeInsets.all(12),
               ),
@@ -165,9 +165,9 @@ class _RecoveryCheckInSheetState extends ConsumerState<RecoveryCheckInSheet> {
               child: ElevatedButton(
                 onPressed: isSubmitting ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   disabledBackgroundColor:
-                      AppTheme.primaryBrand.withValues(alpha: 0.4),
+                      AppTokens.colorBrand.withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                 ),
@@ -200,7 +200,7 @@ class _RecoveryCheckInSheetState extends ConsumerState<RecoveryCheckInSheet> {
                 color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
         Text(value,
             style: const TextStyle(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 fontSize: 13,
                 fontWeight: FontWeight.bold)),
       ],

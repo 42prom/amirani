@@ -1,43 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../design_system/tokens/app_tokens.dart';
 
 class AppTheme {
-  static const Color primaryBrand = Color(0xFFF1C40F); // Amirani Yellow
-  static const Color maleBlue = Color(0xFF2D9CDB); // Vibrant Cyan-Blue
-  static const Color femalePink = Color(0xFFFF52AF); // Luminous Pink
-  static const Color backgroundDark = Color(0xFF121721); // Aligned with Directive 01
-  static const Color surfaceDark = Color(0xFF1A2035); // Aligned with Directive 01
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFA0AABF); // Aligned with Directive 01
-  
-  // Standardized Modal Tokens
-  static Color get modalBackground => backgroundDark.withValues(alpha: 0.7);
-  static const double modalBlur = 20.0;
-  static const double modalRadius = 32.0;
-  static Color get modalHandleColor => Colors.white.withValues(alpha: 0.2);
-  static const EdgeInsets modalPadding = EdgeInsets.symmetric(horizontal: 24, vertical: 12);
-
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: backgroundDark,
-      primaryColor: primaryBrand,
+      scaffoldBackgroundColor: AppTokens.colorBgPrimary,
+      primaryColor: AppTokens.colorBrand,
       colorScheme: const ColorScheme.dark(
-        primary: primaryBrand,
-        surface: surfaceDark,
+        primary: AppTokens.colorBrand,
+        surface: AppTokens.colorBgSurface,
         onPrimary: Colors.white,
       ),
       textTheme:
           GoogleFonts.interTextTheme(ThemeData.dark().textTheme).copyWith(
         displayLarge: const TextStyle(
-            color: textPrimary,
+            color: AppTokens.colorTextPrimary,
             fontWeight: FontWeight.bold,
             fontFamilyFallback: ['NotoSans', 'sans-serif']),
         bodyLarge: const TextStyle(
-            color: textPrimary,
+            color: AppTokens.colorTextPrimary,
             fontFamilyFallback: ['NotoSans', 'sans-serif']),
         bodyMedium: const TextStyle(
-            color: textSecondary,
+            color: AppTokens.colorTextSecondary,
             fontFamilyFallback: ['NotoSans', 'sans-serif']),
         bodySmall: const TextStyle(
             fontFamilyFallback: ['NotoSans', 'sans-serif']),
@@ -50,11 +36,11 @@ class AppTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: textPrimary),
+        iconTheme: IconThemeData(color: AppTokens.colorTextPrimary),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryBrand,
+          backgroundColor: AppTokens.colorBrand,
           foregroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -62,9 +48,9 @@ class AppTheme {
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: surfaceDark,
+        backgroundColor: AppTokens.colorBgSurface,
         contentTextStyle: GoogleFonts.inter(
-          color: textPrimary,
+          color: AppTokens.colorTextPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
@@ -73,28 +59,28 @@ class AppTheme {
         elevation: 8,
       ),
       scrollbarTheme: ScrollbarThemeData(
-        thumbColor: WidgetStateProperty.all(primaryBrand.withValues(alpha: 0.5)),
+        thumbColor: WidgetStateProperty.all(AppTokens.colorBrand.withValues(alpha: 0.5)),
         thickness: WidgetStateProperty.all(6.0),
         radius: const Radius.circular(12),
         interactive: true,
       ),
       datePickerTheme: DatePickerThemeData(
-        backgroundColor: surfaceDark,
-        headerBackgroundColor: backgroundDark,
-        headerForegroundColor: primaryBrand,
+        backgroundColor: AppTokens.colorBgSurface,
+        headerBackgroundColor: AppTokens.colorBgPrimary,
+        headerForegroundColor: AppTokens.colorBrand,
         dividerColor: Colors.white.withValues(alpha: 0.1),
         dayStyle: GoogleFonts.inter(fontWeight: FontWeight.w500),
         yearStyle: GoogleFonts.inter(fontWeight: FontWeight.w500),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       timePickerTheme: TimePickerThemeData(
-        backgroundColor: surfaceDark,
-        hourMinuteColor: backgroundDark,
-        hourMinuteTextColor: primaryBrand,
-        dayPeriodColor: backgroundDark,
-        dayPeriodTextColor: primaryBrand,
-        dialBackgroundColor: backgroundDark,
-        dialHandColor: primaryBrand,
+        backgroundColor: AppTokens.colorBgSurface,
+        hourMinuteColor: AppTokens.colorBgPrimary,
+        hourMinuteTextColor: AppTokens.colorBrand,
+        dayPeriodColor: AppTokens.colorBgPrimary,
+        dayPeriodTextColor: AppTokens.colorBrand,
+        dialBackgroundColor: AppTokens.colorBgPrimary,
+        dialHandColor: AppTokens.colorBrand,
         dialTextColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),

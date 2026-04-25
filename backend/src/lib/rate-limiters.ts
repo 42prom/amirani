@@ -24,6 +24,7 @@ export const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeStore('global'),
+  keyGenerator: (req: any) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
   message: RL_MSG('Too many requests, please try again later.'),
 });
 
@@ -34,6 +35,7 @@ export const loginLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeStore('login'),
+  keyGenerator: (req: any) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
   message: RL_MSG('Too many login attempts, please try again in 15 minutes.'),
 });
 
@@ -44,6 +46,7 @@ export const registerLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeStore('register'),
+  keyGenerator: (req: any) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
   message: RL_MSG('Too many registration attempts, please try again later.'),
 });
 
@@ -54,5 +57,17 @@ export const passwordLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: makeStore('password'),
+  keyGenerator: (req: any) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
   message: RL_MSG('Too many password change attempts, please try again later.'),
+});
+
+// AI generation: 3 requests / user / hour — prevents budget exhaustion
+export const aiLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: makeStore('ai'),
+  keyGenerator: (req: any) => req.user?.userId || req.ip || req.headers['x-forwarded-for'] || 'unknown',
+  message: RL_MSG('AI generation rate limit exceeded. Try again in an hour.'),
 });

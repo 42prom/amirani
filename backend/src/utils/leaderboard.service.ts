@@ -39,7 +39,7 @@ export const POINTS = {
 export async function awardPoints(params: {
   userId: string;
   sourceId: string;
-  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL' | 'PERFECT_DAY' | 'TASK';
+  sourceType: 'WORKOUT' | 'CHECKIN' | 'STREAK_BONUS' | 'CHALLENGE' | 'MANUAL' | 'PERFECT_DAY' | 'TASK' | 'REFERRAL';
   delta: number;
   reason: string;
 }) {

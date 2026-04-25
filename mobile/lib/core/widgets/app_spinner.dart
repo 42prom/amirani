@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
-/// Consistent loading spinner. Always uses [AppTheme.primaryBrand] amber color.
+/// Consistent loading spinner. Always uses [AppTokens.colorBrand] amber color.
 ///
 /// - Standard (24px): use inside full-screen loaders, card centers
 /// - Inline (16px): use inside buttons or small containers
@@ -24,7 +24,7 @@ class AppSpinner extends StatelessWidget {
       height: size,
       child: CircularProgressIndicator(
         strokeWidth: size <= 16 ? 2.0 : 2.5,
-        valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryBrand),
+        valueColor: const AlwaysStoppedAnimation<Color>(AppTokens.colorBrand),
       ),
     );
   }

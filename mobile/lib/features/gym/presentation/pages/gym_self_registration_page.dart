@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:confetti/confetti.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../providers/gym_register_provider.dart';
@@ -258,7 +258,7 @@ class _GymSelfRegistrationPageState
     // Success state UI (shown during the 2s delay)
     if (gymState is GymRegisterSuccess) {
       return Scaffold(
-        backgroundColor: AppTheme.backgroundDark,
+        backgroundColor: AppTokens.colorBgPrimary,
         body: Stack(
           children: [
             _SuccessScreen(
@@ -277,7 +277,7 @@ class _GymSelfRegistrationPageState
                 blastDirectionality: BlastDirectionality.explosive,
                 shouldLoop: false,
                 colors: const [
-                  AppTheme.primaryBrand,
+                  AppTokens.colorBrand,
                   Colors.white,
                   Color(0xFF2ECC71),
                   Color(0xFFF1C40F),
@@ -290,7 +290,7 @@ class _GymSelfRegistrationPageState
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -382,7 +382,7 @@ class _GymSelfRegistrationPageState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CircularProgressIndicator(color: AppTheme.primaryBrand),
+            const CircularProgressIndicator(color: AppTokens.colorBrand),
             const SizedBox(height: 16),
             Text(
               _hasAutoSubmitted ? 'Synchronizing Profile…' : 'Joining Gym…',
@@ -401,7 +401,7 @@ class _GymSelfRegistrationPageState
     }
     if (state is GymRegisterError) return _buildError(state.message);
     return const Center(
-      child: CircularProgressIndicator(color: AppTheme.primaryBrand),
+      child: CircularProgressIndicator(color: AppTokens.colorBrand),
     );
   }
 
@@ -419,7 +419,7 @@ class _GymSelfRegistrationPageState
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceDark,
+                color: AppTokens.colorBgSurface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: Colors.white.withValues(alpha: 0.08),
@@ -438,7 +438,7 @@ class _GymSelfRegistrationPageState
                   const Text(
                     'JOINING',
                     style: TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 10,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
@@ -485,21 +485,21 @@ class _GymSelfRegistrationPageState
                 margin: const EdgeInsets.only(bottom: 14),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark.withValues(alpha: 0.6),
+                  color: AppTokens.colorBgSurface.withValues(alpha: 0.6),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Icon(Icons.verified_user_outlined, color: AppTheme.primaryBrand, size: 20),
+                    const Icon(Icons.verified_user_outlined, color: AppTokens.colorBrand, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Verified Email Address', 
-                            style: TextStyle(color: AppTheme.textSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
+                            style: TextStyle(color: AppTokens.colorTextSecondary, fontSize: 10, fontWeight: FontWeight.bold)),
                           Text(user!.email, 
                             style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
                         ],
@@ -625,7 +625,7 @@ class _GymSelfRegistrationPageState
               child: ElevatedButton(
                 onPressed: isActuallyMember ? () => context.go('/gym') : () => _submit(config),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
@@ -659,8 +659,8 @@ class _GymSelfRegistrationPageState
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           labelText: 'Password *',
-          labelStyle: const TextStyle(color: AppTheme.textSecondary),
-          prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.primaryBrand, size: 20),
+          labelStyle: const TextStyle(color: AppTokens.colorTextSecondary),
+          prefixIcon: const Icon(Icons.lock_outline, color: AppTokens.colorBrand, size: 20),
           suffixIcon: IconButton(
             icon: Icon(
               _obscurePass ? Icons.visibility_outlined : Icons.visibility_off_outlined,
@@ -670,7 +670,7 @@ class _GymSelfRegistrationPageState
             onPressed: () => setState(() => _obscurePass = !_obscurePass),
           ),
           filled: true,
-          fillColor: AppTheme.surfaceDark,
+          fillColor: AppTokens.colorBgSurface,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
@@ -681,7 +681,7 @@ class _GymSelfRegistrationPageState
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.primaryBrand),
+            borderSide: const BorderSide(color: AppTokens.colorBrand),
           ),
         ),
         validator: (v) {
@@ -717,12 +717,12 @@ class _GymSelfRegistrationPageState
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
           labelText: required ? '$label *' : label,
-          labelStyle: TextStyle(color: enabled ? AppTheme.textSecondary : Colors.white24),
+          labelStyle: TextStyle(color: enabled ? AppTokens.colorTextSecondary : Colors.white24),
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.white24),
-          prefixIcon: Icon(icon, color: AppTheme.primaryBrand, size: 20),
+          prefixIcon: Icon(icon, color: AppTokens.colorBrand, size: 20),
           filled: true,
-          fillColor: enabled ? AppTheme.surfaceDark : AppTheme.surfaceDark.withValues(alpha: 0.4),
+          fillColor: enabled ? AppTokens.colorBgSurface : AppTokens.colorBgSurface.withValues(alpha: 0.4),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
@@ -733,7 +733,7 @@ class _GymSelfRegistrationPageState
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppTheme.primaryBrand, width: 2),
+            borderSide: const BorderSide(color: AppTokens.colorBrand, width: 2),
           ),
         ),
         validator: validator,
@@ -752,7 +752,7 @@ class _GymSelfRegistrationPageState
           children: [
             Icon(
               isAlreadyRegistered ? Icons.info_outline : Icons.error_outline, 
-              color: isAlreadyRegistered ? AppTheme.primaryBrand : Colors.red, 
+              color: isAlreadyRegistered ? AppTokens.colorBrand : Colors.red, 
               size: 48
             ),
             const SizedBox(height: 16),
@@ -772,7 +772,7 @@ class _GymSelfRegistrationPageState
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBrand,
+                backgroundColor: AppTokens.colorBrand,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -799,7 +799,7 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         text.toUpperCase(),
         style: const TextStyle(
-          color: AppTheme.primaryBrand,
+          color: AppTokens.colorBrand,
           fontSize: 10,
           fontWeight: FontWeight.w900,
           letterSpacing: 1.5,
@@ -841,12 +841,12 @@ class _PhotoPicker extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: hasFile
-                ? AppTheme.primaryBrand.withValues(alpha: 0.08)
-                : AppTheme.surfaceDark,
+                ? AppTokens.colorBrand.withValues(alpha: 0.08)
+                : AppTokens.colorBgSurface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: hasFile
-                  ? AppTheme.primaryBrand.withValues(alpha: 0.4)
+                  ? AppTokens.colorBrand.withValues(alpha: 0.4)
                   : Colors.white.withValues(alpha: 0.08),
             ),
           ),
@@ -897,7 +897,7 @@ class _PhotoPicker extends StatelessWidget {
                     Text(
                       hasFile ? 'Tap to change photo' : (existingUrl != null ? 'Using photo from profile' : description),
                       style: TextStyle(
-                        color: (hasFile || existingUrl != null) ? AppTheme.primaryBrand.withValues(alpha: 0.7) : Colors.white38,
+                        color: (hasFile || existingUrl != null) ? AppTokens.colorBrand.withValues(alpha: 0.7) : Colors.white38,
                         fontSize: 11,
                       ),
                     ),
@@ -907,7 +907,7 @@ class _PhotoPicker extends StatelessWidget {
               Icon(
                 hasFile ? Icons.check_circle : Icons.camera_alt_outlined,
                 color: hasFile
-                    ? AppTheme.primaryBrand
+                    ? AppTokens.colorBrand
                     : Colors.white24,
                 size: 20,
               ),
@@ -969,7 +969,7 @@ class _SuccessScreen extends StatelessWidget {
                 ? 'Welcome to $gymName! Your membership has been submitted and is pending final approval.'
                 : 'Great! Your membership at $gymName has been updated successfully.',
             style: const TextStyle(
-                color: AppTheme.textSecondary, fontSize: 15, height: 1.5),
+                color: AppTokens.colorTextSecondary, fontSize: 15, height: 1.5),
             textAlign: TextAlign.center,
           ).animate().fadeIn(delay: 400.ms),
           const SizedBox(height: 48),
@@ -978,7 +978,7 @@ class _SuccessScreen extends StatelessWidget {
             child: ElevatedButton(
               onPressed: onDone,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryBrand,
+                backgroundColor: AppTokens.colorBrand,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(vertical: 18),
                 shape: RoundedRectangleBorder(
@@ -1005,9 +1005,9 @@ class _CloudSyncIndicator extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+        color: AppTokens.colorBrand.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1017,14 +1017,14 @@ class _CloudSyncIndicator extends ConsumerWidget {
             height: 12,
             child: CircularProgressIndicator(
               strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation(AppTheme.primaryBrand),
+              valueColor: AlwaysStoppedAnimation(AppTokens.colorBrand),
             ),
           ),
           const SizedBox(width: 8),
           const Text(
             'SYNCING',
             style: TextStyle(
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.5,

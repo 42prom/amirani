@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 class AppDaySelector extends StatelessWidget {
   final int activeDay;
@@ -39,9 +39,9 @@ class AppDaySelector extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                     color: isActive
-                        ? (isToday ? AppTheme.primaryBrand : Colors.white)
+                        ? (isToday ? AppTokens.colorBrand : Colors.white)
                         : isToday
-                            ? AppTheme.primaryBrand.withValues(alpha: 0.85)
+                            ? AppTokens.colorBrand.withValues(alpha: 0.85)
                             : Colors.white54,
                   ),
                 ),
@@ -52,14 +52,14 @@ class AppDaySelector extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isActive
-                        ? AppTheme.primaryBrand
+                        ? AppTokens.colorBrand
                         : hasTasks
                             ? Colors.white.withValues(alpha: 0.25)
                             : Colors.transparent,
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppTheme.primaryBrand.withValues(alpha: 0.8),
+                              color: AppTokens.colorBrand.withValues(alpha: 0.8),
                               blurRadius: 12,
                             )
                           ]

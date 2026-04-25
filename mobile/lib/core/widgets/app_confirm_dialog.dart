@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Reusable confirm/cancel dialog used for all destructive or neutral actions.
 ///
@@ -53,11 +53,11 @@ class AppConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confirmColor =
-        isDestructive ? Colors.red.shade400 : AppTheme.primaryBrand;
+        isDestructive ? Colors.red.shade400 : AppTokens.colorBrand;
     final confirmTextColor = isDestructive ? Colors.white : Colors.black;
 
     return Dialog(
-      backgroundColor: AppTheme.surfaceDark,
+      backgroundColor: AppTokens.colorBgSurface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -77,7 +77,7 @@ class AppConfirmDialog extends StatelessWidget {
             Text(
               body,
               style: TextStyle(
-                color: AppTheme.textSecondary,
+                color: AppTokens.colorTextSecondary,
                 fontSize: 13,
                 height: 1.5,
               ),
@@ -89,7 +89,7 @@ class AppConfirmDialog extends StatelessWidget {
                   child: _DialogButton(
                     label: cancelLabel,
                     onTap: () => Navigator.of(context).pop(false),
-                    backgroundColor: AppTheme.backgroundDark,
+                    backgroundColor: AppTokens.colorBgPrimary,
                     textColor: Colors.white,
                     hasBorder: true,
                   ),

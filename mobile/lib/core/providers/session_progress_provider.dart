@@ -644,8 +644,6 @@ class SessionProgressNotifier extends StateNotifier<SessionProgressState> {
         // If it's a trainer plan or AI plan, trigger immediate sync to persistent storage
         _persistExerciseCompletionAsync(exerciseId, newCompleted);
 
-        // AWARD POINTS
-        _ref.read(pointsProvider.notifier).awardSetCompleted();
 
         return e.copyWith(completedSets: newCompleted);
       }
@@ -719,9 +717,8 @@ class SessionProgressNotifier extends StateNotifier<SessionProgressState> {
     state = state.copyWith(meals: updatedMeals);
     triggerCloudSync();
  
-    // AWARD POINTS
     if (newCompletedState) {
-      _ref.read(pointsProvider.notifier).awardMealLogged();
+      _ref.read(pointsProvider.notifier).syncFromBackend();
     }
  
     // PERSISTENCE SYNC
@@ -791,8 +788,7 @@ class SessionProgressNotifier extends StateNotifier<SessionProgressState> {
       ],
     );
 
-    // AWARD COMPLETION BONUS
-    _ref.read(pointsProvider.notifier).awardWorkoutCompleted(setsLogged: state.completedExercises);
+    _ref.read(pointsProvider.notifier).syncFromBackend();
 
     // Post detailed workout history using real logged sets from the active session
     final session = _ref.read(activeWorkoutSessionProvider);
@@ -892,8 +888,13 @@ class SessionProgressNotifier extends StateNotifier<SessionProgressState> {
       newCups = index + 1;
     }
 
+    updateHydration(newCups);
+  }
+
+  /// Direct hydration update
+  void updateHydration(int cups) {
     state = state.copyWith(
-      hydration: state.hydration.copyWith(completedCups: newCups),
+      hydration: state.hydration.copyWith(completedCups: cups),
     );
     triggerCloudSync();
   }

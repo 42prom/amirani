@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
 import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/providers/points_provider.dart';
@@ -49,7 +48,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
     final points = ref.watch(pointsProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Column(
           children: [
@@ -60,7 +59,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
               child: Container(
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+                  color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(color: Colors.white.withValues(alpha: 0.03)),
                 ),
@@ -69,20 +68,20 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                   indicator: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppTheme.primaryBrand.withValues(alpha: 0.25),
-                        AppTheme.primaryBrand.withValues(alpha: 0.1),
+                        AppTokens.colorBrand.withValues(alpha: 0.25),
+                        AppTokens.colorBrand.withValues(alpha: 0.1),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.45),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.45),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.08),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.08),
                         blurRadius: 10,
                         spreadRadius: 1,
                       ),
@@ -90,7 +89,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
-                  labelColor: AppTheme.primaryBrand,
+                  labelColor: AppTokens.colorBrand,
                   unselectedLabelColor: Colors.white38,
                   labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   tabs: const [
@@ -106,7 +105,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                 children: [
                   // Tab 0: existing progress content
                   RefreshIndicator(
-                    color: AppTheme.primaryBrand,
+                    color: AppTokens.colorBrand,
                     onRefresh: () async {
                       await ref.read(workoutNotifierProvider.notifier).fetchActivePlan();
                       await ref.read(sessionProgressProvider.notifier).syncDown();
@@ -165,8 +164,8 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                     width: 12,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppTheme.primaryBrand,
-                      border: Border.all(color: AppTheme.backgroundDark, width: 2),
+                      color: AppTokens.colorBrand,
+                      border: Border.all(color: AppTokens.colorBgPrimary, width: 2),
                     ),
                   ),
                 ),
@@ -199,7 +198,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
             width: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.surfaceDark.withValues(alpha: 0.5),
+              color: AppTokens.colorBgSurface.withValues(alpha: 0.5),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
             child:
@@ -214,12 +213,12 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.2)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryBrand.withValues(alpha: 0.06),
+            color: AppTokens.colorBrand.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -232,10 +231,10 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
             width: 44,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppTheme.primaryBrand.withValues(alpha: 0.15),
-              border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+              color: AppTokens.colorBrand.withValues(alpha: 0.15),
+              border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
             ),
-            child: const Icon(Icons.bolt, color: AppTheme.primaryBrand, size: 22),
+            child: const Icon(Icons.bolt, color: AppTokens.colorBrand, size: 22),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -330,11 +329,11 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color:
-                        isActive ? AppTheme.primaryBrand : Colors.transparent,
+                        isActive ? AppTokens.colorBrand : Colors.transparent,
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                                color: AppTheme.primaryBrand
+                                color: AppTokens.colorBrand
                                     .withValues(alpha: 0.8),
                                 blurRadius: 10)
                           ]
@@ -357,7 +356,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark.withValues(alpha: 0.8),
+        color: AppTokens.colorBgSurface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
             color: isComplete
@@ -499,7 +498,7 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
       width: double.infinity,
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [

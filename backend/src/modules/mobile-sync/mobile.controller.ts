@@ -1124,15 +1124,12 @@ export class MobileController {
       const recordDate = date ? new Date(`${date}T00:00:00.000Z`) : new Date();
       recordDate.setUTCHours(0, 0, 0, 0);
 
-      // One entry per day — re-weighing the same day updates existing row
-      const existing = await prisma.userWeightHistory.findFirst({
-        where: { userId, date: recordDate },
-        select: { id: true },
+      // One entry per day — atomic upsert prevents duplicate rows on concurrent requests.
+      const entry = await prisma.userWeightHistory.upsert({
+        where:  { userId_date: { userId, date: recordDate } },
+        update: { weight: weightKg },
+        create: { userId, weight: weightKg, date: recordDate },
       });
-
-      const entry = existing
-        ? await prisma.userWeightHistory.update({ where: { id: existing.id }, data: { weight: weightKg } })
-        : await prisma.userWeightHistory.create({ data: { userId, weight: weightKg, date: recordDate } });
 
       // Keep User.weight in sync so profile and fallback snapshot stay current
       await prisma.user.update({

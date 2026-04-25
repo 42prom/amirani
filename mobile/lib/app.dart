@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/auth/presentation/pages/change_password_page.dart';
@@ -326,7 +327,7 @@ class SplashPage extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -337,15 +338,15 @@ class SplashPage extends ConsumerWidget {
               height: 72,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppTheme.primaryBrand.withValues(alpha: 0.12),
+                color: AppTokens.colorBrand.withValues(alpha: 0.12),
                 border: Border.all(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.4),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.4),
                   width: 1.5,
                 ),
               ),
               child: const Icon(
                 Icons.fitness_center_rounded,
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 size: 34,
               ),
             ),
@@ -375,7 +376,7 @@ class SplashPage extends ConsumerWidget {
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  AppTheme.primaryBrand.withValues(alpha: 0.8),
+                  AppTokens.colorBrand.withValues(alpha: 0.8),
                 ),
               ),
             ),

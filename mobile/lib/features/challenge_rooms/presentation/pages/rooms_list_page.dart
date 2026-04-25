@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../data/models/room_model.dart';
 import '../providers/room_provider.dart';
 
@@ -40,12 +40,12 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
     final notifier   = ref.read(myRoomsProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: NestedScrollView(
         headerSliverBuilder: (ctx, _) => [
           SliverAppBar(
             pinned: true,
-            backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+            backgroundColor: AppTokens.colorBgPrimary,
             title: const Text('Challenge Rooms',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
             actions: [
@@ -62,8 +62,8 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
             ],
             bottom: TabBar(
               controller: _tabs,
-              indicatorColor: AppTheme.primaryBrand,
-              labelColor: AppTheme.primaryBrand,
+              indicatorColor: AppTokens.colorBrand,
+              labelColor: AppTokens.colorBrand,
               unselectedLabelColor: Colors.white38,
               tabs: const [
                 Tab(text: 'My Rooms'),
@@ -75,7 +75,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
         ],
         body: roomsAsync.when(
           loading: () => const Center(
-            child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBrand),
+            child: CircularProgressIndicator(strokeWidth: 2, color: AppTokens.colorBrand),
           ),
           error: (e, _) => _ErrorView(
             message: e.toString(),
@@ -133,7 +133,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
                 fillColor: Colors.white.withValues(alpha: 0.07),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: AppTheme.primaryBrand.withValues(alpha: 0.4)),
+                  borderSide: BorderSide(color: AppTokens.colorBrand.withValues(alpha: 0.4)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -141,7 +141,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: AppTheme.primaryBrand),
+                  borderSide: const BorderSide(color: AppTokens.colorBrand),
                 ),
               ),
             ),
@@ -151,7 +151,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
               height: 50,
               child: FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () async {
@@ -219,7 +219,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppTheme.primaryBrand)),
+                        borderSide: const BorderSide(color: AppTokens.colorBrand)),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -242,7 +242,7 @@ class _RoomsListPageState extends ConsumerState<RoomsListPage>
                   height: 50,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.primaryBrand,
+                      backgroundColor: AppTokens.colorBrand,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () async {
@@ -289,7 +289,7 @@ class _RoomGrid extends StatelessWidget {
     }
 
     return RefreshIndicator(
-      color: AppTheme.primaryBrand,
+      color: AppTokens.colorBrand,
       onRefresh: () => notifier.load(),
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
@@ -324,7 +324,7 @@ class _RoomCard extends StatelessWidget {
     switch (room.metric) {
       case 'SESSIONS': return const Color(0xFF7C3AED);
       case 'STREAK':   return const Color(0xFFEF4444);
-      default:         return AppTheme.primaryBrand;
+      default:         return AppTokens.colorBrand;
     }
   }
 
@@ -376,7 +376,7 @@ class _RoomCard extends StatelessWidget {
                 child: FilledButton(
                   onPressed: onJoin,
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     padding: EdgeInsets.zero,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -418,14 +418,14 @@ class _SegmentRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   color: selected == e.key
-                      ? AppTheme.primaryBrand.withValues(alpha: 0.2)
+                      ? AppTokens.colorBrand.withValues(alpha: 0.2)
                       : Colors.white.withValues(alpha: 0.06),
                   border: Border.all(
-                      color: selected == e.key ? AppTheme.primaryBrand : Colors.transparent),
+                      color: selected == e.key ? AppTokens.colorBrand : Colors.transparent),
                 ),
                 child: Text(e.value,
                     style: TextStyle(
-                        color: selected == e.key ? AppTheme.primaryBrand : Colors.white54,
+                        color: selected == e.key ? AppTokens.colorBrand : Colors.white54,
                         fontSize: 11,
                         fontWeight: FontWeight.w600),
                     textAlign: TextAlign.center),
@@ -451,7 +451,7 @@ class _ErrorView extends StatelessWidget {
       Text(message, style: const TextStyle(color: Colors.white54, fontSize: 13)),
       const SizedBox(height: 16),
       TextButton(onPressed: onRetry,
-          child: const Text('Retry', style: TextStyle(color: AppTheme.primaryBrand))),
+          child: const Text('Retry', style: TextStyle(color: AppTokens.colorBrand))),
     ]),
   );
 }

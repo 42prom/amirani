@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/dio_provider.dart';
+import '../../../../core/providers/points_provider.dart';
 import '../../data/datasources/gamification_data_source.dart';
 import '../../data/models/reward_model.dart';
 
@@ -49,7 +50,8 @@ class RewardStoreState {
 
 class RewardStoreNotifier extends StateNotifier<RewardStoreState> {
   final GamificationDataSource _ds;
-  RewardStoreNotifier(this._ds) : super(const RewardStoreState());
+  final Ref _ref;
+  RewardStoreNotifier(this._ds, this._ref) : super(const RewardStoreState());
 
   Future<void> load() async {
     state = state.copyWith(isLoading: true, clearError: true);
@@ -86,6 +88,7 @@ class RewardStoreNotifier extends StateNotifier<RewardStoreState> {
                 r.id != rewardId || r.stock == null ? r : r.copyWith(stock: r.stock! - 1))
             .toList(),
       );
+      _ref.read(pointsProvider.notifier).syncFromBackend();
     } catch (e) {
       if (!mounted) return;
       final msg = e.toString();
@@ -103,7 +106,7 @@ class RewardStoreNotifier extends StateNotifier<RewardStoreState> {
 
 final rewardStoreProvider =
     StateNotifierProvider.autoDispose<RewardStoreNotifier, RewardStoreState>((ref) {
-  return RewardStoreNotifier(ref.watch(gamificationDataSourceProvider));
+  return RewardStoreNotifier(ref.watch(gamificationDataSourceProvider), ref);
 });
 
 // ── Redemption History ────────────────────────────────────────────────────────

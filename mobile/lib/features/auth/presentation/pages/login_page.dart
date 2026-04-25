@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../../../../core/config/service_availability.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 // ─── Country data ─────────────────────────────────────────────────────────────
 
@@ -117,7 +117,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final errorMessage = authState is AuthError ? authState.message : null;
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundDark,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -267,7 +267,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       children: [
                         _DevButton(
                           label: 'Member',
-                          color: AppTheme.primaryBrand,
+                          color: AppTokens.colorBrand,
                           onPressed: isLoading
                               ? null
                               : () => ref

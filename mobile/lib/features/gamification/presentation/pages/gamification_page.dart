@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../domain/entities/badge_entity.dart';
 import '../../domain/entities/gamification_profile.dart';
 import '../providers/gamification_provider.dart';
@@ -14,10 +14,10 @@ class GamificationPage extends ConsumerWidget {
     final profileAsync = ref.watch(gamificationProvider);
 
     return Scaffold(
-      backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+      backgroundColor: AppTokens.colorBgPrimary,
       body: profileAsync.when(
         loading: () => const Center(
-          child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.primaryBrand),
+          child: CircularProgressIndicator(strokeWidth: 2, color: AppTokens.colorBrand),
         ),
         error: (e, _) => Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -27,7 +27,7 @@ class GamificationPage extends ConsumerWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () => ref.read(gamificationProvider.notifier).load(),
-              child: const Text('Retry', style: TextStyle(color: AppTheme.primaryBrand)),
+              child: const Text('Retry', style: TextStyle(color: AppTokens.colorBrand)),
             ),
           ]),
         ),
@@ -74,7 +74,7 @@ class _ProfileView extends StatelessWidget {
         SliverAppBar(
           expandedHeight: 200,
           pinned: true,
-          backgroundColor: AppTheme.darkTheme.scaffoldBackgroundColor,
+          backgroundColor: AppTokens.colorBgPrimary,
           flexibleSpace: FlexibleSpaceBar(
             background: _HeroHeader(profile: profile, levelProgress: _levelProgress),
           ),
@@ -87,7 +87,7 @@ class _ProfileView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Row(
               children: [
-                _StatCard(label: 'Total Points', value: '${profile.totalPoints}', icon: Icons.star_rounded, color: AppTheme.primaryBrand),
+                _StatCard(label: 'Total Points', value: '${profile.totalPoints}', icon: Icons.star_rounded, color: AppTokens.colorBrand),
                 const SizedBox(width: 10),
                 _StatCard(label: 'Level', value: profile.levelName, icon: Icons.emoji_events_rounded, color: const Color(0xFFFBBF24)),
                 const SizedBox(width: 10),
@@ -178,7 +178,7 @@ class _HeroHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppTheme.primaryBrand.withValues(alpha: 0.25),
+            AppTokens.colorBrand.withValues(alpha: 0.25),
             Colors.transparent,
           ],
         ),
@@ -199,7 +199,7 @@ class _HeroHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
-                        colors: [AppTheme.primaryBrand, AppTheme.primaryBrand.withValues(alpha: 0.6)],
+                        colors: [AppTokens.colorBrand, AppTokens.colorBrand.withValues(alpha: 0.6)],
                       ),
                     ),
                     child: Center(
@@ -229,7 +229,7 @@ class _HeroHeader extends StatelessWidget {
                   value: levelProgress,
                   minHeight: 7,
                   backgroundColor: Colors.white12,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppTheme.primaryBrand),
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppTokens.colorBrand),
                 ),
               ),
               const SizedBox(height: 6),

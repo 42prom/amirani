@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 /// Standard empty state widget used across all list screens.
 ///
@@ -74,14 +74,14 @@ class AppEmptyState extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: AppTheme.primaryBrand.withValues(alpha: 0.4),
+                      color: AppTokens.colorBrand.withValues(alpha: 0.4),
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     actionLabel!,
                     style: const TextStyle(
-                      color: AppTheme.primaryBrand,
+                      color: AppTokens.colorBrand,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),

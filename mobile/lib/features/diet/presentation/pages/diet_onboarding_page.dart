@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/diet_onboarding_provider.dart';
 import '../../domain/entities/diet_preferences_entity.dart';
 import '../../domain/entities/monthly_plan_entity.dart';
@@ -35,7 +35,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
       height: screenHeight * 0.85 + bottomInset,
       margin: const EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark.withValues(alpha: 0.7),
+        color: AppTokens.colorBgPrimary.withValues(alpha: 0.7),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         border: Border(
           top: BorderSide(
@@ -110,7 +110,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
             bottom: MediaQuery.of(context).padding.bottom + 16,
           ),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundDark,
+            color: AppTokens.colorBgPrimary,
             border: Border(
               top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -132,7 +132,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               borderRadius: BorderRadius.circular(28),
               child: Stack(
                 children: [
-                  Container(color: AppTheme.primaryBrand),
+                  Container(color: AppTokens.colorBrand),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 400),
                     width: MediaQuery.of(context).size.width * state.generationProgress,
@@ -171,7 +171,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         bottom: MediaQuery.of(context).padding.bottom + 16,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundDark,
+        color: AppTokens.colorBgPrimary,
         border: Border(
           top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -268,12 +268,12 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(2),
               color: isActive
-                  ? AppTheme.primaryBrand
+                  ? AppTokens.colorBrand
                   : Colors.white.withValues(alpha: 0.1),
               boxShadow: isCurrent
                   ? [
                       BoxShadow(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.5),
+                        color: AppTokens.colorBrand.withValues(alpha: 0.5),
                         blurRadius: 8,
                       )
                     ]
@@ -334,7 +334,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
           if (hasData) ...[
             _buildInfoCard(
               icon: Icons.shield_outlined,
-              iconColor: AppTheme.primaryBrand,
+              iconColor: AppTokens.colorBrand,
               title: 'We found in your profile:',
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,7 +433,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -481,7 +481,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppTheme.primaryBrand),
+                    borderSide: const BorderSide(color: AppTokens.colorBrand),
                   ),
                 ),
               ),
@@ -499,7 +499,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -654,9 +654,9 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+        color: AppTokens.colorBrand.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppTheme.primaryBrand.withValues(alpha: 0.3)),
+        border: Border.all(color: AppTokens.colorBrand.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,11 +667,11 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(Icons.calculate_outlined,
-                    color: AppTheme.primaryBrand, size: 20),
+                    color: AppTokens.colorBrand, size: 20),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -707,7 +707,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                       child: Row(
                         children: [
                           const Icon(Icons.monitor_weight_outlined,
-                              color: AppTheme.primaryBrand, size: 18),
+                              color: AppTokens.colorBrand, size: 18),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
@@ -729,7 +729,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                           ),
                           Icon(Icons.edit_outlined,
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.7),
+                                  AppTokens.colorBrand.withValues(alpha: 0.7),
                               size: 14),
                         ],
                       ),
@@ -748,14 +748,14 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: state.heightCm == null
-                              ? AppTheme.primaryBrand.withValues(alpha: 0.5)
+                              ? AppTokens.colorBrand.withValues(alpha: 0.5)
                               : Colors.white.withValues(alpha: 0.05),
                         ),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.height,
-                              color: AppTheme.primaryBrand, size: 18),
+                              color: AppTokens.colorBrand, size: 18),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
@@ -772,7 +772,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                                   style: TextStyle(
                                     color: state.heightCm != null
                                         ? Colors.white
-                                        : AppTheme.primaryBrand,
+                                        : AppTokens.colorBrand,
                                     fontSize: 15,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -782,7 +782,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                           ),
                           Icon(Icons.edit_outlined,
                               color:
-                                  AppTheme.primaryBrand.withValues(alpha: 0.7),
+                                  AppTokens.colorBrand.withValues(alpha: 0.7),
                               size: 14),
                         ],
                       ),
@@ -827,7 +827,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
                             color: active
-                                ? AppTheme.primaryBrand
+                                ? AppTokens.colorBrand
                                 : Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -861,12 +861,12 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: goalPicked
-                    ? AppTheme.primaryBrand.withValues(alpha: 0.15)
+                    ? AppTokens.colorBrand.withValues(alpha: 0.15)
                     : Colors.black.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: goalPicked
                     ? Border.all(
-                        color: AppTheme.primaryBrand.withValues(alpha: 0.4))
+                        color: AppTokens.colorBrand.withValues(alpha: 0.4))
                     : null,
               ),
               child: Row(
@@ -875,7 +875,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     goalPicked
                         ? Icons.flag_outlined
                         : Icons.local_fire_department,
-                    color: AppTheme.primaryBrand,
+                    color: AppTokens.colorBrand,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -927,9 +927,9 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: AppTheme.primaryBrand),
+        border: Border.all(color: AppTokens.colorBrand),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -939,12 +939,12 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                  color: AppTokens.colorBrand.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.monitor_weight_outlined,
-                  color: AppTheme.primaryBrand,
+                  color: AppTokens.colorBrand,
                   size: 20,
                 ),
               ),
@@ -989,7 +989,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: AppTheme.primaryBrand),
+                          const BorderSide(color: AppTokens.colorBrand),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -1009,7 +1009,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -1048,7 +1048,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -1101,7 +1101,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
                     borderSide: const BorderSide(
-                        color: AppTheme.primaryBrand, width: 2),
+                        color: AppTokens.colorBrand, width: 2),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -1123,7 +1123,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1164,7 +1164,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
-            color: AppTheme.surfaceDark,
+            color: AppTokens.colorBgSurface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Column(
@@ -1218,7 +1218,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(28),
                     borderSide: const BorderSide(
-                        color: AppTheme.primaryBrand, width: 2),
+                        color: AppTokens.colorBrand, width: 2),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
@@ -1240,7 +1240,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryBrand,
+                    backgroundColor: AppTokens.colorBrand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1278,18 +1278,18 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.2),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.2),
                     blurRadius: 20,
                   )
                 ]
@@ -1301,13 +1301,13 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppTheme.primaryBrand.withValues(alpha: 0.15)
+                    ? AppTokens.colorBrand.withValues(alpha: 0.15)
                     : Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppTheme.primaryBrand : Colors.white54,
+                color: isSelected ? AppTokens.colorBrand : Colors.white54,
                 size: 28,
               ),
             ),
@@ -1423,11 +1423,11 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
@@ -1459,7 +1459,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               width: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isSelected ? AppTheme.primaryBrand : Colors.transparent,
+                color: isSelected ? AppTokens.colorBrand : Colors.transparent,
                 border: isSelected
                     ? null
                     : Border.all(color: Colors.white38, width: 2),
@@ -1521,7 +1521,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   margin: const EdgeInsets.symmetric(horizontal: 48),
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: AppTheme.surfaceDark,
+                    color: AppTokens.colorBgSurface,
                     borderRadius: BorderRadius.circular(28),
                     border:
                         Border.all(color: Colors.white.withValues(alpha: 0.05)),
@@ -1576,7 +1576,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                       _buildFoodActionButton(
                         icon: Icons.favorite,
                         label: 'Love',
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         onTap: () {
                           ref
                               .read(dietOnboardingProvider.notifier)
@@ -1597,7 +1597,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                         value: _currentFoodIndex / foods.length,
                         backgroundColor: Colors.white.withValues(alpha: 0.1),
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            AppTheme.primaryBrand),
+                            AppTokens.colorBrand),
                         minHeight: 4,
                         borderRadius: BorderRadius.circular(2),
                       ),
@@ -1624,7 +1624,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
                             color:
-                                AppTheme.primaryBrand.withValues(alpha: 0.15),
+                                AppTokens.colorBrand.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(28),
                           ),
                           child: Row(
@@ -1638,7 +1638,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                               Text(
                                 food,
                                 style: const TextStyle(
-                                  color: AppTheme.primaryBrand,
+                                  color: AppTokens.colorBrand,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -1656,7 +1656,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.check_circle,
-                    color: AppTheme.primaryBrand, size: 64),
+                    color: AppTokens.colorBrand, size: 64),
                 const SizedBox(height: 16),
                 const Text(
                   'All done!',
@@ -1949,7 +1949,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.primaryBrand
+                                ? AppTokens.colorBrand
                                 : Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -1987,7 +1987,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                     .read(dietOnboardingProvider.notifier)
                     .toggleMealReminders(value);
               },
-              activeThumbColor: AppTheme.primaryBrand,
+              activeThumbColor: AppTokens.colorBrand,
             ),
             child: const Text(
               'Get notified before each meal',
@@ -2139,7 +2139,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -2148,10 +2148,10 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppTheme.primaryBrand.withValues(alpha: 0.1),
+                color: AppTokens.colorBrand.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: AppTheme.primaryBrand, size: 20),
+              child: Icon(icon, color: AppTokens.colorBrand, size: 20),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -2167,7 +2167,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
             Text(
               time,
               style: const TextStyle(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
@@ -2194,8 +2194,8 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         return Theme(
           data: ThemeData.dark().copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: AppTheme.primaryBrand,
-              surface: AppTheme.surfaceDark,
+              primary: AppTokens.colorBrand,
+              surface: AppTokens.colorBgSurface,
             ),
           ),
           child: child!,
@@ -2220,7 +2220,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -2268,7 +2268,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
             ),
             child: const Icon(
               Icons.auto_awesome,
-              color: AppTheme.primaryBrand,
+              color: AppTokens.colorBrand,
               size: 48,
             ),
           ),
@@ -2286,7 +2286,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
           // Progress bar synced with state
           LinearProgressIndicator(
             value: state.generationProgress,
-            backgroundColor: AppTheme.surfaceDark,
+            backgroundColor: AppTokens.colorBgSurface,
             valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2ECC71)),
             minHeight: 8,
             borderRadius: BorderRadius.circular(4),
@@ -2295,7 +2295,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
           Text(
             '${(state.generationProgress * 100).toInt()}% complete',
             style: const TextStyle(
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 fontSize: 12,
                 fontWeight: FontWeight.bold),
           ),
@@ -2355,7 +2355,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceDark,
+              color: AppTokens.colorBgSurface,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
             ),
@@ -2381,7 +2381,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                       ),
                       child: const Icon(
                         Icons.local_fire_department,
-                        color: AppTheme.primaryBrand,
+                        color: AppTokens.colorBrand,
                         size: 24,
                       ),
                     ),
@@ -2417,7 +2417,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildMacroSummary('Protein',
-                        '${plan.macroTarget.protein}g', AppTheme.primaryBrand),
+                        '${plan.macroTarget.protein}g', AppTokens.colorBrand),
                     _buildMacroSummary('Carbs', '${plan.macroTarget.carbs}g',
                         Colors.blueAccent),
                     _buildMacroSummary(
@@ -2486,7 +2486,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -2534,11 +2534,11 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected
-                ? AppTheme.primaryBrand
+                ? AppTokens.colorBrand
                 : Colors.white.withValues(alpha: 0.05),
             width: isSelected ? 2 : 1,
           ),
@@ -2593,7 +2593,7 @@ class _DietOnboardingPageState extends ConsumerState<DietOnboardingPage> {
         onPressed: enabled ? onTap : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: enabled
-              ? AppTheme.primaryBrand
+              ? AppTokens.colorBrand
               : Colors.white.withValues(alpha: 0.1),
           foregroundColor: enabled ? Colors.black : Colors.white38,
           padding: const EdgeInsets.symmetric(vertical: 16),

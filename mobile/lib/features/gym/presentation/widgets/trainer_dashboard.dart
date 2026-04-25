@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import 'package:amirani_app/core/widgets/app_section_header.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
 import '../providers/trainer_platform_provider.dart';
@@ -28,8 +28,8 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
 
     return RefreshIndicator(
       onRefresh: () => ref.read(trainerPlatformProvider.notifier).refresh(),
-      backgroundColor: AppTheme.surfaceDark,
-      color: AppTheme.primaryBrand,
+      backgroundColor: AppTokens.colorBgSurface,
+      color: AppTokens.colorBrand,
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -45,7 +45,7 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
                   _buildSearchBar(),
                   const SizedBox(height: 24),
                   if (platformState.isLoading)
-                    const Center(child: CircularProgressIndicator(color: AppTheme.primaryBrand))
+                    const Center(child: CircularProgressIndicator(color: AppTokens.colorBrand))
                   else if (platformState.error != null)
                     _buildErrorState(platformState.error!)
                   else
@@ -74,7 +74,7 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceDark,
+          color: AppTokens.colorBgSurface,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
         ),
@@ -98,7 +98,7 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
   Widget _buildSearchBar() {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
       ),
@@ -141,7 +141,7 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
           child: ListTile(
             onTap: () => ClientDetailSheet.show(context, m),
             contentPadding: const EdgeInsets.all(12),
-            tileColor: AppTheme.surfaceDark.withValues(alpha: 0.5),
+            tileColor: AppTokens.colorBgSurface.withValues(alpha: 0.5),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
             leading: UserAvatar(imagePath: avatarUrl, displayName: fullName, size: 48),
             title: Text(fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -167,7 +167,7 @@ class _TrainerDashboardState extends ConsumerState<TrainerDashboard> {
           const Icon(Icons.error_outline, color: Colors.redAccent, size: 40),
           const SizedBox(height: 16),
           Text(error, style: const TextStyle(color: Colors.white70), textAlign: TextAlign.center),
-          TextButton(onPressed: () => ref.read(trainerPlatformProvider.notifier).refresh(), child: const Text('Retry', style: TextStyle(color: AppTheme.primaryBrand))),
+          TextButton(onPressed: () => ref.read(trainerPlatformProvider.notifier).refresh(), child: const Text('Retry', style: TextStyle(color: AppTokens.colorBrand))),
         ],
       ),
     );

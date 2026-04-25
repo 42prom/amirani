@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import 'package:amirani_app/core/widgets/plan_source_badge.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
@@ -168,7 +168,7 @@ class _WorkoutPlanManagementCardState extends ConsumerState<WorkoutPlanManagemen
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceDark,
+        color: AppTokens.colorBgSurface,
         borderRadius: BorderRadius.circular(28),
         border: Border.all(
           color: isFinished

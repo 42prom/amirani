@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 
 // ── Condition list ────────────────────────────────────────────────────────────
 // Organised in logical groups so the 2-column grid reads naturally.
@@ -94,7 +94,7 @@ class HealthChips extends StatelessWidget {
               ),
               color: noneSelected
                   ? const Color(0xFF22C55E).withValues(alpha: 0.10)
-                  : AppTheme.surfaceDark,
+                  : AppTokens.colorBgSurface,
             ),
             child: Row(
               children: [
@@ -104,7 +104,7 @@ class HealthChips extends StatelessWidget {
                   child: Text(
                     'None — I\'m in good health',
                     style: TextStyle(
-                      color: AppTheme.textPrimary,
+                      color: AppTokens.colorTextPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -148,13 +148,13 @@ class _ConditionCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: selected
-                ? AppTheme.primaryBrand.withValues(alpha: 0.8)
+                ? AppTokens.colorBrand.withValues(alpha: 0.8)
                 : Colors.white.withValues(alpha: 0.08),
             width: selected ? 1.5 : 1.0,
           ),
           color: selected
-              ? AppTheme.primaryBrand.withValues(alpha: 0.12)
-              : AppTheme.surfaceDark,
+              ? AppTokens.colorBrand.withValues(alpha: 0.12)
+              : AppTokens.colorBgSurface,
         ),
         child: Row(
           children: [
@@ -165,8 +165,8 @@ class _ConditionCard extends StatelessWidget {
                 label,
                 style: TextStyle(
                   color: selected
-                      ? AppTheme.primaryBrand
-                      : AppTheme.textSecondary,
+                      ? AppTokens.colorBrand
+                      : AppTokens.colorTextSecondary,
                   fontSize: 12,
                   fontWeight:
                       selected ? FontWeight.w600 : FontWeight.w400,
@@ -177,7 +177,7 @@ class _ConditionCard extends StatelessWidget {
             if (selected)
               Icon(
                 Icons.check_circle_rounded,
-                color: AppTheme.primaryBrand,
+                color: AppTokens.colorBrand,
                 size: 14,
               ),
           ],

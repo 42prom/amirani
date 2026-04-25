@@ -49,7 +49,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: amirani-backend-dev
     restart: always
     env_file:
@@ -58,6 +58,7 @@ services:
       - DATABASE_URL=postgresql://amirani:amirani_password@postgres:5432/amirani?schema=public
       - REDIS_URL=redis://redis:6379
       - NODE_ENV=development
+      - NODE_OPTIONS=--max-old-space-size=1536
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,18 +66,21 @@ services:
         condition: service_healthy
     ports:
       - "3085:3085"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     networks:
       - amirani-network
     deploy:
       resources:
         limits:
-          cpus: '1.0'
-          memory: 1G
+          cpus: '1.5'
+          memory: 2G
 
   admin:
     build:
       context: ./admin
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       args:
         - NEXT_PUBLIC_ENABLE_QUICK_LOGIN=true
         - NEXT_PUBLIC_API_URL=/api
@@ -93,7 +97,9 @@ services:
     ports:
       - "3002:3002"
     volumes:
-      - ./admin/public/assets/equipment:/app/public/assets/equipment
+      - ./admin:/app
+      - /app/node_modules
+      - /app/.next
     networks:
       - amirani-network
     deploy:

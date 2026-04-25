@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../providers/room_provider.dart';
 
 class JoinByCodeSheet extends ConsumerStatefulWidget {
@@ -53,7 +53,7 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
       child: Container(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
         decoration: BoxDecoration(
-          color: AppTheme.backgroundDark,
+          color: AppTokens.colorBgPrimary,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
         ),
@@ -74,9 +74,9 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
                   width: 40, height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppTheme.primaryBrand.withValues(alpha: 0.15),
+                    color: AppTokens.colorBrand.withValues(alpha: 0.15),
                   ),
-                  child: const Icon(Icons.vpn_key_outlined, color: AppTheme.primaryBrand, size: 20),
+                  child: const Icon(Icons.vpn_key_outlined, color: AppTokens.colorBrand, size: 20),
                 ),
                 const SizedBox(width: 12),
                 const Expanded(
@@ -114,7 +114,7 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
                 ),
                 counterText: '',
                 filled: true,
-                fillColor: AppTheme.surfaceDark,
+                fillColor: AppTokens.colorBgSurface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
@@ -125,7 +125,7 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
                 ),
                 focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(14)),
-                  borderSide: BorderSide(color: AppTheme.primaryBrand),
+                  borderSide: BorderSide(color: AppTokens.colorBrand),
                 ),
                 contentPadding: const EdgeInsets.symmetric(vertical: 18),
               ),
@@ -148,7 +148,7 @@ class _JoinByCodeSheetState extends ConsumerState<JoinByCodeSheet> {
               child: ElevatedButton(
                 onPressed: _loading ? null : _submit,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryBrand,
+                  backgroundColor: AppTokens.colorBrand,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

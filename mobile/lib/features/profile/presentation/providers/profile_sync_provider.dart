@@ -446,6 +446,36 @@ class ProfileSyncNotifier extends StateNotifier<ProfileSyncState> {
     ]) {
       prefs.remove(key);
     }
+
+    // Fire-and-forget: trigger AI plan generation (BOTH workout + diet) with fresh metrics.
+    // type=BOTH skips the diet-plan-required guard — it's the first-time setup flow.
+    try {
+      int? ageYears;
+      final dobDate = DateTime.tryParse(dob);
+      if (dobDate != null) {
+        final now = DateTime.now();
+        ageYears = now.year - dobDate.year;
+        if (now.month < dobDate.month || (now.month == dobDate.month && now.day < dobDate.day)) {
+          ageYears--;
+        }
+      }
+
+      final dio = _ref.read(dioProvider);
+      await dio.post('/sync/ai/generate-plan', data: {
+        'type': 'BOTH',
+        'goals': 'general_fitness',
+        'fitnessLevel': 'BEGINNER',
+        'daysPerWeek': 4,
+        'userMetrics': {
+          if (weightKg != null) 'weightKg': weightKg,
+          if (heightCm != null) 'heightCm': heightCm,
+          if (ageYears != null) 'age': ageYears,
+          if (gender.isNotEmpty) 'gender': gender,
+        },
+      });
+    } catch (_) {
+      // Non-blocking — user can manually generate plans from their profile
+    }
   }
 
   String _capitalise(String s) =>
