@@ -172,4 +172,9 @@ const Map<String, String> kEn = {
   'onboarding.get_started':       'Get Started',
   'onboarding.welcome':           'Welcome to Amirani',
   'onboarding.subtitle':          'Your Personal Fitness Platform',
+
+  // ── Challenge ─────────────────────────────────────────────────────────────
+  'challenge.bonus_challenges':   'Bonus Challenges',
+  'challenge.hydration_today':    'Hydration Today',
+  'challenge.goal_met':           'Goal Met',
 };

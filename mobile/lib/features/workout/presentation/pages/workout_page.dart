@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:amirani_app/design_system/tokens/app_tokens.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../../../core/utils/app_notifications.dart';
@@ -655,12 +656,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Text("${ex.targetSets} Sets",
+                          Text("${ex.targetSets} ${L10n.workoutSets}",
                               style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
                           const Padding(
                               padding: EdgeInsets.symmetric(horizontal: 4),
                               child: Text("•", style: TextStyle(color: Colors.white54, fontSize: 10))),
-                          Text("${ex.targetReps} Reps",
+                          Text("${ex.targetReps} ${L10n.workoutReps}",
                               style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500)),
                         ],
                       ),

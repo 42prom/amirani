@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:amirani_app/design_system/tokens/app_tokens.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/services/workout_plan_storage_service.dart';
 import '../../domain/entities/monthly_workout_plan_entity.dart';
@@ -27,13 +28,13 @@ class _InteractiveExercisePillState extends ConsumerState<InteractiveExercisePil
     String statusText;
     if (status == SetStatus.completed) {
       accentColor = const Color(0xFF2ECC71);
-      statusText = "$targetSets/$targetSets Sets";
+      statusText = "$targetSets/$targetSets ${L10n.workoutSets}";
     } else if (completedSets > 0) {
       accentColor = const Color(0xFF3498DB); // Blue for active progress
-      statusText = "$completedSets/$targetSets Sets";
+      statusText = "$completedSets/$targetSets ${L10n.workoutSets}";
     } else {
       accentColor = Colors.white54;
-      statusText = "$targetSets Sets";
+      statusText = "$targetSets ${L10n.workoutSets}";
     }
 
     Widget trailingIcon = _buildSetIndicator(status, accentColor, completedSets);
@@ -143,7 +144,7 @@ class _InteractiveExercisePillState extends ConsumerState<InteractiveExercisePil
                                       child: Text("•", style: TextStyle(color: Colors.white54, fontSize: 10)),
                                     ),
                                     Text(
-                                      "${widget.exercise.targetReps} Reps",
+                                      "${widget.exercise.targetReps} ${L10n.workoutReps}",
                                       style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w500),
                                     ),
                                     if (widget.exercise.intensityStatus == IntensityStatus.peak) ...[

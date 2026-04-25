@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:amirani_app/design_system/tokens/app_tokens.dart';
+import 'package:amirani_app/core/localization/l10n_keys.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/providers/points_provider.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
@@ -122,8 +123,8 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                           const SizedBox(height: 24),
                           _buildAggregatedProgressDashboard(sessionProgress),
                           const SizedBox(height: 32),
-                          const Text("Bonus Challenges",
-                              style: TextStyle(
+                          Text(L10n.challengeBonusChallenges,
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold)),
@@ -391,8 +392,8 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                         color: Colors.blueAccent, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  const Text("Hydration Today",
-                      style: TextStyle(
+                  Text(L10n.challengeHydrationToday,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold)),
@@ -406,8 +407,8 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                     color: Colors.blueAccent.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text("GOAL MET",
-                      style: TextStyle(
+                  child: Text(L10n.challengeGoalMet.toUpperCase(),
+                      style: const TextStyle(
                           color: Colors.blueAccent,
                           fontSize: 10,
                           fontWeight: FontWeight.bold)),

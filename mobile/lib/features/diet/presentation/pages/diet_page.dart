@@ -1219,17 +1219,17 @@ class _DietPageState extends ConsumerState<DietPage> {
   String _getMealTypeLabel(MealType type) {
     switch (type) {
       case MealType.breakfast:
-        return 'BREAKFAST';
+        return L10n.dietBreakfast.toUpperCase();
       case MealType.lunch:
-        return 'LUNCH';
+        return L10n.dietLunch.toUpperCase();
       case MealType.dinner:
-        return 'DINNER';
+        return L10n.dietDinner.toUpperCase();
       case MealType.snack:
-        return 'SNACK';
+        return L10n.dietSnack.toUpperCase();
       case MealType.morningSnack:
-        return 'MORNING SNACK';
+        return 'MORNING ${L10n.dietSnack.toUpperCase()}';
       case MealType.afternoonSnack:
-        return 'AFTERNOON SNACK';
+        return 'AFTERNOON ${L10n.dietSnack.toUpperCase()}';
     }
   }
 

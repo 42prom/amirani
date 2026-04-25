@@ -197,4 +197,9 @@ abstract class L10n {
   static String get onboardingGetStarted  => tr('onboarding.get_started');
   static String get onboardingWelcome     => tr('onboarding.welcome');
   static String get onboardingSubtitle    => tr('onboarding.subtitle');
+
+  // ── Challenge ─────────────────────────────────────────────────────────────
+  static String get challengeBonusChallenges => tr('challenge.bonus_challenges');
+  static String get challengeHydrationToday  => tr('challenge.hydration_today');
+  static String get challengeGoalMet         => tr('challenge.goal_met');
 }
