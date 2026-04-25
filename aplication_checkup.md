@@ -51,20 +51,21 @@ Transform the existing Amiran application into the most precise, addictive, and 
 **Pay 100% depth to (full repo coverage + sensation upgrades) — EXPLICIT & EXHAUSTIVE LIST (must analyze every item below in every response):**
 
 - Task/DailyProgress integration (diet/workout mark-as-done → tasksCompleted, respecting tasksTotal)
-- Ingredients entry system (full CRUD, no hardcoded ingredients — dynamic per-country popular ingredients based on user location or gym country, localization engine)
-- Workouts entry & Exercise library (full CRUD, home-based vs gym-based filtering, equipment-linked exercises)
-- Gym equipment & Zones management (equipment entry, assignment to gyms/branches, equipment-specific exercises)
+- Ingredients / Food management system (FoodItem, FoodLog, MealLog, MasterMeal, full CRUD, no hardcoded, dynamic per-country popular ingredients based on user location or gym country, localization engine)
+- Workouts entry & Exercise library (ExerciseLibrary, WorkoutPlan, MasterWorkoutTemplate, full CRUD, home-based vs gym-based filtering, equipment-linked exercises)
+- Gym equipment & Zones management (EquipmentCatalog, Equipment, GymZone, full CRUD, assignment to gyms/branches, equipment-specific exercises)
+- Branch management (Branch model, multi-branch gym hierarchy)
 - Subscriptions & Membership hierarchy (super admin ↔ gym owner ↔ branch admin ↔ member; tiers: home/gym/free/premium/trial/freeze/reactivation; multi-gym SaaS billing, Stripe)
-- Trainer/Coach Platform (trainer diet/workout creation system, client assignment, trainer-member chat system, trainer dashboards)
+- Trainer/Coach Platform (TrainerProfile, TrainerDraftTemplate, trainer diet/workout creation system, client assignment, trainer-member chat system, trainer dashboards)
 - Mobile display of AI-generated + trainer-created diet/workout plans (shown as mark-as-done tasks inside existing diet/ and workout/ features only)
-- Gamification Engine (points, streaks, multipliers, levels, badges, reward store, global/gym/room leaderboards)
-- Challenge Rooms System (real-time, viral sharing, team/individual, global network effects)
-- Door Access & Hardware (Raspberry Pi + mobile offline-first, zero-failure reliability)
-- AI-Powered Personalization Engine (dynamic plans feeding DailyProgress, seeds, country-aware)
+- Gamification Engine (points, streaks, multipliers, levels, badges, reward store, global/gym/room leaderboards, PointEvent, BadgeDefinition, UserBadge, Reward, RewardRedemption)
+- Challenge Rooms System (real-time, viral sharing, team/individual, global network effects, ProgressRoom, RoomMembership, RoomMessage, RoomChallenge, ChallengeProgress)
+- Door Access & Hardware (Raspberry Pi + mobile offline-first, zero-failure reliability, DoorSystem, DoorAccessLog, HardwareGateway, CardCredential)
+- AI-Powered Personalization Engine (dynamic plans feeding DailyProgress, seeds, country-aware, AIConfig, HybridTemplate)
 - Member Profile, Onboarding, Progress Tracking, Dashboard Sync
-- Authentication, RBAC (full role hierarchy), Payment & Billing Engine + Stripe Webhooks
+- Authentication, RBAC (full role hierarchy), Payment & Billing Engine + Stripe Webhooks (Payment, Deposit, StripeConfig, WebhookEndpoint)
 - Mobile Architecture & UX (clean, offline-first, buttery animations, design system, zero battery drain)
-- Backend Core Stability, Audit Logging, Security & Compliance
+- Backend Core Stability, Audit Logging, Security & Compliance (AuditLog, ProcessedWebhookEvent)
 - Infrastructure, Docker, DevOps, CI/CD & Production Readiness (1M+ users)
 - DYNAMIC LANGUAGE / i18n SYSTEM (MANDATORY DEEP ANALYSIS — MUST FOLLOW language.md 100% VERBATIM):
   • CORE IDEA: English (default, bundled, always fallback) + EXACTLY ONE alternative language (selected by Gym Owner). No multi-language complexity.
@@ -76,11 +77,21 @@ Transform the existing Amiran application into the most precise, addictive, and 
   • FALLBACK: Alternative → English → raw key.
   • PERFORMANCE RULES: Do NOT preload; load only when needed; cache locally; versioning; NO full app reload on switch.
   • SETTINGS PAGE: Simple toggle/dropdown.
-  • AI TRANSLATION SYSTEM: Super Admin can generate packs with AI (English keys → translated JSON, short & UI-friendly) + manual JSON upload/edit + version control.
+  • AI TRANSLATION SYSTEM + LOCO-STYLE EDITOR: Super Admin can generate packs with AI (English keys → translated JSON, short & UI-friendly) + manual JSON upload/edit + version control + full Loco Translate style table (English Key | English Text | Translation | Inline Edit | Save & Bump Version | Live Preview)
   • SORTING: Language list sorted alphabetically + by country popularity in admin/settings.
   • UPLOADING: Super Admin JSON upload + AI generation workflow.
   • UI/UX: Handle longer text, no fixed-width, no overflow.
-  • All other rules from language.md exactly.
+  • All other rules from language.md exactly <-analyze this system can we implement this system
+- Attendance / gym check-in system (Attendance model)
+- SessionBooking + TrainingSession (full booking system)
+- Deposit & financial tracking (Deposit model)
+- Real-time trainer ↔ member chat
+- Advanced notifications center + push system (Notification, NotificationPreference, PushNotificationConfig)
+- Marketing Campaigns & Gym Announcements (MarketingCampaign, GymAnnouncement)
+- Support Tickets system (SupportTicket, TicketMessage)
+- Gym owner analytics & reporting
+- Reward Store & Redemption (full UX)
+- All Config models (PlatformConfig, AIConfig, StripeConfig, OAuthConfig, UserTierLimits, etc.)
 - Missing or incomplete modules implemented as world-class features (Marketing/Announcements, Notifications center, Support Tickets, full trainer chat, etc.)
 - Viral & Monetization Flywheels (referral systems, premium badges, gym partnership tools, influencer network effects)
 

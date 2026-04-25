@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:amirani_app/theme/app_theme.dart';
+import 'package:amirani_app/design_system/tokens/app_tokens.dart';
 import '../../../../core/providers/session_progress_provider.dart';
 import '../../../../core/providers/points_provider.dart';
 import 'package:amirani_app/core/widgets/user_avatar.dart';
@@ -8,6 +9,7 @@ import '../../../profile/presentation/widgets/profile_settings_modal.dart';
 import '../../../profile/presentation/providers/profile_sync_provider.dart';
 import 'package:amirani_app/features/workout/presentation/providers/workout_provider.dart';
 import '../../../challenge_rooms/presentation/widgets/rooms_tab.dart';
+import '../widgets/reward_store_sheet.dart';
 
 class ChallengePage extends ConsumerStatefulWidget {
   const ChallengePage({super.key});
@@ -259,6 +261,34 @@ class _ChallengePageState extends ConsumerState<ChallengePage>
                   ),
                 ),
               ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => RewardStoreSheet.show(context),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              decoration: BoxDecoration(
+                color: AppTokens.colorBrandDim,
+                borderRadius: BorderRadius.circular(AppTokens.radius10),
+                border: Border.all(color: AppTokens.colorBrandBorder),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Store',
+                    style: TextStyle(
+                      color: AppTokens.colorBrand,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(width: 2),
+                  Icon(Icons.chevron_right, color: AppTokens.colorBrand, size: 14),
+                ],
+              ),
             ),
           ),
         ],
